@@ -34,9 +34,31 @@ server-minted token, session time cap and idle disconnect. Mock mode shows the s
 Server mints an ephemeral Gemini Live token with the persona locked in; the local gives period clues
 but never names the place or year.
 
-## Guess, scoring and reveal 📋
-Leaflet map pin + year slider; score up to 5000 for distance and 5000 for year. Reveal shows the
-answer and the book chapter + quote.
+## Guess, scoring and reveal ✅
+- `components/guess/GuessMap.tsx` — react-leaflet world map on keyless Esri World Street Map tiles
+  (URL/attribution/colours in `lib/config.ts` `MAP`). Click to drop/move a pin (CircleMarkers, so no
+  broken default icon; longitudes wrapped to ±180). Reveal mode (`answer` prop) shows guess + answer
+  with a dashed line and fits both in view. Always imported via `components/guess/LazyGuessMap.tsx`
+  (next/dynamic, `ssr: false`).
+- `components/guess/YearSlider.tsx` — range `GAME.minYear..GAME.maxYear`, BC/AD readout, ±1/10/100
+  fine-adjust buttons.
+- `lib/scoring.ts` — haversine distance; location points = round(5000·e^(−km/`GAME.locationDecayKm`=2000)),
+  year points = round(5000·e^(−|Δy|/`GAME.yearDecayYears`=100)); `formatYear` ("2560 BC", "AD 410"),
+  `formatKm`, `formatPoints`.
+- `components/game/RevealScreen.tsx` — map with guess vs answer, distance and year error, points per
+  axis with bars, title + place + year + reveal text (first time they appear), and the citation
+  "From H.G. Wells, *A Short History of the World* — <chapter>: “<quote>”".
 
-## Game loop 📋
-Intro (scene count) → N rounds → summary with total score.
+## Game loop ✅
+`components/game/Game.tsx` is a state machine: intro → playing(i) → reveal(i) → … → summary → intro.
+- `IntroScreen.tsx` — title, three how-to-play steps, round picker (`GAME.roundOptions`), Begin.
+  Scenes are picked on Begin (`pickScenes`), never during render.
+- `RoundScreen.tsx` — `TopBar` (round i/N, running score; nothing scene-specific), `<WorldView scene
+  onEnded />` fills the main area, side panel with `<VoiceChat scene />` and the guess panel (map +
+  year slider + Submit, disabled until a pin is dropped). Keyed by scene id and only mounted during
+  "playing", so Reactor / Gemini Live sessions close on submit. If the world ends on its own a
+  "vision fades" banner nudges the player to guess.
+- `SummaryScreen.tsx` — per-round table (scene, place, year, distance, year error, points) + total
+  out of rounds × 10 000 + Play again.
+- Style: dark parchment & brass (bg `#0b0906`, amber accents), Cinzel display / Cormorant Garamond
+  serif via next/font (`font-display`, `font-serif` in `app/globals.css`).
