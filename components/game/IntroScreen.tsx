@@ -9,18 +9,25 @@
  * calls `onStart(rounds)`; the game loop then picks that many scenes (lib/scenes.ts) and starts round 1.
  * If the catalogue has fewer scenes than an option, a note explains the game will be shorter.
  *
+ * World-model picker (below the rounds picker, same style): lists WORLD_MODELS from
+ * lib/world-models.ts with a one-line description each, defaults to WORLD.defaultModelId (LingBot
+ * World 2) and remembers the choice in localStorage under WORLD.storageKey (read after mount so
+ * server and client markup match; every access wrapped in try/catch for private windows).
+ * `onStart(rounds, modelId)` hands the choice to Game, which threads it to WorldView.
+ *
  * Shows nothing about any specific scene beyond a blurred image — no answer leaks are possible.
  * (The hero always uses SCENES[0] so server and client markup match.)
  */
-import { useState } from "react";
-import { GAME } from "@/lib/config";
+import { useEffect, useState } from "react";
+import { GAME, WORLD } from "@/lib/config";
 import { log } from "@/lib/log";
 import { SCENES } from "@/lib/scenes";
+import { getWorldModel, WORLD_MODELS } from "@/lib/world-models";
 import { SceneBackdrop } from "./SceneBackdrop";
 import { Logo } from "./TopBar";
 import { useGameKeys } from "./useGameKeys";
 
-export type IntroScreenProps = { onStart: (rounds: number) => void };
+export type IntroScreenProps = { onStart: (rounds: number, modelId: string) => void };
 
 const STEPS = [
   { n: "01", title: "Step into the past", text: "Wake inside a living moment from history. Walk with W A S D, look with the arrows." },
@@ -35,7 +42,29 @@ const STEPS = [
 export function IntroScreen({ onStart }: IntroScreenProps) {
   log.info("IntroScreen", {});
   const [rounds, setRounds] = useState<number>(GAME.defaultRounds);
-  useGameKeys({ enter: () => onStart(rounds) });
+  const [modelId, setModelId] = useState<string>(WORLD.defaultModelId);
+  useGameKeys({ enter: () => onStart(rounds, modelId) });
+
+  // Restore the remembered world model after mount (localStorage may be unavailable).
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(WORLD.storageKey);
+      if (saved) setModelId(getWorldModel(saved).id);
+    } catch {
+      /* storage blocked: keep the default */
+    }
+  }, []);
+
+  /** Selects a world model and remembers it. @param id world model id */
+  function pickModel(id: string) {
+    log.info("IntroScreen.pickModel", { id });
+    setModelId(id);
+    try {
+      window.localStorage.setItem(WORLD.storageKey, id);
+    } catch {
+      /* storage blocked: choice lasts for this page only */
+    }
+  }
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
@@ -84,16 +113,49 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
           </div>
           <button
             type="button"
-            onClick={() => onStart(rounds)}
+            onClick={() => onStart(rounds, modelId)}
             className="group flex items-center gap-4 border border-cream/70 bg-cream/5 px-10 py-3 backdrop-blur transition hover:bg-cream hover:text-ink"
           >
             <span className="font-mono text-xs tracking-[0.4em]">BEGIN</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </button>
         </div>
+        <WorldModelPicker value={modelId} onChange={pickModel} />
         {rounds > SCENES.length && <p className="hg-label mt-4 !text-cream/45">Only {SCENES.length} scenes available — the game will be shorter</p>}
         <p className="hg-label mt-6 !text-[9px] !text-cream/35">Press Enter to begin</p>
       </div>
     </main>
+  );
+}
+
+/**
+ * "World model" selector in the intro style: tiny letter-spaced caps label, thin cream borders, dark
+ * glass; the selected option is filled cream. Each option shows the model name and a one-line description.
+ * @param props value = selected world model id; onChange = pick another one
+ */
+function WorldModelPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  log.info("WorldModelPicker", { value });
+  return (
+    <div className="hg-rise mt-6 flex flex-col items-center gap-3 sm:flex-row" style={{ animationDelay: "600ms" }}>
+      <span className="hg-label">World model</span>
+      <div role="radiogroup" aria-label="World model" className="flex flex-col border border-cream/20 bg-black/40 backdrop-blur sm:flex-row">
+        {WORLD_MODELS.map((m) => {
+          const on = m.id === value;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => onChange(m.id)}
+              className={`max-w-[15rem] px-4 py-2 text-left transition ${on ? "bg-cream text-ink" : "text-cream/60 hover:bg-cream/10 hover:text-cream"}`}
+            >
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em]">{m.label}</div>
+              <div className={`mt-0.5 text-[11px] leading-snug ${on ? "text-ink/70" : "text-cream/45"}`}>{m.description}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
