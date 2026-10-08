@@ -24,7 +24,7 @@ import { MODELS, WORLD } from "@/lib/config";
 import { log } from "@/lib/log";
 
 /** Stable ids of the supported world models (also the adapter keys and the localStorage value). */
-export type WorldModelId = "lingbot-world-2" | "lingbot" | "happy-oyster";
+export type WorldModelId = "lingbot-world-2" | "lingbot" | "happy-oyster" | "orbis-stable";
 
 /** One selectable world model. */
 export type WorldModelInfo = {
@@ -75,6 +75,15 @@ const ALL_WORLD_MODELS: readonly WorldModelInfo[] = [
     capabilities: { move: true, look: false },
     // Smoke test 2026-10-08: session auth OK but "429 no available servers" on every attempt.
     inPicker: false,
+  },
+  {
+    id: "orbis-stable",
+    label: "Orbis Stable",
+    description: "Cinematic living scene with ambient sound — you stand still and watch",
+    reactorModel: MODELS.reactorWorldOrbisStable,
+    npmPackage: "@reactor-models/visko-orbis-stable",
+    capabilities: { move: false, look: false },
+    inPicker: true,
   },
 ];
 
