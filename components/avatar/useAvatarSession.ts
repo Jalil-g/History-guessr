@@ -16,11 +16,18 @@
  *      AVATAR_NOT_FOUND or any attach failure falls through to the next source (a stale localStorage
  *      id is cleared); a freshly created id is cached in localStorage. The source used and the time
  *      from connect / prepare start to avatar_ready are logged ("avatar.ready").
- *   → session_state "avatar_ready" → phase "ready" (UI: "Talk to <name>")
- *   → startTalk(): getUserMedia(mic) → publishMic → listVoices → pick a gender-matched voice →
- *     startCall({ persona: buildLocalInstruction(scene), greeting, voice, language, call_mode: "audio",
- *     transcripts: true, llm }) → server phases starting / warming_up → "live": the character arrives
- *     on main_video + main_audio, `transcript` messages fill the transcript.
+ *   → session_state "avatar_ready" → phase "ready"
+ *   → startTalk() — automatic on the first "ready" when AVATAR.autoStart (no click needed):
+ *     mic + camera (requested in parallel with connect, at mount) → publishMic + publishWebcam →
+ *     listVoices (once per page, cached) → pick a gender-matched voice → startCall({ persona:
+ *     buildLocalInstruction(scene) [+ AVATAR.seeingInstruction on video], greeting, voice, language,
+ *     call_mode: "video" when a camera track is available else "audio", transcripts: true, llm })
+ *     → server phases starting / warming_up → "live": the character arrives on main_video + main_audio
+ *     and, on video calls, sees the player's webcam and comments on what it sees.
+ *
+ * Speed: prebuilt avatar ids (attach, not create); the portrait check and token fetch run in
+ * parallel; the camera/mic permission prompt happens while the session connects; the voice list is
+ * cached per page; and the call auto-starts instead of waiting for a "Talk" click.
  *   → endTalk() / call ends → back to "ready" (the avatar stays bound; Talk works again).
  *
  * Secrecy: the persona is the same instruction Gemini Live gets (lib/persona.ts) — it contains the
@@ -41,7 +48,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ViduS2AvatarModel } from "@reactor-models/vidu-s2-avatar";
-import type { ViduS2AvatarStartCallParams } from "@reactor-models/vidu-s2-avatar";
+import type { ViduS2AvatarStartCallParams, ViduS2AvatarVoicesMessage } from "@reactor-models/vidu-s2-avatar";
 import { getPrebuiltAvatarId } from "@/lib/avatars";
 import { AVATAR, MODELS, REACTOR, localPortraitUrl } from "@/lib/config";
 import { log, logGenAI } from "@/lib/log";
@@ -56,6 +63,29 @@ import {
   writeCachedAvatarId,
 } from "./avatarHelpers";
 import { fetchAvatarToken } from "./fetchAvatarToken";
+
+/** list_voices reply, cached for the page's lifetime (the catalog doesn't change between rounds). */
+let voicesCache: ViduS2AvatarVoicesMessage | undefined;
+
+/**
+ * Asks for the microphone and (when AVATAR.camera.enabled) the camera in one prompt. If the camera is
+ * refused or missing, retries with the microphone only so the call still works as audio.
+ * @returns a stream with an audio track and, when granted, a video track
+ * @throws the getUserMedia error when even the microphone is unavailable
+ */
+async function acquireMedia(): Promise<MediaStream> {
+  log.info("avatar.acquireMedia", { camera: AVATAR.camera.enabled });
+  const audio = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
+  if (AVATAR.camera.enabled) {
+    try {
+      const { width, height, frameRate } = AVATAR.camera;
+      return await navigator.mediaDevices.getUserMedia({ audio, video: { width, height, frameRate, facingMode: "user" } });
+    } catch (e) {
+      log.warn("avatar camera unavailable, falling back to mic only", e);
+    }
+  }
+  return navigator.mediaDevices.getUserMedia({ audio });
+}
 
 export type AvatarPhase = "connecting" | "preparing" | "ready" | "starting" | "live" | "closed" | "fallback";
 export type AvatarLine = {
@@ -123,7 +153,15 @@ function waitForReady(model: ViduS2AvatarModel, timeoutMs: number): Promise<void
  */
 export function useAvatarSession(scene: Scene, enabled: boolean) {
   const modelRef = useRef<ViduS2AvatarModel | null>(null);
+  /** Mic (+ camera) stream for the call; mediaPromiseRef holds the in-flight request started at mount. */
   const micRef = useRef<MediaStream | null>(null);
+  const mediaPromiseRef = useRef<Promise<MediaStream> | null>(null);
+  const autoStartedRef = useRef(false);
+  const startTalkRef = useRef<() => Promise<void>>(async () => {});
+  const [selfStream, setSelfStream] = useState<MediaStream | null>(null);
+  const [cameraOn, setCameraOn] = useState(true);
+  const cameraOnRef = useRef(true);
+  const [cameraForwarding, setCameraForwarding] = useState(false);
   const [phase, setPhaseState] = useState<AvatarPhase>("connecting");
   const phaseRef = useRef<AvatarPhase>("connecting");
   const [error, setError] = useState<string | null>(null);
@@ -145,14 +183,21 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     setPhaseState(p);
   }, []);
 
-  /** Unpublishes and stops the microphone. */
+  /** Unpublishes and stops the microphone and camera (the self-view goes dark). */
   const stopMic = useCallback(() => {
     log.info("avatar.stopMic", { active: !!micRef.current });
+    const pending = mediaPromiseRef.current;
+    mediaPromiseRef.current = null;
+    // A permission request still in flight: release its tracks as soon as it resolves.
+    if (pending && !micRef.current) void pending.then((m) => m.getTracks().forEach((t) => t.stop())).catch(() => {});
     if (!micRef.current) return;
     void modelRef.current?.unpublishMic().catch((e: unknown) => log.warn("unpublishMic failed", e));
+    if (micRef.current.getVideoTracks().length) void modelRef.current?.unpublishWebcam().catch((e: unknown) => log.warn("unpublishWebcam failed", e));
     micRef.current.getTracks().forEach((t) => t.stop());
     micRef.current = null;
     setMicOn(false);
+    setSelfStream(null);
+    setCameraForwarding(false);
   }, []);
 
   /**
@@ -212,6 +257,14 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     setError(null);
     setNotice(null);
     setLines([]);
+    autoStartedRef.current = false;
+    // Ask for mic + camera now, while the session connects, so the call can start the moment the
+    // avatar is ready. Rejections are handled in startTalk.
+    if (AVATAR.autoStart && !mediaPromiseRef.current && !micRef.current) {
+      const p = acquireMedia();
+      p.catch(() => {});
+      mediaPromiseRef.current = p;
+    }
 
     /** Gives up on the live avatar and shows the voice-only fallback. @param code error code @param reason detail */
     const fallback = (code: string, reason?: string) => {
@@ -280,6 +333,7 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
         });
         if (disposed) return;
         setMicForwarding(!!s.mic_forwarding);
+        setCameraForwarding(!!s.camera_forwarding);
         serverCapRef.current = s.call_max_seconds ?? null;
         switch (s.phase) {
           case "preparing_avatar":
@@ -297,6 +351,10 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
             if (s.avatar_id && source !== "prebuilt") writeCachedAvatarId(scene.id, s.avatar_id);
             if (phaseRef.current !== "ready") lastActivityRef.current = Date.now();
             setPhase("ready");
+            if (AVATAR.autoStart && !autoStartedRef.current) {
+              autoStartedRef.current = true;
+              void startTalkRef.current();
+            }
             break;
           case "starting":
           case "warming_up":
@@ -351,17 +409,18 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     offs.push(model.onMainAudio((_t, stream) => !disposed && setAudioStream(stream)));
 
     (async () => {
-      // No portrait yet (not generated) → don't open a paid session at all.
-      const head = await fetch(localPortraitUrl(scene.id), { method: "HEAD" }).catch(() => null);
+      // Portrait check and token fetch in parallel. No portrait (not generated) → no paid session at all.
+      const [head, token] = await Promise.all([
+        fetch(localPortraitUrl(scene.id), { method: "HEAD" }).catch(() => null),
+        fetchAvatarToken().then(
+          (jwt) => ({ jwt }),
+          (e: unknown) => ({ error: String(e) }),
+        ),
+      ]);
       if (!head?.ok) return fallback("PORTRAIT_MISSING", `portrait ${head?.status ?? "unreachable"}`);
       if (disposed) return;
-      let jwt: string;
-      try {
-        jwt = await fetchAvatarToken();
-      } catch (e) {
-        return fallback("TOKEN", String(e));
-      }
-      if (disposed) return;
+      if ("error" in token) return fallback("TOKEN", token.error);
+      const jwt = token.jwt;
       try {
         await model.connect(jwt);
         await waitForReady(model, AVATAR.connectTimeoutMs);
@@ -388,6 +447,9 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
       disposed = true;
       clearTimeout(prepTimer);
       offs.forEach((off) => off());
+      const pending = mediaPromiseRef.current;
+      mediaPromiseRef.current = null;
+      if (pending && !micRef.current) void pending.then((m) => m.getTracks().forEach((t) => t.stop())).catch(() => {});
       if (micRef.current) {
         micRef.current.getTracks().forEach((t) => t.stop());
         micRef.current = null;
@@ -407,8 +469,11 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     setPhase("starting");
     let stream: MediaStream;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      // Reuse the request started at mount (permission prompt already answered while connecting).
+      stream = await (mediaPromiseRef.current ?? acquireMedia());
+      mediaPromiseRef.current = null;
     } catch (e) {
+      mediaPromiseRef.current = null;
       const name = (e as { name?: string } | null)?.name ?? "";
       setError(describeAvatarError(name === "NotFoundError" || name === "OverconstrainedError" ? "NO_MIC" : "MIC_DENIED"));
       setPhase("ready");
@@ -420,17 +485,23 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     }
     micRef.current = stream;
     setMicOn(true);
+    const camTrack = stream.getVideoTracks()[0];
+    if (camTrack) camTrack.enabled = cameraOnRef.current;
+    setSelfStream(camTrack ? stream : null);
     try {
-      await model.publishMic(stream.getAudioTracks()[0]);
-      const voices = await model.listVoices().catch(() => undefined);
-      logGenAI("reactor.avatar.listVoices", { model: MODELS.reactorAvatar, command: "list_voices" }, voices ?? { error: "no reply" });
-      const voice = pickAvatarVoice(voices, guessGender(scene));
+      const video = !!camTrack;
+      await Promise.all([model.publishMic(stream.getAudioTracks()[0]), video ? model.publishWebcam(camTrack) : Promise.resolve()]);
+      if (!voicesCache) {
+        voicesCache = await model.listVoices().catch(() => undefined);
+        logGenAI("reactor.avatar.listVoices", { model: MODELS.reactorAvatar, command: "list_voices" }, voicesCache ?? { error: "no reply" });
+      }
+      const voice = pickAvatarVoice(voicesCache, guessGender(scene));
       const params: ViduS2AvatarStartCallParams = {
-        persona: buildLocalInstruction(scene),
-        greeting: AVATAR.greeting,
+        persona: video ? `${buildLocalInstruction(scene)}\n\n${AVATAR.seeingInstruction}` : buildLocalInstruction(scene),
+        greeting: video ? AVATAR.videoGreeting : AVATAR.greeting,
         voice: voice ?? null,
         language: AVATAR.language,
-        call_mode: "audio",
+        call_mode: video ? "video" : "audio",
         transcripts: true,
         llm: { ...AVATAR.llm },
       };
@@ -444,6 +515,17 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
       setPhase("ready");
     }
   }, [scene, setPhase, stopMic]);
+
+  startTalkRef.current = startTalk;
+
+  /** Turns the camera on/off mid-call (the track keeps flowing as black frames while off). */
+  const toggleCamera = useCallback(() => {
+    const next = !cameraOnRef.current;
+    log.info("avatar.toggleCamera", { on: next });
+    cameraOnRef.current = next;
+    setCameraOn(next);
+    micRef.current?.getVideoTracks().forEach((t) => (t.enabled = next));
+  }, []);
 
   /**
    * Ends the current call (the avatar stays bound so the player can talk again).
@@ -505,5 +587,8 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [enabled, closeSession]);
 
-  return { phase, error, notice, lines, videoStream, audioStream, secondsLeft, micOn, micForwarding, startTalk, endTalk, reconnect };
+  return {
+    phase, error, notice, lines, videoStream, audioStream, secondsLeft, micOn, micForwarding,
+    selfStream, cameraOn, cameraForwarding, toggleCamera, startTalk, endTalk, reconnect,
+  };
 }
