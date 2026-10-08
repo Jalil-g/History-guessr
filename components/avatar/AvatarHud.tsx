@@ -49,7 +49,7 @@ export function AvatarHud(props: AvatarHudProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [lines]);
 
   /** Main button handler, depending on phase. */
@@ -99,7 +99,7 @@ export function AvatarHud(props: AvatarHudProps) {
       {error && <div className="rounded bg-red-500/10 px-3 py-1.5 text-xs text-red-200">{error}</div>}
       {notice && !error && <div className="rounded bg-amber-400/10 px-3 py-1.5 text-xs text-amber-100/80">{notice}</div>}
 
-      <div ref={scrollRef} className="min-h-[60px] flex-1 space-y-1.5 overflow-y-auto pr-1 text-sm">
+      <div ref={scrollRef} className="min-h-[120px] flex-1 space-y-3 overflow-y-auto overscroll-contain pr-1">
         {lines.length === 0 && (
           <p className="text-xs text-amber-100/50">
             Ask about food, prices, gossip, the weather, who is in charge… {firstName} won&apos;t say where or when you
@@ -107,11 +107,16 @@ export function AvatarHud(props: AvatarHudProps) {
           </p>
         )}
         {lines.map((l, i) => (
-          <div key={i} className={l.who === "you" ? "text-right" : ""}>
+          <div key={i} className={`flex flex-col ${l.who === "you" ? "items-end" : "items-start"}`}>
+            <span className="mb-0.5 px-1 text-[10px] uppercase tracking-[0.18em] text-amber-100/55">
+              {l.who === "you" ? "You" : firstName}
+            </span>
             <span
-              className={`inline-block max-w-[90%] rounded-2xl px-3 py-1.5 ${l.who === "you" ? "bg-white/10 text-white/80" : "bg-amber-400/15 text-amber-50"} ${
-                l.final ? "" : "opacity-60"
-              }`}
+              className={`block max-w-[92%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-[15px] leading-relaxed shadow-sm ${
+                l.who === "you"
+                  ? "rounded-br-md bg-white/15 text-white"
+                  : "rounded-bl-md border border-amber-200/20 bg-black/55 text-amber-50"
+              } ${l.final ? "" : "italic"}`}
             >
               {l.text}
             </span>
