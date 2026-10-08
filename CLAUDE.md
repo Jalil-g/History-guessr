@@ -86,6 +86,9 @@ Rules:
   `git worktree add ../hg-<topic> -b <initials>/<topic> origin/main`.
 - Before a PR: `git fetch && git rebase origin/main`, then `pnpm typecheck && pnpm build`.
 - `gh pr create --fill`. Not ready → `--draft` or label `wip`; the merge agent skips those.
+- **Commit maxing — commit small and often.** One logical step per commit (a new file, a wired-up
+  prop, a config key, a doc update, a fix), typically every 5–15 minutes of work. Never batch a whole
+  feature into one commit. Push after every commit so teammates and the merge agent see progress.
 - Commit messages: imperative one-line summary.
 - **Hot files** — coordinate before editing: `lib/config.ts`, `lib/scene.ts`, the top-level game
   component, `data/scenes.json` (only the extract script rewrites it; hand edits in their own PR).
