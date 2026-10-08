@@ -1,0 +1,44 @@
+[
+  {
+    "id": "giza-pyramids",
+    "title": "Building the Great Pyramid",
+    "answer": { "place": "Giza Plateau, Egypt", "lat": 29.9792, "lng": 31.1342, "year": -2560 },
+    "reveal": "The Giza Plateau around 2560 BC: the Great Pyramid of Khufu (Cheops) nearing completion, hauled into place by tens of thousands of workers.",
+    "imagePrompt": "Standing on a dusty construction ramp on a desert plateau beside a great river valley. A colossal pyramid ahead still under construction, its upper courses unfinished with mud-brick ramps, its finished lower faces covered in smooth white limestone casing. Hundreds of workers in white linen kilts haul a huge limestone block on a wooden sledge with ropes, an overseer with a staff, palm trees and a green floodplain in the distance, blazing sun. Photorealistic first-person view at human eye level, natural lighting, sharp detail, wide 16:9 frame, no text, no captions, no watermark.",
+    "worldPrompt": {
+      "base": "An ancient desert construction site: a colossal unfinished pyramid with smooth white limestone casing on its lower faces and rough stepped courses near the top, mud-brick ramps climbing its side. The world contains EXACTLY ONE giant pyramid straight ahead at a fixed position. Teams of workers in white linen kilts haul limestone blocks on wooden sledges with thick ropes. Blazing sun, sand and dust, distant palm trees, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Workers pull ropes in rhythm, dust drifting, the block inching forward on its sledge.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The sandy ramp passes underfoot, workers and sledges sliding by on both sides."
+    },
+    "local": {
+      "name": "Neferu, a work-gang foreman",
+      "voice": "Orus",
+      "persona": "You are Neferu, a proud foreman of a work gang building the great tomb for the living god-king. You are paid in bread and beer, your gang has a funny name, and you brag that your fine white stone comes by boat from the quarries across the river. You have never heard of coins, iron, horses, or an alphabet."
+    },
+    "source": {
+      "chapter": "XVIII. Egypt, Babylon and Assyria",
+      "quote": "Such were Cheops and Chephren and Mycerinus, who built those vast sepulchral piles, the pyramids at Gizeh."
+    }
+  },
+  {
+    "id": "storming-bastille",
+    "title": "The Storming of the Bastille",
+    "answer": { "place": "Bastille, Paris, France", "lat": 48.8532, "lng": 2.3692, "year": 1789 },
+    "reveal": "Paris, 14 July 1789: crowds storm the Bastille fortress-prison, the opening act of the French Revolution.",
+    "imagePrompt": "Standing in a crowded cobbled street in a late-18th-century European city on a hot summer afternoon. A grim medieval stone fortress with eight massive round towers looms ahead, smoke rising from it. An angry crowd of townspeople in tricorne hats, waistcoats, breeches and long skirts, carrying muskets, pikes and pitchforks, some wearing red-white-blue cockades, a cart of hay burning, a cannon being dragged forward. Photorealistic first-person view at human eye level, natural lighting, sharp detail, wide 16:9 frame, no text, no captions, no watermark.",
+    "worldPrompt": {
+      "base": "A crowded cobbled street in an 18th-century city in revolt. The world contains EXACTLY ONE grim stone fortress with massive round towers straight ahead at a fixed position, smoke drifting from its walls. An agitated crowd in tricorne hats, waistcoats and long skirts carries muskets, pikes and pitchforks; a hay cart burns; a cannon is pushed forward. Hot summer haze, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The crowd surges and shouts, raising pikes, smoke curling from the towers.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Cobblestones pass underfoot as the viewer pushes through the crowd toward the fortress."
+    },
+    "local": {
+      "name": "Jeanne, a laundress",
+      "voice": "Leda",
+      "persona": "You are Jeanne, a fiery laundress from the eastern working quarter of the capital on a scorching summer day. Bread prices are ruinous, the king has brought foreign troops around the city, and the popular minister was just dismissed. Your neighbours are hunting for gunpowder to defend themselves, and you think the old prison everyone hates is where it is stored."
+    },
+    "source": {
+      "chapter": "LV. The French Revolution and the Restoration of Monarchy in France",
+      "quote": "The grim-looking prison of the Bastille was stormed by the people of Paris, and the insurrection spread rapidly throughout France."
+    }
+  }
+]

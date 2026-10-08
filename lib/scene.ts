@@ -1,0 +1,56 @@
+/**
+ * The Scene type — THE CONTRACT between the offline pipeline and the game.
+ *
+ * A scene is one playable historical moment. `scripts/extract-scenes.ts` produces an array of these
+ * into data/scenes.json from the history book; every part of the game consumes them:
+ *  - `answer`       hidden until the guess; used for scoring (lib/scoring.ts) and the reveal
+ *  - `imagePrompt`  painted offline into public/scenes/<id>.png (scripts/generate-images.ts)
+ *  - `worldPrompt`  LingBot World 2 prompt layers for the Reactor live world
+ *  - `local`        persona + voice for the Gemini Live voice chat
+ *  - `source`       chapter + verbatim quote from the book, shown on the reveal
+ *
+ * Rules: nothing a player sees before guessing (imagePrompt rendering, worldPrompt, persona speech)
+ * may name the place or the year. Changing this type is a hot-file change — coordinate first.
+ */
+
+export type Scene = {
+  /** Stable kebab-case id, also the image filename, e.g. "giza-pyramids". */
+  id: string;
+  /** Short title shown only AFTER the guess, e.g. "Building the Great Pyramid". */
+  title: string;
+  answer: {
+    /** Human-readable place, e.g. "Giza Plateau, Egypt". */
+    place: string;
+    lat: number;
+    lng: number;
+    /** Negative = BC. */
+    year: number;
+  };
+  /** One or two sentences shown on the reveal, explaining the moment. */
+  reveal: string;
+  /** Prompt for the image model: first-person, photorealistic, 16:9, no text. */
+  imagePrompt: string;
+  /** LingBot World 2 prompt layers (each ≤ ~600 chars, never naming place/year). */
+  worldPrompt: {
+    /** What the world contains: setting, people, architecture, light. */
+    base: string;
+    /** Camera + motion while the player stands still. */
+    idle: string;
+    /** Camera + motion while the player walks. */
+    moving: string;
+  };
+  /** The local the player talks to by voice. */
+  local: {
+    name: string;
+    /** Gemini Live prebuilt voice name, e.g. "Charon", "Leda", "Puck", "Orus", "Kore". */
+    voice: string;
+    /** In-character system prompt: who they are, period details, what they know. */
+    persona: string;
+  };
+  /** Grounding in the source book. */
+  source: {
+    chapter: string;
+    /** Verbatim quote from the book. */
+    quote: string;
+  };
+};
