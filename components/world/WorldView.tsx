@@ -212,8 +212,9 @@ function LiveWorld({ scene, model, adapter, imageUrl, attempt, reconnectsLeft, o
       {live && (
         <Video style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
       )}
-      {live && <LookIndicator look={wasd.look} />}
+      {live && model.capabilities.look && <LookIndicator look={wasd.look} />}
       <WorldHud phase={s.phase} secondsLeft={s.secondsLeft} retry={s.retry} waitingForGpu={s.waitingForGpu} message={s.message}
+        modelLabel={model.label} canMove={model.capabilities.move} canLook={model.capabilities.look}
         reconnect={closed ? { left: reconnectsLeft, onReconnect } : undefined}
       />
 
