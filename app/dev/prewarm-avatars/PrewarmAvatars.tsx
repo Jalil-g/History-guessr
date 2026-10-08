@@ -117,6 +117,30 @@ async function prewarmOne(id: string, mode: "create" | "attach", onStatus: (s: s
 }
 
 /**
+ * prewarmOne with retries on Reactor's 429 sessions-per-minute quota (waits retry_after_seconds).
+ * @param id scene id
+ * @param mode "create" or "attach"
+ * @param onStatus progress callback
+ * @returns the entry to record
+ */
+async function prewarmWithRetry(id: string, mode: "create" | "attach", onStatus: (s: string) => void): Promise<Entry> {
+  log.info("prewarm.prewarmWithRetry", { id, mode, retries: AVATAR.prewarmRetries });
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await prewarmOne(id, mode, onStatus);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (attempt >= AVATAR.prewarmRetries || !/429|quota_exceeded|RATE_LIMITED|capacity/i.test(msg)) throw e;
+      const after = Number(/retry_after_seconds"?\s*:\s*(\d+)/.exec(msg)?.[1]);
+      const waitMs = (Number.isFinite(after) ? after * 1000 + 1000 : AVATAR.prewarmRetryDelayMs) + Math.random() * 2000;
+      log.warn("prewarm.retry", { id, attempt: attempt + 1, waitMs: Math.round(waitMs) });
+      onStatus(`quota — retry ${attempt + 1} in ${(waitMs / 1000).toFixed(0)} s`);
+      await new Promise((r) => setTimeout(r, waitMs));
+    }
+  }
+}
+
+/**
  * Runs the prewarm for `ids` (or every scene) and shows progress + the final JSON.
  * @param props.ids scene ids, or null for all scenes
  * @param props.mode "create" (new avatars) or "attach" (measure prebuilt attach)
@@ -141,7 +165,7 @@ export function PrewarmAvatars({ ids, mode }: { ids: string[] | null; mode: "cre
       for (let id = queue.shift(); id; id = queue.shift()) {
         const sceneId = id;
         try {
-          const e = await prewarmOne(sceneId, mode, (status) => update(sceneId, { status }));
+          const e = await prewarmWithRetry(sceneId, mode, (status) => update(sceneId, { status }));
           out.results[sceneId] = e;
           update(sceneId, { status: `ready ${e.avatarId}`, ms: e.msReady });
         } catch (err) {

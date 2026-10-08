@@ -292,6 +292,10 @@ export const AVATAR = {
   prewarmDebugPortBase: 9400,
   /** Max time scripts/prewarm-avatars.ts waits for the whole prewarm page to finish, in ms. */
   prewarmTotalTimeoutMs: 15 * 60_000,
+  /** Retries per avatar on Reactor's 429 quota (vidu-s2-avatar allows 10 sessions per minute). */
+  prewarmRetries: 8,
+  /** Fallback wait before a 429 retry when the server sends no retry_after_seconds, in ms. */
+  prewarmRetryDelayMs: 10_000,
   /** Dev server the prewarm script opens by default (override with --url). */
   prewarmDefaultUrl: "http://localhost:3000",
   /** Path to Chrome for the prewarm script (override with CHROME_PATH). */
