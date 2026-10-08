@@ -189,6 +189,10 @@ export const REACTOR = {
   tickMs: 500,
   /** Ken Burns pan/zoom cycle of the still image (mock mode / fallback), in seconds. */
   kenBurnsSeconds: 40,
+  /** Max manual "Reopen the portal" reconnects per round after a session ends (never automatic). */
+  maxReconnectsPerRound: 2,
+  /** Keyboard shortcut for reconnecting a closed world (only active once the session has ended). */
+  reconnectKey: "r",
 } as const;
 
 export const VOICE = {
