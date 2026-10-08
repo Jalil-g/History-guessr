@@ -91,6 +91,34 @@ toggle, connection status / speaking indicator / time left, and a live transcrip
   message. All knobs in `VOICE` (`lib/config.ts`).
 - Smoke test: `node --env-file=.env.local scripts/test-live.ts [sceneId] [--fallback]` opens a real
   session, begs for the answer and fails if the place/year leaks.
+- **Now the fallback**: the primary local is the talking avatar below. `<LocalAvatar>` renders
+  `<VoiceChat scene />` under the still portrait in mock mode, when `AVATAR.enabled` is false, or when
+  the avatar can't start.
+
+## Talking avatar (Reactor vidu-s2-avatar) ✅
+The local becomes a live, lip-synced video character (`components/avatar/LocalAvatar.tsx`, props
+`{ scene }`, drop-in for `<VoiceChat scene />` in the local panel): a ~300–340 px glass card, ≤ 60vh,
+video on top, status / **Talk to <name>** / **End conversation** / mic status / live transcript below.
+- **Portraits** (offline): `node --env-file=.env.local scripts/generate-portraits.ts [ids] [--force]
+  [--scenes <path>]` paints `public/locals/<id>.png` (3:4, half body, facing camera, period clothing
+  from `local.appearance`, else derived from name + persona, shared `PORTRAIT_STYLE`, no text) with
+  `MODELS.sceneImage`. Skip existing, `PORTRAITS.concurrency`, retries on 429/5xx; 402 is not retried.
+- **Token**: `GET /api/reactor/token?model=reactor/vidu-s2-avatar` — the route takes an optional
+  `model` validated against `REACTOR_TOKEN_MODELS` (default stays the world model, so WorldView is
+  unchanged). `components/avatar/fetchAvatarToken.ts` memoizes the avatar JWT.
+- **Session** (`useAvatarSession.ts`): portrait HEAD check (missing → fallback, no paid session) →
+  token → `connect` → wait "ready" → `attachAvatar` with the scene's cached `avatar_id` (localStorage,
+  90-day reuse; `AVATAR_NOT_FOUND` → recreate) or `uploadFile(portrait)` + `createAvatar` →
+  `avatar_ready` → Talk: mic → `publishMic` → `listVoices` → gender-matched voice
+  (`avatarHelpers.ts`, `local.gender`, else inferred from the Gemini voice name / persona) →
+  `startCall({ persona: buildLocalInstruction(scene), greeting, voice, language, call_mode: "audio",
+  transcripts: true, llm })`. Video on `main_video`, audio on `main_audio`, `transcript` messages.
+- **Cost guards** (`AVATAR` in `lib/config.ts`): call cap `callMaxSeconds` (or server cap if lower),
+  call idle end `idleEndSeconds`, session disconnect if no call `readyIdleSeconds` after ready, tab
+  hidden → end + disconnect ("Wake <name>" reconnects), unmount (round end) → end + disconnect.
+- **Errors**: mic denied / no mic, NO_AVATAR, BUSY, AVATAR_FAILED / TIMEOUT, capacity → readable text.
+  Setup failures switch to the fallback: still portrait (`AvatarPortrait.tsx`: portrait → scene image
+  crop → silhouette) + Gemini Live `<VoiceChat>`.
 
 ## Guess, scoring and reveal ✅
 - `components/guess/GuessMap.tsx` — react-leaflet world map on keyless Esri World Street Map tiles

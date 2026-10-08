@@ -57,12 +57,6 @@ export type Scene = {
     voice: string;
     /** In-character system prompt: who they are, period details, what they know. */
     persona: string;
-    /** Optional: short role, e.g. "work-gang foreman" (added by the extractor; may be absent). */
-    role?: string;
-    /** Optional: "male" | "female" — used to pick a matching avatar voice. */
-    gender?: string;
-    /** Optional: visual description (age, build, clothing) used to paint the local's portrait. */
-    appearance?: string;
   };
   /** Grounding in the source book. */
   source: {
