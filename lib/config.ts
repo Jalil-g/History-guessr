@@ -10,7 +10,8 @@
  *  - scripts/generate-images.ts reads MODELS.sceneImage and PATHS.sceneImagesDir
  *  - the world component reads MODELS.reactorWorld and REACTOR.* cost guards
  *  - the voice route reads MODELS.geminiLive (+ fallback)
- *  - the game loop reads GAME.* (rounds, year range)
+ *  - the game loop reads GAME.* (rounds, year range, scoring decay constants)
+ *  - the guess / reveal maps read MAP.* (keyless Esri tiles, zoom, marker colours)
  * Safe to import from both server and client code (no secrets here).
  */
 
@@ -39,6 +40,30 @@ export const GAME = {
   maxYear: 2000,
   /** Max points per axis (location, year) per round. */
   maxPointsPerAxis: 5000,
+  /** Location score decay: points = max * exp(-km / locationDecayKm). 2000 km ≈ 37% of max. */
+  locationDecayKm: 2000,
+  /** Year score decay: points = max * exp(-|Δyears| / yearDecayYears). 100 years ≈ 37% of max. */
+  yearDecayYears: 100,
+  /** Year the slider starts at for every round (deliberately neutral). */
+  defaultGuessYear: 0,
+} as const;
+
+export const MAP = {
+  /** Keyless Esri World Street Map tiles (no API key required). */
+  tileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+  /** Attribution required by Esri. */
+  attribution: "Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012",
+  /** Initial map view for the guess map. */
+  initialCenter: [25, 10] as [number, number],
+  initialZoom: 1,
+  minZoom: 1,
+  maxZoom: 16,
+  /** Padding (px) when the reveal map fits guess + answer into view. */
+  revealPadding: 40,
+  /** Marker / line colours. */
+  guessColor: "#f59e0b",
+  answerColor: "#22c55e",
+  lineColor: "#fde68a",
 } as const;
 
 export const REACTOR = {
