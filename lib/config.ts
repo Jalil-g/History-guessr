@@ -292,6 +292,10 @@ export const AVATAR = {
   prewarmDebugPortBase: 9400,
   /** Max time scripts/prewarm-avatars.ts waits for the whole prewarm page to finish, in ms. */
   prewarmTotalTimeoutMs: 15 * 60_000,
+  /** Dev server the prewarm script opens by default (override with --url). */
+  prewarmDefaultUrl: "http://localhost:3000",
+  /** Path to Chrome for the prewarm script (override with CHROME_PATH). */
+  prewarmChromePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 } as const;
 
 export const PORTRAITS = {
