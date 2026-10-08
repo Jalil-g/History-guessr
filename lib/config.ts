@@ -282,6 +282,16 @@ export const AVATAR = {
   maxTranscriptLines: 40,
   /** Greeting (≤ 200 chars) — a curious, in-character line about the player's strange clothes. */
   greeting: "Well now, stranger, where did you get such peculiar clothes? I have never seen the like around here!",
+  /** Prebuilt avatar ids (data/avatars.json) older than this many days are skipped (Reactor keeps them 90). */
+  prebuiltMaxAgeDays: 85,
+  /** Avatars created in parallel by the dev prewarm page (app/dev/prewarm-avatars). */
+  prewarmConcurrency: 4,
+  /** Max time the prewarm page waits for one avatar (connect + create → avatar_ready), in ms. */
+  prewarmTimeoutMs: 180_000,
+  /** Port the prewarm script's headless Chrome listens on for the DevTools protocol (+ pid offset). */
+  prewarmDebugPortBase: 9400,
+  /** Max time scripts/prewarm-avatars.ts waits for the whole prewarm page to finish, in ms. */
+  prewarmTotalTimeoutMs: 15 * 60_000,
 } as const;
 
 export const PORTRAITS = {
@@ -311,6 +321,8 @@ export const PATHS = {
   sceneImagesDir: "public/scenes",
   /** Where generated local portraits are written (served from /locals/<id>.png). */
   localPortraitsDir: "public/locals",
+  /** Prebuilt Reactor avatar ids per scene (written by scripts/prewarm-avatars.ts). */
+  avatars: "data/avatars.json",
 } as const;
 
 /** Public URL of a scene local's portrait (talking-avatar source image). @param id scene id */
