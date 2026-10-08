@@ -94,13 +94,16 @@ export function VoiceChat({ scene }: VoiceChatProps) {
           </p>
         )}
         {lines.map((l, i) => (
-          <div key={i} className={l.who === "you" ? "text-right" : ""}>
+          <div key={i} className={`flex flex-col ${l.who === "you" ? "items-end" : "items-start"}`}>
+            <span className="mb-0.5 px-1 text-[10px] uppercase tracking-[0.18em] text-amber-100/55">
+              {l.who === "you" ? "You" : firstName}
+            </span>
             <span
-              className={`inline-block max-w-[90%] rounded-2xl px-3 py-2 ${
-                l.who === "you" ? "bg-white/10 text-white/80" : "bg-amber-400/15 text-amber-50"
+              className={`block max-w-[92%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-[15px] leading-relaxed ${
+                l.who === "you" ? "rounded-br-md bg-white/15 text-white" : "rounded-bl-md border border-amber-200/20 bg-black/55 text-amber-50"
               }`}
             >
-              {l.text}
+              {l.text.trim()}
             </span>
           </div>
         ))}
