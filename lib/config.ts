@@ -304,8 +304,8 @@ export const AVATAR = {
   tickMs: 500,
   /** Max transcript lines kept on screen. */
   maxTranscriptLines: 40,
-  /** Greeting (≤ 200 chars). With the camera on it is an instruction to react to what the local really sees. */
-  greeting: "Well now, stranger, where did you get such peculiar clothes? I have never seen the like around here!",
+  /** Greeting (≤ 200 chars) for audio-only calls: the local offers to guide the lost traveller. */
+  greeting: "Well now, stranger, you look lost! Let me help you get your bearings — tell me, what do you notice around you?",
   /** Prebuilt avatar ids (data/avatars.json) older than this many days are skipped (Reactor keeps them 90). */
   prebuiltMaxAgeDays: 85,
   /** Avatars created in parallel by the dev prewarm page (app/dev/prewarm-avatars). */
@@ -324,15 +324,15 @@ export const AVATAR = {
   prewarmDefaultUrl: "http://localhost:3000",
   /** Path to Chrome for the prewarm script (override with CHROME_PATH). */
   prewarmChromePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  /** Greeting used for video calls: the local looks at the player's camera and remarks on one real detail. */
-  videoGreeting: "Look the stranger up and down and remark, amazed, on one specific thing you can really see about their hair or clothes.",
+  /** Greeting (≤ 200 chars) for video calls: a warm welcome, a brief neutral note on their foreign clothes, an offer to guide. */
+  videoGreeting: "Greet the lost stranger warmly, note in a few words that their clothes look foreign to you, and offer to help them work out where they have landed.",
   /** Start the call as soon as the avatar is ready (no "Talk" click) — the main perceived-speed win. */
   autoStart: true,
   /** Video call: the player's webcam goes to the local (call_mode "video"), self-view shown under the local. */
   camera: { enabled: true, width: 640, height: 480, frameRate: 15 },
-  /** Appended to the persona on video calls so the local comments on what it actually sees. */
+  /** Appended to the persona on video calls: one neutral remark on their clothes at most, then guide — never flirt. */
   seeingInstruction:
-    "You can SEE the time traveller through a live camera. Early in the conversation, and again now and then, comment on something specific you actually see about them — hair colour, glasses, the colour or print of their shirt, a hat, headphones, the room behind them — as baffling fashion from a strange land. Only mention details you can really see; never invent any. Never mention a camera or screen: to you they are simply standing in front of you.",
+    "You can SEE the time traveller. At most once, at the very start, you may make ONE short, neutral remark about how strange their clothes look to you (an object or garment, never their face, body or attractiveness — no compliments, no flirting). After that, do not comment on their appearance again unless they ask; spend the conversation guiding them to work out where and when they are. Never mention a camera or screen: to you they are simply standing in front of you.",
 } as const;
 
 export const PORTRAITS = {
