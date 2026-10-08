@@ -44,9 +44,24 @@ server-minted token, session time cap and idle disconnect. Mock mode shows the s
   key hints. **Mock** (`NEXT_PUBLIC_MOCK_WORLD=1`): Ken Burns still (`StillWorld.tsx`), no Reactor.
 - **Missing image**: gradient fallback, no paid session, `onEnded("no scene image")`.
 
-## Voice chat with a local (Gemini Live) 📋
-Server mints an ephemeral Gemini Live token with the persona locked in; the local gives period clues
-but never names the place or year.
+## Voice chat with a local (Gemini Live) ✅
+Side panel (`components/voice/VoiceChat.tsx`, props `{ scene }`) with the local's name, a big **Talk**
+toggle, connection status / speaking indicator / time left, and a live transcript of both sides.
+- `lib/persona.ts` builds the system instruction: scene persona + secret answer + rules (stay in
+  character, 1–3 short sentences, never name city/country/empire/ruler/event/year/century, vivid period
+  clues that get more specific when the player is stuck, puzzled by modern words, greets first by
+  remarking on the player's strange clothes).
+- `POST /api/live-token { sceneId, fallback? }` (`lib/live-token.ts`) looks the scene up server-side
+  and mints a single-use ephemeral token with model, persona, voice (`scene.local.voice`), AUDIO
+  response and input/output transcription locked in → `{ token, model }`. Primary
+  `MODELS.geminiLive`, falls back to `MODELS.geminiLiveFallback` if minting or connecting fails.
+- `components/voice/useLiveSession.ts` fetches the token, connects from the browser, streams mic audio
+  (`lib/audio/mic-capture.ts`, 16 kHz PCM16 via AudioWorklet), plays replies
+  (`lib/audio/pcm-player.ts`, 24 kHz gapless queue, dropped on barge-in) and closes everything on stop,
+  unmount, new scene or after `VOICE.sessionSeconds`. Mic-denied and connection errors show a readable
+  message. All knobs in `VOICE` (`lib/config.ts`).
+- Smoke test: `node --env-file=.env.local scripts/test-live.ts [sceneId] [--fallback]` opens a real
+  session, begs for the answer and fails if the place/year leaks.
 
 ## Guess, scoring and reveal ✅
 - `components/guess/GuessMap.tsx` — react-leaflet world map on keyless Esri World Street Map tiles
