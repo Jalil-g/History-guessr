@@ -11,12 +11,14 @@ import type { WorldModelId } from "@/lib/world-models";
 import { happyOysterAdapter } from "./happyOyster";
 import { lingbotAdapter } from "./lingbot";
 import { lingbotWorld2Adapter } from "./lingbotWorld2";
+import { orbisStableAdapter } from "./orbisStable";
 import type { WorldAdapter } from "./types";
 
 const ADAPTERS: Record<WorldModelId, WorldAdapter> = {
   "lingbot-world-2": lingbotWorld2Adapter,
   lingbot: lingbotAdapter,
   "happy-oyster": happyOysterAdapter,
+  "orbis-stable": orbisStableAdapter,
 };
 
 /**
