@@ -18,24 +18,31 @@ extraction runs). `components/world/WorldView.tsx`, `components/voice/VoiceChat.
 `components/game/Game.tsx` are placeholders with fixed props that the feature PRs replace.
 
 ## Book-grounded scene extraction ✅
-`scripts/extract-scenes.ts` — sends the whole book to Gemini (`MODELS.sceneText`, falling back through
-`MODELS.sceneTextFallbacks`) with a curated list of 20 famous, instantly-recognisable moments (Great
-Pyramid → Stephenson's Rocket) and gets structured JSON (`responseSchema` = the `Scene` type) in
-parallel batches of `EXTRACT.batchSize`. Each scene has answer (place, lat, lng, year — Wells' dates
-corrected by modern scholarship), image prompt, world prompt (≤ 600 chars, "EXACTLY ONE <landmark>"),
-local persona and `source { chapter, quote }`.
-- **Quote verification in code**: every quote must be a verbatim substring of the book (whitespace,
-  curly quotes, dashes and `_italics_` normalised); the stored quote is the exact book text and the
-  chapter heading is recomputed from where the quote sits. Failures are re-asked
-  (`EXTRACT.quoteRepairAttempts`); a scene that still fails aborts the run.
-- **Leak lint**: warns if an image/world prompt contains a place word or the year, or breaks the world
-  prompt format.
-- `imagePrompt` is **content only** (viewer position, the one landmark, people, weather, daylight);
-  style boilerplate is stripped because the image script appends a shared style suffix.
-- The seed scenes `giza-pyramids` and `storming-bastille` are kept and used as style examples.
-- Re-run a subset: `node --env-file=.env.local scripts/extract-scenes.ts <id> <id>`; check without API
-  calls: `node scripts/extract-scenes.ts --verify`. Model in use: `gemini-3.1-pro-preview`.
-Output: `data/scenes.json` (20 scenes).
+`scripts/extract-scenes.ts` sends the whole book to Gemini (`MODELS.sceneText` =
+`gemini-3.1-pro-preview`, with `MODELS.sceneTextFallbacks` as backups) along with a curated list of 20
+moments, and gets back structured JSON (`responseSchema` = the `Scene` type) in parallel batches of
+`EXTRACT.batchSize`.
+- **Framing**: the player is an ordinary, anonymous passer-by. Each scene shows daily life at street
+  level with ONE world-famous landmark straight ahead, often brand-new or still being built (Great
+  Pyramid, Ishtar Gate, Parthenon, Pharos, Great Wall, Colosseum, Hagia Sophia, Córdoba mosque, Angkor
+  Wat, Forbidden City, Florence dome, Templo Mayor, Machu Picchu, St Basil's, Taj Mahal, Nihonbashi,
+  Independence Hall, Bastille 1789, Suez Canal, Eiffel Tower). The scenes span different eras and
+  continents.
+- Each scene has an answer (place, lat, lng, year; Wells' dates are corrected to modern scholarship),
+  a **content-only** `imagePrompt` (no style boilerplate, because the image script appends a shared
+  style), a world prompt (≤ 600 chars, "EXACTLY ONE <landmark>"), and a `source { chapter, quote }`.
+- `local` is an ordinary worker or vendor. It has `name` ("<first name>, a <role>"), `role`, `gender`,
+  `appearance` (a half-body portrait description for the talking avatar), `voice` and `persona`.
+- **Quote verification in code**: every quote must be a verbatim substring of the book, compared
+  after normalising whitespace, curly quotes, dashes and `_italics_`. The stored quote is the exact
+  book text, and the chapter heading is recomputed from where the quote actually sits. If Wells does
+  not mention the landmark, the quote is his passage on that civilisation or era. A failed quote is
+  re-requested `EXTRACT.quoteRepairAttempts` times, and the run aborts if it still fails.
+- **Leak lint**: the script warns if an image or world prompt contains a place word or the year, or
+  breaks the world prompt format.
+- Re-run a subset with `node --env-file=.env.local scripts/extract-scenes.ts <id> <id>`. Check without
+  API calls with `node scripts/extract-scenes.ts --verify`.
+Output: `data/scenes.json` (20 scenes; `giza-pyramids` is the hand-written seed and style example).
 
 ## Scene images 📋
 `scripts/generate-images.ts` — Gemini image model paints each scene's first frame (16:9, first-person,
