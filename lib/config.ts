@@ -30,6 +30,11 @@ export const MODELS = {
   geminiLiveFallback: "gemini-3.1-flash-live-preview",
   /** Reactor real-time world model the player walks around in. */
   reactorWorld: "reactor/lingbot-world-2",
+  /**
+   * Backup world model, opened automatically when reactorWorld stays at capacity (429) after all
+   * connect retries. Same image + prompt contract; one movement axis (`set_movement`) instead of two.
+   */
+  reactorWorldFallback: "reactor/lingbot",
   /** Reactor talking-avatar model the local is rendered with (right side panel). */
   reactorAvatar: "reactor/vidu-s2-avatar",
 } as const;
@@ -38,7 +43,7 @@ export const MODELS = {
  * Reactor models a browser JWT minted by /api/reactor/token may be scoped to (`?model=` query param).
  * Anything else is rejected with 400, so a client cannot mint tokens for arbitrary paid models.
  */
-export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar];
+export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorWorldFallback, MODELS.reactorAvatar];
 
 export const GAME = {
   /** Total scenes the extractor should produce. */
