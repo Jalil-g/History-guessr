@@ -280,7 +280,7 @@ export const AVATAR = {
   tickMs: 500,
   /** Max transcript lines kept on screen. */
   maxTranscriptLines: 40,
-  /** Greeting (≤ 200 chars) — a curious, in-character line about the player's strange clothes. */
+  /** Greeting (≤ 200 chars). With the camera on it is an instruction to react to what the local really sees. */
   greeting: "Well now, stranger, where did you get such peculiar clothes? I have never seen the like around here!",
   /** Prebuilt avatar ids (data/avatars.json) older than this many days are skipped (Reactor keeps them 90). */
   prebuiltMaxAgeDays: 85,
@@ -300,6 +300,15 @@ export const AVATAR = {
   prewarmDefaultUrl: "http://localhost:3000",
   /** Path to Chrome for the prewarm script (override with CHROME_PATH). */
   prewarmChromePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  /** Greeting used for video calls: the local looks at the player's camera and remarks on one real detail. */
+  videoGreeting: "Look the stranger up and down and remark, amazed, on one specific thing you can really see about their hair or clothes.",
+  /** Start the call as soon as the avatar is ready (no "Talk" click) — the main perceived-speed win. */
+  autoStart: true,
+  /** Video call: the player's webcam goes to the local (call_mode "video"), self-view shown under the local. */
+  camera: { enabled: true, width: 640, height: 480, frameRate: 15 },
+  /** Appended to the persona on video calls so the local comments on what it actually sees. */
+  seeingInstruction:
+    "You can SEE the time traveller through a live camera. Early in the conversation, and again now and then, comment on something specific you actually see about them — hair colour, glasses, the colour or print of their shirt, a hat, headphones, the room behind them — as baffling fashion from a strange land. Only mention details you can really see; never invent any. Never mention a camera or screen: to you they are simply standing in front of you.",
 } as const;
 
 export const PORTRAITS = {
