@@ -6,19 +6,22 @@
  * for a short-lived, down-scoped JWT (POST {REACTOR.apiUrl}/tokens) and hands only that JWT to the
  * client via app/api/reactor/token/route.ts.
  *
- * Down-scoping: the `authorization_details` block restricts the JWT to sessions of
- * MODELS.reactorWorld only, at most REACTOR.maxSessionsPerToken sessions, for
+ * Down-scoping: the `authorization_details` block restricts the JWT to sessions of ONE model —
+ * MODELS.reactorWorld by default, or MODELS.reactorAvatar for the talking avatar (any model in
+ * REACTOR_TOKEN_MODELS, chosen by the route's `?model=` param) — at most REACTOR.maxSessionsPerToken sessions, for
  * REACTOR.tokenLifetimeSeconds. A leaked token is therefore a bounded loss, not an account key.
  *
  * Use cases:
- *  - GET /api/reactor/token (the only caller) → `{ jwt, expires_at }` for the browser.
+ *  - GET /api/reactor/token (the only caller) → `{ jwt, expires_at }` for the browser (world).
+ *  - GET /api/reactor/token?model=reactor/vidu-s2-avatar → a JWT for the talking avatar
+ *    (components/avatar/useAvatarSession.ts).
  *  - The browser memoizes the JWT (components/world/fetchReactorToken.ts) because a Reactor session
  *    is bound to the exact token that created it.
  *
  * Logging: the call is logged with its non-secret parameters and outcome; the API key and the JWT
  * are never logged.
  */
-import { MODELS, REACTOR } from "@/lib/config";
+import { MODELS, REACTOR, REACTOR_TOKEN_MODELS } from "@/lib/config";
 import { log, logGenAI } from "@/lib/log";
 
 /** Result of minting: the JWT plus its expiry in unix seconds. */
@@ -34,11 +37,13 @@ export class ReactorTokenError extends Error {
 
 /**
  * Exchanges REACTOR_API_KEY for a session-scoped Reactor JWT.
+ * @param model Reactor model the token may create sessions for (must be in REACTOR_TOKEN_MODELS)
  * @returns the JWT and its expiry (unix seconds)
- * @throws ReactorTokenError when the key is missing or Reactor rejects the request
+ * @throws ReactorTokenError when the model is not allowed, the key is missing or Reactor rejects the request
  */
-export async function mintReactorToken(): Promise<ReactorToken> {
-  log.info("mintReactorToken", { model: MODELS.reactorWorld, apiUrl: REACTOR.apiUrl });
+export async function mintReactorToken(model: string = MODELS.reactorWorld): Promise<ReactorToken> {
+  log.info("mintReactorToken", { model, apiUrl: REACTOR.apiUrl });
+  if (!REACTOR_TOKEN_MODELS.includes(model)) throw new ReactorTokenError(`model not allowed: ${model}`, 400);
   const apiKey = process.env.REACTOR_API_KEY;
   if (!apiKey) throw new ReactorTokenError("REACTOR_API_KEY is not set on the server", 500);
 
@@ -47,7 +52,7 @@ export async function mintReactorToken(): Promise<ReactorToken> {
     authorization_details: [
       {
         type: "session",
-        resources: { models: { match: [MODELS.reactorWorld] } },
+        resources: { models: { match: [model] } },
         constraints: { max_sessions: REACTOR.maxSessionsPerToken },
       },
     ],
