@@ -1,6 +1,7 @@
 "use client";
 /**
- * WorldView — the walkable historical world for one round (Reactor LingBot World 2).
+ * WorldView — the walkable historical world for one round (Reactor world model chosen by the player;
+ * LingBot World 2 by default — see lib/world-models.ts and components/world/adapters/*).
  *
  * Contract (stable — the game loop depends on it):
  *  - `scene`   the scene to render (first frame = sceneImageUrl(scene.id), prompts = scene.worldPrompt)
@@ -14,7 +15,7 @@
  * Modes:
  *  - MOCK_WORLD (NEXT_PUBLIC_MOCK_WORLD=1): never contacts Reactor; shows the still image with a slow
  *    Ken Burns pan/zoom (StillWorld) and the same HUD.
- *  - Live: <LingbotWorld2Provider> keyed by scene id (fresh session per round, torn down on unmount)
+ *  - Live: the chosen adapter <Provider> keyed by scene id + model (fresh session per round, torn down on unmount)
  *    → useWorldSession (token → connect → setImage → setPrompt → start, cost guards) +
  *    useWasdControls (WASD walk, arrows look, idle ↔ moving prompt swap) + WorldHud.
  *  - Missing first frame (404 during development): gradient fallback, and no paid session is opened.
@@ -22,7 +23,7 @@
  * Reconnect (live mode only, never automatic): once a session has ended or errored, the HUD offers
  * "Reopen the portal" (button or the REACTOR.reconnectKey shortcut, R). Clicking bumps an attempt
  * counter that is part of the provider's key, so React tears the old provider down (disconnect) and
- * mounts a brand-new <LingbotWorld2Provider> + LiveWorld: fresh token lookup → connect → setImage →
+ * mounts a brand-new adapter <Provider> + LiveWorld: fresh token lookup → connect → setImage →
  * setPrompt → start, with a fresh idle timer, per-session time cap and fresh WASD/look state (the
  * controls hook lives inside the keyed subtree, so any accumulated camera yaw also starts at 0).
  * Capped at REACTOR.maxReconnectsPerRound per round (the component is remounted per round/scene);
@@ -32,10 +33,12 @@
  * useSceneImage.ts, fetchReactorToken.ts (client) + lib/reactor-token.ts & app/api/reactor/token (server).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LingbotWorld2MainVideoView, LingbotWorld2Provider } from "@reactor-models/lingbot-world-2";
 import { MOCK_WORLD, REACTOR } from "@/lib/config";
 import { log } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
+import { getWorldModel, type WorldModelInfo } from "@/lib/world-models";
+import { getWorldAdapter } from "./adapters";
+import type { WorldAdapter } from "./adapters/types";
 import { fetchReactorToken } from "./fetchReactorToken";
 import { StillWorld } from "./StillWorld";
 import { useSceneImage } from "./useSceneImage";
@@ -44,16 +47,23 @@ import { useWorldSession } from "./useWorldSession";
 import { WorldHud } from "./WorldHud";
 import { LookIndicator } from "./LookIndicator";
 
-export type WorldViewProps = { scene: Scene; onEnded?: (reason: string) => void; onResumed?: () => void };
+export type WorldViewProps = {
+  scene: Scene;
+  onEnded?: (reason: string) => void;
+  onResumed?: () => void;
+  /** World model id from lib/world-models.ts (default WORLD.defaultModelId; unknown ids fall back). */
+  modelId?: string;
+};
 
 /**
  * Entry point: picks mock / missing-image / live rendering.
  * @param props see WorldViewProps
  */
-export function WorldView({ scene, onEnded, onResumed }: WorldViewProps) {
+export function WorldView({ scene, onEnded, onResumed, modelId }: WorldViewProps) {
   const image = useSceneImage(scene.id);
   const reportedRef = useRef<string | null>(null);
-  useEffect(() => log.info("WorldView", { sceneId: scene.id, mock: MOCK_WORLD }), [scene.id]);
+  const model = getWorldModel(modelId);
+  useEffect(() => log.info("WorldView", { sceneId: scene.id, mock: MOCK_WORLD, model: model.id }), [scene.id, model.id]);
 
   // Missing first frame in live mode: no session possible — report once so the round can go on.
   useEffect(() => {
@@ -78,7 +88,7 @@ export function WorldView({ scene, onEnded, onResumed }: WorldViewProps) {
       </div>
     );
   }
-  return <ReconnectableWorld key={scene.id} scene={scene} onEnded={onEnded} onResumed={onResumed} imageUrl={image.url} />;
+  return <ReconnectableWorld key={`${scene.id}@${model.id}`} scene={scene} onEnded={onEnded} onResumed={onResumed} imageUrl={image.url} model={model} />;
 }
 
 /**
@@ -86,9 +96,13 @@ export function WorldView({ scene, onEnded, onResumed }: WorldViewProps) {
  * Guards: onEnded is forwarded at most once per attempt and only for the current attempt (a late
  * endWorld from a torn-down session is dropped); onResumed fires only when a reconnect (attempt > 0)
  * reaches "live"; reconnect is only accepted after the current attempt has ended.
- * @param props scene, parent callbacks and the verified first-frame URL
+ * @param props scene, parent callbacks, the verified first-frame URL and the chosen world model
  */
-function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewProps & { imageUrl: string }) {
+function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl, model }: WorldViewProps & { imageUrl: string; model: WorldModelInfo }) {
+  const adapter = getWorldAdapter(model.id);
+  const Provider = adapter.Provider;
+  /** JWT resolver scoped to the chosen model (the token route only allows REACTOR_TOKEN_MODELS). */
+  const jwtToken = useCallback(() => fetchReactorToken(model.reactorModel), [model.reactorModel]);
   const [attempt, setAttempt] = useState(0);
   const attemptRef = useRef(0);
   const endedAttemptRef = useRef<number | null>(null);
@@ -127,9 +141,11 @@ function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewPr
   }, []);
 
   return (
-    <LingbotWorld2Provider key={`${scene.id}#${attempt}`} apiUrl={REACTOR.apiUrl} jwtToken={fetchReactorToken}>
+    <Provider key={`${scene.id}#${attempt}`} apiUrl={REACTOR.apiUrl} jwtToken={jwtToken}>
       <LiveWorld
         scene={scene}
+        model={model}
+        adapter={adapter}
         imageUrl={imageUrl}
         attempt={attempt}
         reconnectsLeft={REACTOR.maxReconnectsPerRound - attempt}
@@ -137,12 +153,15 @@ function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewPr
         onSessionLive={handleLive}
         onReconnect={reconnect}
       />
-    </LingbotWorld2Provider>
+    </Provider>
   );
 }
 
 type LiveWorldProps = {
   scene: Scene;
+  /** Chosen world model (registry entry) and its adapter (must match the surrounding Provider). */
+  model: WorldModelInfo;
+  adapter: WorldAdapter;
   imageUrl: string;
   /** Which session of this round this is (0 = first). */
   attempt: number;
@@ -158,13 +177,14 @@ type LiveWorldProps = {
  * reconnect affordance (button + R) once the session has ended.
  * @param props see LiveWorldProps
  */
-function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, onSessionLive, onReconnect }: LiveWorldProps) {
-  useEffect(() => log.info("LiveWorld", { sceneId: scene.id, attempt }), [scene.id, attempt]);
+function LiveWorld({ scene, model, adapter, imageUrl, attempt, reconnectsLeft, onSessionEnded, onSessionLive, onReconnect }: LiveWorldProps) {
+  useEffect(() => log.info("LiveWorld", { sceneId: scene.id, attempt, model: model.id }), [scene.id, attempt, model.id]);
   const handleEnded = useCallback((reason: string) => onSessionEnded(attempt, reason), [onSessionEnded, attempt]);
-  const s = useWorldSession(scene, handleEnded);
+  const s = useWorldSession(scene, model, adapter, handleEnded);
   const live = s.phase === "live";
   const closed = s.phase === "ended" || s.phase === "error";
-  const wasd = useWasdControls(live, { onAxis: s.onAxis, onMovingChange: s.onMovingChange, onInput: s.onInput });
+  const wasd = useWasdControls(live, { onAxis: s.onAxis, onMovingChange: s.onMovingChange, onInput: s.onInput }, adapter);
+  const Video = adapter.Video;
 
   useEffect(() => {
     if (live) onSessionLive(attempt);
@@ -190,10 +210,7 @@ function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, o
     <div className="absolute inset-0 overflow-hidden bg-black">
       {!live && <StillWorld url={imageUrl} status="ok" dimmed={s.phase === "connecting" || s.phase === "staging"} />}
       {live && (
-        <LingbotWorld2MainVideoView
-          videoObjectFit="cover"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-        />
+        <Video style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
       )}
       {live && <LookIndicator look={wasd.look} />}
       <WorldHud phase={s.phase} secondsLeft={s.secondsLeft} retry={s.retry} waitingForGpu={s.waitingForGpu} message={s.message}

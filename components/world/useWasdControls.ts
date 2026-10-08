@@ -1,6 +1,7 @@
 "use client";
 /**
- * useWasdControls — keyboard → LingBot World 2 movement axes, with a look limit.
+ * useWasdControls — keyboard → world-model movement axes, with a look limit (model-agnostic: chunk
+ * events and rotation speed go through the chosen adapter, components/world/adapters/*).
  *
  * Maps WASD to walking (longitudinal forward/back, lateral strafe) and the arrow keys to looking
  * (horizontal yaw, vertical pitch). For each axis the most recently pressed held key wins; releasing
@@ -22,8 +23,8 @@
  *  - resetLook(): zeroes the bookkeeping. Called automatically every time the hook becomes enabled
  *    (= a world session goes live, including after a reconnect), so each session starts facing the
  *    landmark; also returned for callers that want to reset explicitly.
- * The hook must run inside <LingbotWorld2Provider> (it listens to chunk_complete and sets the
- * rotation speed directly). No mouse-look exists, so the arrow keys are the only rotation source.
+ * The hook must run inside the adapter's <Provider> (it listens to chunk_complete through
+ * adapter.useChunkComplete and sets the rotation speed through adapter.useWorld()). No mouse-look exists, so the arrow keys are the only rotation source.
  *
  * Use cases:
  *  - `onAxis(axis, value)`   → send the movement command for that axis (look values already gated)
@@ -34,9 +35,9 @@
  * and releases everything when disabled or when the window loses focus.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLingbotWorld2, useLingbotWorld2ChunkComplete } from "@reactor-models/lingbot-world-2";
 import { REACTOR } from "@/lib/config";
 import { log } from "@/lib/log";
+import type { WorldAdapter } from "./adapters/types";
 import { chunkDelta, cmdSign, lookSigns, planLook, type LookPlan, type PitchCmd, type YawCmd } from "@/lib/look-limit";
 
 export type Axis = "long" | "lat" | "yaw" | "pitch";
@@ -68,12 +69,13 @@ const IDLE_PLAN: LookPlan = { yaw: "idle", pitch: "idle", speedDeg: REACTOR.rota
  * Listens to the keyboard while `enabled` and reports axis / moving changes, clamping look rotation.
  * @param enabled only listen while true (i.e. the live world is generating)
  * @param callbacks see Callbacks (read through a ref, so they may change every render)
+ * @param adapter the chosen world model's adapter (chunk events + rotation speed)
  * @returns `look` (accumulated yaw/pitch for the HUD) and `resetLook()`
  */
-export function useWasdControls(enabled: boolean, callbacks: Callbacks): { look: LookState; resetLook: () => void } {
+export function useWasdControls(enabled: boolean, callbacks: Callbacks, adapter: WorldAdapter): { look: LookState; resetLook: () => void } {
   const cbRef = useRef(callbacks);
   cbRef.current = callbacks;
-  const lw = useLingbotWorld2();
+  const lw = adapter.useWorld();
   const lwRef = useRef(lw);
   lwRef.current = lw;
 
@@ -106,7 +108,7 @@ export function useWasdControls(enabled: boolean, callbacks: Callbacks): { look:
     log.info("useWasdControls.replan", { look: lookRef.current, inFlight: f, want: wantRef.current, plan, frames });
     sentRef.current = plan;
     if (Math.abs(plan.speedDeg - sent.speedDeg) >= 1e-3) {
-      void lwRef.current.setRotationSpeedDeg({ rotation_speed_deg: plan.speedDeg }).catch((e: unknown) => log.warn("setRotationSpeedDeg failed", e));
+      void lwRef.current.setRotationSpeedDeg(plan.speedDeg).catch((e: unknown) => log.warn("setRotationSpeedDeg failed", e));
     }
     if (plan.yaw !== sent.yaw) cbRef.current.onAxis("yaw", plan.yaw);
     if (plan.pitch !== sent.pitch) cbRef.current.onAxis("pitch", plan.pitch);
@@ -123,16 +125,16 @@ export function useWasdControls(enabled: boolean, callbacks: Callbacks): { look:
   }, []);
 
   // Accumulate the real rotation of each finished chunk, then re-plan the next one.
-  useLingbotWorld2ChunkComplete((m) => {
+  adapter.useChunkComplete((m) => {
     if (!enabledRef.current) return;
-    const frames = REACTOR.lookFramesPerChunk || m.frames_emitted || REACTOR.lookFramesPerChunkFallback;
+    const frames = REACTOR.lookFramesPerChunk || m.framesEmitted || REACTOR.lookFramesPerChunkFallback;
     framesRef.current = frames;
-    const s = lookSigns(m.active_action);
+    const s = lookSigns(m.activeAction);
     const d = chunkDelta(s.yaw, s.pitch, inFlightRef.current.speedDeg, frames);
     if (d.yaw !== 0 || d.pitch !== 0) {
       lookRef.current = { yaw: lookRef.current.yaw + d.yaw, pitch: lookRef.current.pitch + d.pitch };
       setLook(lookRef.current);
-      log.info("useWasdControls.chunk", { chunk: m.chunk_index, action: m.active_action, frames, speedDeg: inFlightRef.current.speedDeg, look: lookRef.current });
+      log.info("useWasdControls.chunk", { chunk: m.chunkIndex, action: m.activeAction, frames, speedDeg: inFlightRef.current.speedDeg, look: lookRef.current });
     }
     // The next chunk starts now with whatever was last sent.
     inFlightRef.current = sentRef.current;

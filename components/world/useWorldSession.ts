@@ -1,17 +1,18 @@
 "use client";
 /**
- * useWorldSession — the Reactor LingBot World 2 session lifecycle for one round.
+ * useWorldSession — the Reactor world-model session lifecycle for one round.
  *
- * Must run inside <LingbotWorld2Provider> (WorldView keys the provider by scene id, so every round
- * gets a fresh session and the provider's unmount tears the previous one down = stops billing).
+ * Model-agnostic: it drives whichever world model the player picked through its adapter
+ * (components/world/adapters/*, interface in adapters/types.ts). Must run inside that adapter's
+ * <Provider> (WorldView keys the provider by scene id + attempt + model, so every round gets a fresh
+ * session and the provider's unmount tears the previous one down = stops billing).
  *
  * Flow:
  *   mount → connect() (JWT from fetchReactorToken; retried REACTOR.connectRetries times on
- *   429 / "no capacity") → status "ready" → fetch the first frame (sceneImageUrl) → uploadFile →
- *   setImage → setPrompt(base + idle layer) → setRotationSpeedDeg → start() → phase "live".
- *   While live, useWasdControls reports key changes; this hook forwards them as
- *   set_move_longitudinal / set_move_lateral / set_look_horizontal / set_look_vertical and swaps the
- *   prompt to base + moving while walking, back to base + idle when stopped.
+ *   429 / "no capacity") → status "ready" → fetch the first frame (sceneImageUrl) → setImage
+ *   (upload + set_image) → setPrompt(base + idle layer) → setRotationSpeedDeg → start() → "live".
+ *   While live, useWasdControls reports key changes; this hook forwards them to adapter move()/look()
+ *   (only the axes the model supports — WorldModelInfo.capabilities) and swaps the prompt to base + moving while walking, back to base + idle when stopped.
  *
  * Cost guards (lib/config.ts REACTOR):
  *   - hard cap: ends after REACTOR.exploreSeconds of live generation ("time up"),
@@ -23,16 +24,17 @@
  * Every Reactor image/prompt command is logged with logGenAI (inline data stripped).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLingbotWorld2, useLingbotWorld2CommandError } from "@reactor-models/lingbot-world-2";
-import { MODELS, REACTOR, sceneImageUrl } from "@/lib/config";
+import { REACTOR, sceneImageUrl } from "@/lib/config";
 import { log, logGenAI } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
+import type { WorldModelInfo } from "@/lib/world-models";
+import type { LookValue, MoveValue, WorldAdapter } from "./adapters/types";
 import type { Axis } from "./useWasdControls";
 
 export type SessionPhase = "connecting" | "staging" | "live" | "ended" | "error";
 
 /**
- * Flattens the layered world prompt into the single prose string LingBot World 2 expects.
+ * Flattens the layered world prompt into the single prose string the world models expect.
  * @param scene the scene (worldPrompt.base / idle / moving)
  * @param moving true while the player walks
  * @returns prompt text
@@ -45,11 +47,16 @@ export function composeWorldPrompt(scene: Scene, moving: boolean): string {
 /**
  * Drives one Reactor world session for `scene`.
  * @param scene the round's scene
+ * @param model registry entry of the chosen world model (name for logs, capabilities)
+ * @param adapter that model's client adapter (must match the surrounding Provider)
  * @param onEnded called once with a short reason when the session ends on its own
  * @returns phase, countdown, retry count, error message and input handlers for useWasdControls
  */
-export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void) {
-  const lw = useLingbotWorld2();
+export function useWorldSession(scene: Scene, model: WorldModelInfo, adapter: WorldAdapter, onEnded?: (reason: string) => void) {
+  const lw = adapter.useWorld();
+  const modelName = model.reactorModel;
+  const canMove = model.capabilities.move;
+  const canLook = model.capabilities.look;
   const lwRef = useRef(lw);
   lwRef.current = lw;
   const onEndedRef = useRef(onEnded);
@@ -89,11 +96,11 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
     log.info("sendPrompt", { sceneId: scene.id, length: prompt.length });
     if (prompt === lastPromptRef.current) return;
     lastPromptRef.current = prompt;
-    const req = { model: MODELS.reactorWorld, command: "set_prompt", prompt };
-    const res = await lwRef.current.setPrompt({ prompt });
+    const req = { model: modelName, command: "set_prompt", prompt };
+    const res = await lwRef.current.setPrompt(prompt);
     logGenAI("reactor.setPrompt", req, res ?? { error: "no reply (send failed)" });
     return res;
-  }, [scene.id]);
+  }, [scene.id, modelName]);
 
   // Connect on mount, retrying on 429 / no capacity. The provider disconnects on unmount.
   useEffect(() => {
@@ -130,24 +137,23 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
     stagedRef.current = true;
     setPhase("staging");
     (async () => {
-      log.info("useWorldSession.stage", { sceneId: scene.id });
+      log.info("useWorldSession.stage", { sceneId: scene.id, model: modelName });
       try {
         const url = sceneImageUrl(scene.id);
         const r = await fetch(url);
         if (!r.ok) throw new Error(`first frame missing (${r.status})`);
         const blob = await r.blob();
         if (endedRef.current) return;
-        const ref = await lwRef.current.uploadFile(blob, { name: `${scene.id}.png` });
-        const imgReq = { model: MODELS.reactorWorld, command: "set_image", image: { url, bytes: blob.size, type: blob.type } };
-        const imgRes = await lwRef.current.setImage({ image: ref });
+        const imgReq = { model: modelName, command: "set_image", image: { url, bytes: blob.size, type: blob.type } };
+        const imgRes = await lwRef.current.setImage(blob, `${scene.id}.png`);
         logGenAI("reactor.setImage", imgReq, imgRes ?? { error: "no reply (send failed)" });
         if (!imgRes) throw new Error("image rejected");
         const promptRes = await sendPrompt(composeWorldPrompt(scene, false));
         if (!promptRes) throw new Error("prompt rejected");
-        await lwRef.current.setRotationSpeedDeg({ rotation_speed_deg: REACTOR.rotationSpeedDeg });
+        if (canLook) await lwRef.current.setRotationSpeedDeg(REACTOR.rotationSpeedDeg);
         if (endedRef.current) return;
         await lwRef.current.start();
-        logGenAI("reactor.start", { model: MODELS.reactorWorld, command: "start" }, { ok: true });
+        logGenAI("reactor.start", { model: modelName, command: "start" }, { ok: true });
         lastInputRef.current = Date.now();
         setPhase("live");
       } catch (e) {
@@ -155,7 +161,7 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
         endWorld(`error: ${e instanceof Error ? e.message : String(e)}`, true);
       }
     })();
-  }, [lw.status, scene, sendPrompt, endWorld]);
+  }, [lw.status, scene, sendPrompt, endWorld, modelName, canLook]);
 
   // Server dropped the session (moderation, GPU loss…).
   useEffect(() => {
@@ -164,7 +170,7 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
     }
   }, [lw.status, endWorld]);
 
-  useLingbotWorld2CommandError((m) => {
+  adapter.useCommandError((m) => {
     log.warn("reactor command_error", m);
     if (phaseRef.current === "staging") endWorld("error: world model rejected the scene", true);
   });
@@ -202,11 +208,9 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
     log.info("onAxis", { axis, value });
     if (phaseRef.current !== "live") return;
     const l = lwRef.current;
-    if (axis === "long") void l.setMoveLongitudinal({ move_longitudinal: value as "idle" | "forward" | "back" });
-    if (axis === "lat") void l.setMoveLateral({ move_lateral: value as "idle" | "strafe_left" | "strafe_right" });
-    if (axis === "yaw") void l.setLookHorizontal({ look_horizontal: value as "idle" | "left" | "right" });
-    if (axis === "pitch") void l.setLookVertical({ look_vertical: value as "idle" | "up" | "down" });
-  }, []);
+    if ((axis === "long" || axis === "lat") && canMove) l.move(axis, value as MoveValue);
+    if ((axis === "yaw" || axis === "pitch") && canLook) l.look(axis, value as LookValue);
+  }, [canMove, canLook]);
 
   /** Swaps the idle / moving prompt layer. @param moving true while walking */
   const onMovingChange = useCallback((moving: boolean) => {
