@@ -14,10 +14,14 @@
  * RoundScreen. Because RoundScreen is rendered only in the "playing" phase (keyed by scene id), the
  * paid Reactor and Gemini Live sessions are torn down the moment the player submits a guess.
  *
+ * Transitions: every phase (and every round) renders inside a wrapper keyed by the phase, with the
+ * `.hg-fade` animation from app/globals.css, so screens fade in smoothly instead of popping.
+ *
  * Scenes are picked on "Begin" (client event), never during render, so server and client markup
  * match. Nothing scene-specific is rendered before the guess except the world and the local.
  */
 import { useState } from "react";
+import { UI } from "@/lib/config";
 import { log } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
 import { pickScenes } from "@/lib/scenes";
@@ -76,34 +80,44 @@ export function Game() {
     setPhase({ kind: "intro" });
   }
 
-  switch (phase.kind) {
-    case "intro":
-      return <IntroScreen onStart={start} />;
-    case "playing": {
-      const scene = scenes[phase.round];
-      return (
-        <RoundScreen
-          key={scene.id}
-          scene={scene}
-          roundIndex={phase.round}
-          totalRounds={scenes.length}
-          totalScore={totalScore}
-          onSubmit={submit}
-        />
-      );
+  const fadeKey = phase.kind === "playing" || phase.kind === "reveal" ? `${phase.kind}-${phase.round}` : phase.kind;
+  return (
+    <div key={fadeKey} className="hg-fade" style={{ animationDuration: `${UI.fadeMs}ms` }}>
+      {renderPhase()}
+    </div>
+  );
+
+  /** Renders the screen for the current phase. */
+  function renderPhase() {
+    switch (phase.kind) {
+      case "intro":
+        return <IntroScreen onStart={start} />;
+      case "playing": {
+        const scene = scenes[phase.round];
+        return (
+          <RoundScreen
+            key={scene.id}
+            scene={scene}
+            roundIndex={phase.round}
+            totalRounds={scenes.length}
+            totalScore={totalScore}
+            onSubmit={submit}
+          />
+        );
+      }
+      case "reveal":
+        return (
+          <RevealScreen
+            result={results[phase.round]}
+            roundIndex={phase.round}
+            totalRounds={scenes.length}
+            totalScore={totalScore}
+            isLast={phase.round + 1 >= scenes.length}
+            onNext={next}
+          />
+        );
+      case "summary":
+        return <SummaryScreen results={results} onPlayAgain={playAgain} />;
     }
-    case "reveal":
-      return (
-        <RevealScreen
-          result={results[phase.round]}
-          roundIndex={phase.round}
-          totalRounds={scenes.length}
-          totalScore={totalScore}
-          isLast={phase.round + 1 >= scenes.length}
-          onNext={next}
-        />
-      );
-    case "summary":
-      return <SummaryScreen results={results} onPlayAgain={playAgain} />;
   }
 }

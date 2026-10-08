@@ -1,17 +1,23 @@
 "use client";
 /**
- * SummaryScreen — the end of a game: per-round table, total score and "Play again".
+ * SummaryScreen — the end of a game: big counting total, one row per round, "Play again".
  *
  * How it fits the architecture: components/game/Game.tsx renders this in its "summary" phase with
- * every RoundResult collected during the game (lib/scoring.ts). "Play again" calls `onPlayAgain`,
- * which returns the game loop to the intro screen with fresh state.
+ * every RoundResult collected during the game (lib/scoring.ts). "Play again" (or Enter) calls
+ * `onPlayAgain`, which returns the game loop to the intro screen with fresh state.
  *
- * Shows, per round: scene title, true place & year, the player's distance and year error, and the
- * points per axis; then the grand total out of rounds × 10 000.
+ * Look: full-bleed blurred backdrop of the last scene played (SceneBackdrop), the grand total counting
+ * up (CountUp) out of rounds × 10 000, then a glass list: per round the scene title, true place & year,
+ * the player's distance and year error, points per axis and a thin bar of the round total.
  */
 import { GAME } from "@/lib/config";
 import { log } from "@/lib/log";
-import { formatKm, formatPoints, formatYear, type RoundResult } from "@/lib/scoring";
+import { formatKm, formatPoints, type RoundResult } from "@/lib/scoring";
+import { formatEra } from "@/lib/timeline";
+import { CountUp } from "./CountUp";
+import { SceneBackdrop } from "./SceneBackdrop";
+import { Logo } from "./TopBar";
+import { useGameKeys } from "./useGameKeys";
 
 export type SummaryScreenProps = {
   results: RoundResult[];
@@ -24,57 +30,58 @@ export type SummaryScreenProps = {
  */
 export function SummaryScreen({ results, onPlayAgain }: SummaryScreenProps) {
   log.info("SummaryScreen", { rounds: results.length });
+  useGameKeys({ enter: onPlayAgain });
   const total = results.reduce((s, r) => s + r.total, 0);
-  const max = results.length * GAME.maxPointsPerAxis * 2;
+  const perRound = GAME.maxPointsPerAxis * 2;
+  const max = results.length * perRound;
   return (
-    <main className="flex min-h-screen items-start justify-center px-4 py-12">
-      <div className="w-full max-w-4xl">
-        <p className="text-center text-xs uppercase tracking-[0.4em] text-amber-400/70">Your journey through time</p>
-        <h1 className="mt-2 text-center font-display text-5xl text-amber-100">{formatPoints(total)}</h1>
-        <p className="mt-1 text-center text-sm text-amber-100/50">out of {formatPoints(max)} points</p>
+    <main className="relative h-screen w-screen overflow-hidden">
+      <SceneBackdrop sceneId={results[results.length - 1]?.scene.id} blur dim={0.7} />
+      <div className="absolute left-6 top-5 z-10">
+        <Logo />
+      </div>
 
-        <div className="mt-8 overflow-x-auto rounded-lg border border-amber-200/15 bg-amber-50/[0.03]">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-amber-200/10 text-xs uppercase tracking-wider text-amber-200/60">
-              <tr>
-                <th className="px-4 py-3">#</th>
-                <th className="px-4 py-3">Scene</th>
-                <th className="px-4 py-3">Distance</th>
-                <th className="px-4 py-3">Year off</th>
-                <th className="px-4 py-3 text-right">Place</th>
-                <th className="px-4 py-3 text-right">Year</th>
-                <th className="px-4 py-3 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((r, i) => (
-                <tr key={r.scene.id} className="border-b border-amber-200/5 last:border-0">
-                  <td className="px-4 py-3 font-display text-amber-500">{i + 1}</td>
-                  <td className="px-4 py-3">
-                    <div className="font-display text-amber-100">{r.scene.title}</div>
-                    <div className="text-xs text-amber-100/50">
-                      {r.scene.answer.place} · {formatYear(r.scene.answer.year)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-amber-100/70">{formatKm(r.distanceKm)}</td>
-                  <td className="px-4 py-3 text-amber-100/70">{r.yearDiff.toLocaleString("en-US")} yr</td>
-                  <td className="px-4 py-3 text-right text-amber-100/80">{formatPoints(r.locationPoints)}</td>
-                  <td className="px-4 py-3 text-right text-amber-100/80">{formatPoints(r.yearPoints)}</td>
-                  <td className="px-4 py-3 text-right font-display text-amber-300">{formatPoints(r.total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="relative z-10 h-full overflow-y-auto px-6 pb-12 pt-24">
+        <div className="mx-auto w-full max-w-4xl">
+          <p className="hg-label hg-rise text-center">Your journey through time</p>
+          <h1 className="hg-rise mt-4 text-center font-display text-7xl tabular-nums text-cream drop-shadow-[0_4px_30px_rgba(0,0,0,0.7)]">
+            <CountUp value={total} delayMs={300} />
+          </h1>
+          <p className="hg-label mt-3 text-center !text-cream/50">out of {formatPoints(max)} points</p>
 
-        <div className="mt-8 text-center">
-          <button
-            type="button"
-            onClick={onPlayAgain}
-            className="rounded-md border border-amber-400/70 bg-gradient-to-b from-amber-500 to-amber-700 px-10 py-3 font-display text-lg tracking-widest text-stone-950 transition hover:from-amber-400 hover:to-amber-600"
-          >
-            PLAY AGAIN
-          </button>
+          <ol className="hg-glass hg-rise mt-10 divide-y divide-cream/10" style={{ animationDelay: "250ms" }}>
+            {results.map((r, i) => (
+              <li key={r.scene.id} className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-4 px-5 py-4">
+                <span className="font-mono text-xs text-cream/40">{String(i + 1).padStart(2, "0")}</span>
+                <div className="min-w-0">
+                  <div className="truncate font-display text-base tracking-wide text-cream">{r.scene.title}</div>
+                  <div className="hg-label mt-1 truncate !text-[9px] !text-cream/50">
+                    {r.scene.answer.place} · {formatEra(r.scene.answer.year)} — {formatKm(r.distanceKm)} · {r.yearDiff.toLocaleString("en-US")} yr off
+                  </div>
+                  <div className="mt-2 h-[2px] bg-cream/10">
+                    <div className="h-full bg-cream/80" style={{ width: `${(r.total / perRound) * 100}%` }} />
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-display text-xl tabular-nums text-cream">{formatPoints(r.total)}</div>
+                  <div className="font-mono text-[10px] text-cream/45">
+                    {formatPoints(r.locationPoints)} + {formatPoints(r.yearPoints)}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-10 flex justify-center">
+            <button
+              type="button"
+              onClick={onPlayAgain}
+              className="group flex items-center gap-4 border border-cream/70 bg-cream/5 px-10 py-3 backdrop-blur transition hover:bg-cream hover:text-ink"
+            >
+              <span className="font-mono text-xs tracking-[0.4em]">PLAY AGAIN</span>
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </button>
+          </div>
         </div>
       </div>
     </main>

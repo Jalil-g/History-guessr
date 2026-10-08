@@ -49,7 +49,7 @@ export const GAME = {
   roundOptions: [3, 5, 10],
   /** Year slider range. */
   minYear: -3000,
-  maxYear: 2000,
+  maxYear: 2026,
   /** Max points per axis (location, year) per round. */
   maxPointsPerAxis: 5000,
   /** Location score decay: points = max * exp(-km / locationDecayKm). 2000 km ≈ 37% of max. */
@@ -76,6 +76,79 @@ export const MAP = {
   guessColor: "#f59e0b",
   answerColor: "#22c55e",
   lineColor: "#fde68a",
+  /** Parchment base map: keyless Esri World Terrain Base (no labels), sepia-filtered in globals.css. */
+  parchmentTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
+  /** Esri terrain tiles exist up to this zoom; Leaflet upscales beyond it. */
+  parchmentMaxNativeZoom: 13,
+  /** Transparent keyless Esri overlay with borders + place names, drawn over the parchment. */
+  labelsTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+  /** Attribution for the parchment + labels layers. */
+  parchmentAttribution: "Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, NPS",
+  /** Custom divIcon pin colours (guess = cream, answer = brass). */
+  pinGuessColor: "#f5ecd7",
+  pinAnswerColor: "#e0a530",
+  /** Pin divIcon size in px (width, height). */
+  pinSize: [26, 36] as [number, number],
+  /** Max zoom when the reveal map fits guess + answer. */
+  revealMaxZoom: 7,
+} as const;
+
+/**
+ * Non-linear "ruler" timeline used by the year picker (lib/timeline.ts, components/guess/TimelineSlider.tsx).
+ * `anchors` are [sliderPosition 0..1, year] pairs, piecewise-linear between them: ancient history is
+ * compressed, recent centuries expanded so modern years are easy to pick.
+ */
+export const TIMELINE = {
+  anchors: [
+    [0, -3000],
+    [0.16, -1000],
+    [0.36, 0],
+    [0.58, 1000],
+    [0.78, 1600],
+    [1, 2026],
+  ] as [number, number][],
+  /** Years that get a large tick + text label under the ruler. */
+  labelYears: [-3000, -1000, 0, 1000, 2026],
+  /** Minor tick spacing per era: [fromYear, stepYears] — applies until the next entry. */
+  tickSteps: [
+    [-3000, 250],
+    [-1000, 100],
+    [1000, 50],
+    [1600, 25],
+  ] as [number, number][],
+  /** Every tick whose year is divisible by this is drawn medium-sized. */
+  majorEvery: 500,
+  /** Slider resolution: number of discrete positions across the track. */
+  resolution: 2000,
+  /** Keyboard nudge on the focused slider (years): arrow, shift+arrow. */
+  keyStep: 1,
+  keyStepLarge: 25,
+} as const;
+
+/** Look-and-feel timings for the EraGuessr-style HUD (components/game/**). */
+export const UI = {
+  /** Fade-in duration between phases / rounds, in ms. */
+  fadeMs: 600,
+  /** Duration of the score count-up on the reveal / summary, in ms. */
+  countUpMs: 1400,
+  /** Delay before the year count-up starts after the place one, in ms. */
+  countUpStaggerMs: 350,
+  /** Mini guess map size (px) and expanded size (viewport units). */
+  miniMapWidth: 480,
+  miniMapHeight: 250,
+  expandedMapVw: 70,
+  expandedMapVh: 70,
+  /** Width of the floating "talk to a local" panel, in px. */
+  localPanelWidth: 330,
+  /** Keyboard shortcuts (never WASD / arrows — those drive the world). */
+  keys: { expandMap: "m", hideUi: "h" },
+  /** Generic, answer-free tips shown by the hint (lightbulb) button. */
+  hints: [
+    "Read the architecture: building materials, roofs and columns narrow down region and era.",
+    "Clothing, armour and tools are strong era clues — iron, bronze, gunpowder, print?",
+    "Ask the local what they eat, who rules them and what they trade.",
+    "Landscape and light matter: desert, jungle, snow, a river delta, a coastline?",
+  ],
 } as const;
 
 export const EXTRACT = {
