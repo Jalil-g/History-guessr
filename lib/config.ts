@@ -171,10 +171,14 @@ export const REACTOR = {
   exploreSeconds: 90,
   /** Disconnect after this many seconds without any input. */
   idleDisconnectSeconds: 25,
-  /** Extra connect attempts when Reactor answers 429 / "no capacity". */
-  connectRetries: 2,
-  /** Delay between connect retries, in ms. */
-  connectRetryDelayMs: 3000,
+  /**
+   * Extra connect attempts when Reactor answers 429 / "no capacity". Capacity gaps and the account's
+   * 10-new-sessions-per-minute quota (world + avatar both open one per round) usually clear within
+   * ~30–40 s, so retry for about that long instead of failing the round after a few seconds.
+   */
+  connectRetries: 6,
+  /** Delay between connect retries, in ms (≥ 6 s: failed creates also count toward the per-minute quota). */
+  connectRetryDelayMs: 7000,
   /** Reactor API base URL (overridable with NEXT_PUBLIC_REACTOR_API_URL). */
   apiUrl: process.env.NEXT_PUBLIC_REACTOR_API_URL || "https://api.reactor.inc",
   /** Lifetime of a minted browser JWT, in seconds (server caps at 6 h). */
