@@ -26,6 +26,9 @@ type Row = { id: string; status: string; ms?: number };
 type Entry = { avatarId: string; createdAt: string; portrait: string; msConnect: number; msReady: number };
 export type PrewarmResult = { done: boolean; mode: string; results: Record<string, Entry>; failures: Record<string, string> };
 
+/** Set once the run has started (module scope survives strict mode's effect re-run). */
+let started = false;
+
 declare global {
   interface Window {
     __prewarmResult?: PrewarmResult;
@@ -123,13 +126,15 @@ export function PrewarmAvatars({ ids, mode }: { ids: string[] | null; mode: "cre
   const [result, setResult] = useState<PrewarmResult | null>(null);
 
   useEffect(() => {
+    // Strict mode runs effects twice in dev: start the (paid) sessions only once per page load.
+    if (started) return;
+    started = true;
     const list = ids ?? SCENES.map((s) => s.id);
     log.info("PrewarmAvatars.run", { ids: list, mode, concurrency: AVATAR.prewarmConcurrency });
-    let cancelled = false;
     const out: PrewarmResult = { done: false, mode, results: {}, failures: {} };
     setRows(list.map((id) => ({ id, status: "queued" })));
     /** Updates one row. @param id scene id @param patch fields to change */
-    const update = (id: string, patch: Partial<Row>) => !cancelled && setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    const update = (id: string, patch: Partial<Row>) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
     const queue = [...list];
     /** One worker: takes scenes off the queue until it is empty. */
     const worker = async () => {
@@ -149,11 +154,8 @@ export function PrewarmAvatars({ ids, mode }: { ids: string[] | null; mode: "cre
     void Promise.all(Array.from({ length: Math.min(AVATAR.prewarmConcurrency, list.length) }, worker)).then(() => {
       out.done = true;
       window.__prewarmResult = out;
-      if (!cancelled) setResult(out);
+      setResult(out);
     });
-    return () => {
-      cancelled = true;
-    };
   }, [ids, mode]);
 
   return (
