@@ -185,6 +185,23 @@ export const REACTOR = {
   tokenRefreshSkewMs: 60_000,
   /** Arrow-key look speed, degrees per step. */
   rotationSpeedDeg: 4,
+  /**
+   * Look limit (components/world/useWasdControls.ts + lib/look-limit.ts): accumulated yaw relative to
+   * the starting view (0° = facing the scene's landmark) is clamped to ±maxYawDeg so the world model
+   * never turns away from — and "forgets" — the main clue.
+   */
+  maxYawDeg: 60,
+  /** Same clamp for pitch (up/down arrows) so the player can't stare at the sky or the ground. */
+  maxPitchDeg: 20,
+  /**
+   * Rotation frames per chunk used for the look-limit bookkeeping (rotation_speed_deg is "degrees per
+   * frame of the chunk"). 0 = use `frames_emitted` from each chunk_complete. If the camera visibly
+   * turns more/less than the HUD heading indicator says, set this to the real per-chunk step count
+   * (e.g. 3 latent steps instead of ~12 pixel frames).
+   */
+  lookFramesPerChunk: 0,
+  /** Frames-per-chunk guess used before the first chunk_complete arrives (≈12 pixel frames). */
+  lookFramesPerChunkFallback: 12,
   /** Countdown / idle-check tick, in ms. */
   tickMs: 500,
   /** Ken Burns pan/zoom cycle of the still image (mock mode / fallback), in seconds. */
