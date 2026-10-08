@@ -67,6 +67,17 @@ server-minted token, session time cap and idle disconnect. Mock mode shows the s
   `setPrompt(base + idle)` → `start`. Image/prompt/start calls logged with `logGenAI`.
 - **Controls** (`useWasdControls.ts`): WASD walk, arrows look; prompt swaps to `base + moving` while
   walking and back to `base + idle` when stopped.
+- **Look limit** (`lib/look-limit.ts` + `useWasdControls.ts`): arrow-key look is clamped to
+  ±`REACTOR.maxYawDeg` (60°) yaw and ±`REACTOR.maxPitchDeg` (20°) pitch around the starting view, so
+  the world model never turns away from (and forgets) the landmark. Rotation is accumulated from each
+  `chunk_complete` (`active_action` sign × `frames_emitted` × the rotation speed in effect for that
+  chunk); before each chunk, committed + in-flight rotation is projected and the held direction is
+  passed, slowed (`setRotationSpeedDeg`) to land exactly on the limit, or sent as `idle`. The opposite
+  direction always works; WASD never rotates. Resets to 0 whenever a session goes live (incl.
+  reconnects); `resetLook()` is also returned. `REACTOR.lookFramesPerChunk` overrides the per-chunk
+  frame count if the SDK's "degrees per frame" turns out to mean latent steps.
+- **Heading indicator** (`LookIndicator.tsx`): thin cream yaw bar (±60°, centre diamond = straight
+  ahead) + tiny pitch bar, top-centre in live mode; end ticks turn brass at the limit.
 - **Cost guards**: hard cap `REACTOR.exploreSeconds`, idle disconnect `REACTOR.idleDisconnectSeconds`,
   disconnect on hidden tab and unmount. On end/error → `onEnded(reason)` once + still image.
 - **HUD** (`WorldHud.tsx`): status pill (connecting / waiting for GPU / retrying / LIVE · Ns / closed),
