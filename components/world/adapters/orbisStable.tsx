@@ -7,20 +7,26 @@
  * What the model is: an image + prompt → real-time video model that brings a still scene to life
  * (crowds move, smoke drifts, water ripples) and, on deployments that have it, adds an ambient audio
  * track on `main_audio`. It shares the image → prompt → start lifecycle with LingBot World 2, but it has
- * NO movement and NO camera/look commands: the camera stays where the scene image put it.
+ * NO movement and NO camera/look commands.
  *
- * How it fits: registered in lib/world-models.ts with capabilities { move: false, look: false }, so the
- * HUD hides the WASD / arrow hints and the heading indicator, and useWasdControls' calls land on the
- * no-op `move` / `look` / `setRotationSpeedDeg` below. useWorldSession's idle/moving prompt swap
- * therefore always sends the idle layer. chunk_complete is still forwarded (with activeAction "idle")
- * so the look bookkeeping sees zero rotation.
+ * WASD by prompt steering: since the only live control is `set_prompt` (hot-swapped from the next
+ * chunk), `move()` keeps the held state of both walking axes and re-sends the current scene prompt with
+ * a camera-motion sentence appended (WORLD.orbisMotionPhrases; WORLD.orbisStillPhrase when nothing is
+ * held). `setPrompt()` from useWorldSession stores the scene prompt (base + idle/moving layer) and sends
+ * it with the current motion sentence, so both paths always send "scene prompt + motion". Duplicate
+ * prompts are skipped. Movement is therefore looser and ~one chunk delayed compared with LingBot.
+ *
+ * How it fits: registered in lib/world-models.ts with capabilities { move: true, look: false }, so the
+ * HUD shows the WASD hint but hides the arrow hint and heading indicator; `look` and
+ * `setRotationSpeedDeg` are no-ops. chunk_complete is forwarded with activeAction "idle" so the look
+ * bookkeeping sees zero rotation.
  *
  * Use cases: picked as "Orbis Stable" on the intro screen — a cinematic, stand-still way to observe
  * the moment, useful when the walkable models are busy or the player just wants to watch and listen.
  * Limitation: a run stops at the deployment's max_chunks (generation_complete); the last frame stays
  * on screen and the player can still guess or reopen the portal.
  */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import {
   ViskoOrbisStableMainVideoView,
   ViskoOrbisStableProvider,
@@ -28,8 +34,9 @@ import {
   useViskoOrbisStableChunkComplete,
   useViskoOrbisStableCommandError,
 } from "@reactor-models/visko-orbis-stable";
-import { log } from "@/lib/log";
-import type { ChunkInfo, WorldAdapter, WorldControls, WorldProviderProps } from "./types";
+import { WORLD } from "@/lib/config";
+import { log, logGenAI } from "@/lib/log";
+import type { ChunkInfo, MoveAxis, MoveValue, WorldAdapter, WorldControls, WorldProviderProps } from "./types";
 
 /** Session provider. @param props children + apiUrl + jwtToken resolver */
 function Provider({ children, apiUrl, jwtToken }: WorldProviderProps) {
@@ -47,14 +54,42 @@ function Video({ style }: { style?: React.CSSProperties }) {
 }
 
 /**
- * Imperative controls on the Orbis Stable session. Walking, looking and rotation speed are no-ops
- * because the model has no camera control.
+ * Builds the camera-motion sentence for the currently held walking keys.
+ * @param axes held value per walking axis
+ * @returns one or two motion sentences, or the still phrase when nothing is held
+ */
+export function motionSentence(axes: Record<MoveAxis, MoveValue>): string {
+  const parts = [axes.long, axes.lat]
+    .filter((v): v is keyof typeof WORLD.orbisMotionPhrases => v !== "idle")
+    .map((v) => WORLD.orbisMotionPhrases[v]);
+  return parts.length ? parts.join(" ") : WORLD.orbisStillPhrase;
+}
+
+/**
+ * Imperative controls on the Orbis Stable session. Walking is emulated by prompt steering (see the
+ * file header); looking and rotation speed are no-ops because the model has no camera control.
  * @returns WorldControls
  */
 function useWorld(): WorldControls {
   const ob = useViskoOrbisStable();
-  return useMemo<WorldControls>(
-    () => ({
+  const sceneRef = useRef("");
+  const axesRef = useRef<Record<MoveAxis, MoveValue>>({ long: "idle", lat: "idle" });
+  const sentRef = useRef("");
+  return useMemo<WorldControls>(() => {
+    /**
+     * Sends scene prompt + current motion sentence, unless identical to the last one sent.
+     * @param source what triggered the send (for logs)
+     * @returns the model's prompt_accepted reply, undefined if skipped/unsent
+     */
+    const steer = async (source: string) => {
+      const prompt = `${sceneRef.current} ${motionSentence(axesRef.current)}`.trim();
+      if (!sceneRef.current || prompt === sentRef.current) return undefined;
+      sentRef.current = prompt;
+      const res = await ob.setPrompt({ prompt });
+      logGenAI("reactor.orbisStable.steerPrompt", { model: "reactor/visko-orbis-stable", command: "set_prompt", source, axes: axesRef.current, prompt }, res ?? { error: "no reply" });
+      return res;
+    };
+    return {
       status: ob.status,
       connect: () => ob.connect(),
       disconnect: () => ob.disconnect(),
@@ -63,7 +98,11 @@ function useWorld(): WorldControls {
         const ref = await ob.uploadFile(image, { name });
         return ob.setImage({ image: ref });
       },
-      setPrompt: (prompt) => ob.setPrompt({ prompt }),
+      setPrompt: async (prompt) => {
+        log.info("orbisStable.setPrompt", { length: prompt.length });
+        sceneRef.current = prompt;
+        return steer("scene prompt");
+      },
       setRotationSpeedDeg: async (deg) => {
         log.info("orbisStable.setRotationSpeedDeg (no-op: fixed camera)", { deg });
         return undefined;
@@ -72,14 +111,16 @@ function useWorld(): WorldControls {
         await ob.start();
       },
       move: (axis, value) => {
-        log.info("orbisStable.move (no-op: fixed camera)", { axis, value });
+        log.info("orbisStable.move", { axis, value });
+        if (axesRef.current[axis] === value) return;
+        axesRef.current = { ...axesRef.current, [axis]: value };
+        void steer(`move ${axis}=${value}`);
       },
       look: (axis, value) => {
         log.info("orbisStable.look (no-op: fixed camera)", { axis, value });
       },
-    }),
-    [ob],
-  );
+    };
+  }, [ob]);
 }
 
 /** Finished-chunk subscription; always reports "idle" since the camera never turns. @param handler chunk callback */

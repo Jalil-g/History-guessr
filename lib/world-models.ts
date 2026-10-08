@@ -79,10 +79,11 @@ const ALL_WORLD_MODELS: readonly WorldModelInfo[] = [
   {
     id: "orbis-stable",
     label: "Orbis Stable",
-    description: "Cinematic living scene with ambient sound — you stand still and watch",
+    description: "Cinematic living scene with ambient sound — WASD steers the camera by prompt (looser), no looking around",
     reactorModel: MODELS.reactorWorldOrbisStable,
     npmPackage: "@reactor-models/visko-orbis-stable",
-    capabilities: { move: false, look: false },
+    // move = prompt-steered (components/world/adapters/orbisStable.tsx), not a native movement command.
+    capabilities: { move: true, look: false },
     inPicker: true,
   },
 ];

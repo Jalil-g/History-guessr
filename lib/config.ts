@@ -48,6 +48,19 @@ export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MOD
 
 /** World-model picker (lib/world-models.ts registry, intro screen, WorldView adapters). */
 export const WORLD = {
+  /**
+   * Orbis Stable has no movement commands, so WASD is emulated by PROMPT STEERING: while a key is held
+   * the adapter appends one of these camera-motion sentences to the scene prompt (applied by the model
+   * from its next chunk). Both axes can combine (e.g. forward + left). Tune wording here.
+   */
+  orbisMotionPhrases: {
+    forward: "The camera moves steadily forward into the scene at a slow walking pace, first-person at eye level, the landmark ahead growing larger.",
+    back: "The camera slowly moves backward away from the scene, first-person at eye level.",
+    strafe_left: "The camera glides sideways to the left at walking pace, first-person at eye level.",
+    strafe_right: "The camera glides sideways to the right at walking pace, first-person at eye level.",
+  },
+  /** Sentence used while no key is held, so the camera settles instead of drifting. */
+  orbisStillPhrase: "The camera holds still at eye level.",
   /** World model used when the player has not picked one (an id from lib/world-models.ts). */
   defaultModelId: "lingbot-world-2",
   /** localStorage key under which the intro screen remembers the picked world model. */
