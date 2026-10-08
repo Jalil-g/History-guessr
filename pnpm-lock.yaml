@@ -23,6 +23,9 @@ importers:
       '@reactor-models/vidu-s2-avatar':
         specifier: 0.5.0
         version: 0.5.0(react@19.2.3)
+      '@reactor-models/visko-orbis-stable':
+        specifier: 2.3.0
+        version: 2.3.0(react@19.2.3)
       '@reactor-team/js-sdk':
         specifier: 3.1.0
         version: 3.1.0(react@19.2.3)
@@ -355,6 +358,11 @@ packages:
 
   '@reactor-models/vidu-s2-avatar@0.5.0':
     resolution: {integrity: sha512-0KgkOEGDyrVbPeA+eQxMvFIn0TJsdhAp8sOrQR7OYQQHy/vaihVkEFiwv0CC6d1rkvHGmMBTTlfhFNFyNE41Xw==}
+    peerDependencies:
+      react: '>=18'
+
+  '@reactor-models/visko-orbis-stable@2.3.0':
+    resolution: {integrity: sha512-W3rb29gyN/CUv0jCEmzZVqwAAmB+twmI6YdcWfzYtnchA0k7tmr2K20CNTGal2Le2vOJ2Ot1GquJK6jlD/YSPA==}
     peerDependencies:
       react: '>=18'
 
@@ -1370,6 +1378,13 @@ snapshots:
       - supports-color
 
   '@reactor-models/vidu-s2-avatar@0.5.0(react@19.2.3)':
+    dependencies:
+      '@reactor-team/js-sdk': 3.1.0(react@19.2.3)
+      react: 19.2.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@reactor-models/visko-orbis-stable@2.3.0(react@19.2.3)':
     dependencies:
       '@reactor-team/js-sdk': 3.1.0(react@19.2.3)
       react: 19.2.3
