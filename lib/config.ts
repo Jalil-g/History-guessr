@@ -22,6 +22,8 @@ export const MODELS = {
   sceneTextFallbacks: ["gemini-2.5-pro"],
   /** Gemini image model (Nano Banana 2) used offline to paint each scene's first frame. */
   sceneImage: "gemini-3.1-flash-image",
+  /** Fallback image model, tried automatically if `sceneImage` is rejected (unknown model id). */
+  sceneImageFallback: "gemini-3.1-flash-image-preview",
   /** Gemini Live model for the voice conversation with a local. */
   geminiLive: "gemini-3.8-live",
   /** Fallback Live model if the primary one is overloaded. */
@@ -121,6 +123,23 @@ export const VOICE = {
   micChunkSamples: 1600,
   /** First message sent so the local greets the player. */
   greetingCue: "(A strangely dressed time traveller suddenly appears right next to you.)",
+} as const;
+
+export const IMAGES = {
+  /** Aspect ratio requested from the image model (matches the Reactor world frame). */
+  aspectRatio: "16:9",
+  /** How many scene images scripts/generate-images.ts paints in parallel. */
+  concurrency: 4,
+  /** Retries per image on 429 / 5xx responses (total attempts = retries + 1). */
+  retries: 3,
+  /** Base backoff in ms; doubles each retry (2s, 4s, 8s) plus jitter. */
+  backoffMs: 2000,
+  /**
+   * Appended to every scene.imagePrompt: shop signs and inscriptions leak the place/language, so the
+   * image model is told explicitly that nothing in the frame may carry writing.
+   */
+  promptSuffix:
+    " Absolutely no readable text anywhere: no signs, shop signs, banners with writing, inscriptions, letters, numbers, labels, captions or watermarks; any signboards are blank or pictorial only.",
 } as const;
 
 export const PATHS = {
