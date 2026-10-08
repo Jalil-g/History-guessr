@@ -1,6 +1,6 @@
 ---
 name: merge-prs
-description: Merge agent for this repo. Checks open, ready PRs against main (rebase, typecheck, build) and squash-merges the ones that pass; comments on the ones that don't. Run as `/loop 5m /merge-prs` in a dedicated worktree.
+description: Merge agent for this repo. Checks open, ready PRs against main (rebase, typecheck, build) and rebase-merges the ones that pass (keeping every commit); comments on the ones that don't. Run as `/loop 5m /merge-prs` in a dedicated worktree.
 ---
 
 # Merge agent
@@ -36,7 +36,7 @@ If you are already in a worktree named `hg-merger`, skip this.
       `Design.md` updated for features, no model names outside `lib/config.ts`, no secrets/.env files).
       Missing items → still merge if it builds, but leave one short comment listing them.
    f. Push the rebased branch: `git push --force-with-lease origin HEAD:<headRefName>`.
-   g. Merge: `gh pr merge <number> --squash --delete-branch`.
+   g. Merge: `gh pr merge <number> --rebase --delete-branch`.
    h. `git fetch origin` so the next candidate rebases onto the new `main`.
 4. Print a one-line summary per PR: merged / skipped (reason) / failed (reason).
 
