@@ -6,6 +6,10 @@
  * presentational: WorldView passes in the phase (from useWorldSession, or "mock") and the countdown.
  * Never shows the scene's place or year.
  *
+ * World model: WorldView passes the chosen model's label (lib/world-models.ts), shown small next to the
+ * status pill, and its capabilities: the key-hint pill only lists WASD when the model can walk and the
+ * arrows when it can look (WorldView also hides the LookIndicator for look-less models).
+ *
  * Reconnect: when WorldView passes `reconnect` (live mode, session ended / errored), a centred
  * "Reopen the portal" button (dark glass, thin cream border, tiny letter-spaced caps — the game HUD
  * style) offers a fresh session for the same scene, with the remaining count and the R shortcut.
@@ -31,7 +35,23 @@ type Props = {
   message?: string | null;
   /** Reconnect affordance (ended / error in live mode only); omit to hide it. */
   reconnect?: { left: number; onReconnect: () => void };
+  /** Display name of the active world model (live mode); omit to hide. */
+  modelLabel?: string;
+  /** Which inputs the active model accepts (defaults: both). */
+  canMove?: boolean;
+  canLook?: boolean;
 };
+
+/**
+ * Key-hint text for the live world.
+ * @param canMove model accepts WASD
+ * @param canLook model accepts arrows
+ * @returns hint text, or null when the model takes no input
+ */
+export function keyHints(canMove = true, canLook = true): string | null {
+  const parts = [canMove && "WASD walk", canLook && "←↑→↓ look"].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
 
 /**
  * Returns the status-pill label for a phase.
@@ -77,10 +97,13 @@ export function WorldHud(props: Props) {
       <div className="pointer-events-none absolute left-3 top-3 flex max-w-[80%] items-center gap-2 rounded-full bg-black/60 px-3 py-1 font-mono text-xs text-white/80 backdrop-blur">
         <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
         <span className="truncate">{label(props)}</span>
+        {props.modelLabel && phase !== "mock" && (
+          <span className="shrink-0 border-l border-white/20 pl-2 text-[10px] uppercase tracking-[0.2em] text-white/45">{props.modelLabel}</span>
+        )}
       </div>
-      {(phase === "live" || phase === "mock") && (
+      {((phase === "live" && keyHints(props.canMove, props.canLook)) || phase === "mock") && (
         <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-4 py-1.5 font-mono text-[11px] text-white/70 backdrop-blur">
-          {phase === "live" ? "WASD walk · ←↑→↓ look" : "Live world off — look closely for clues"}
+          {phase === "live" ? keyHints(props.canMove, props.canLook) : "Live world off — look closely for clues"}
         </div>
       )}
       {(phase === "ended" || phase === "error") && props.reconnect && <ReconnectButton {...props.reconnect} />}
