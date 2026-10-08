@@ -68,7 +68,7 @@ server-minted token, session time cap and idle disconnect. Mock mode shows the s
 - **Controls** (`useWasdControls.ts`): WASD walk, arrows look; prompt swaps to `base + moving` while
   walking and back to `base + idle` when stopped.
 - **Look limit** (`lib/look-limit.ts` + `useWasdControls.ts`): arrow-key look is clamped to
-  ±`REACTOR.maxYawDeg` (60°) yaw and ±`REACTOR.maxPitchDeg` (20°) pitch around the starting view, so
+  ±`REACTOR.maxYawDeg` (100°) yaw and ±`REACTOR.maxPitchDeg` (40°) pitch around the starting view, so
   the world model never turns away from (and forgets) the landmark. Rotation is accumulated from each
   `chunk_complete` (`active_action` sign × `frames_emitted` × the rotation speed in effect for that
   chunk); before each chunk, committed + in-flight rotation is projected and the held direction is
