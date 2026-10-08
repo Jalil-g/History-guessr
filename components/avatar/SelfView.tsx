@@ -9,6 +9,8 @@
  *  - mirrored like every video-call app (the character receives the un-mirrored track),
  *  - a "They can see you" badge once session_state reports camera_forwarding,
  *  - a camera on/off button (turns the track off, the call keeps running as voice-only video),
+ *  - an always-visible red "End call" button (the HUD's End button can be scrolled out of view once
+ *    the self-view makes the card taller than the screen),
  *  - nothing at all when no camera track exists (permission refused / no camera → audio call).
  *
  * Use cases: the round's local panel (LocalAvatar) during a live or starting call.
@@ -22,13 +24,15 @@ export type SelfViewProps = {
   /** True once the character is actually receiving the webcam. */
   forwarding: boolean;
   onToggle: () => void;
+  /** Ends the conversation (same as the HUD's "End conversation"). */
+  onEnd: () => void;
 };
 
 /**
- * Mirrored webcam preview with a camera toggle and a "they can see you" indicator.
- * @param props stream, camera state, forwarding flag and toggle handler
+ * Mirrored webcam preview with camera toggle, End call button and a "they can see you" indicator.
+ * @param props stream, camera state, forwarding flag, toggle and end handlers
  */
-export function SelfView({ stream, cameraOn, forwarding, onToggle }: SelfViewProps) {
+export function SelfView({ stream, cameraOn, forwarding, onToggle, onEnd }: SelfViewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -52,13 +56,22 @@ export function SelfView({ stream, cameraOn, forwarding, onToggle }: SelfViewPro
         <span className={`h-1.5 w-1.5 rounded-full ${cameraOn && forwarding ? "animate-pulse bg-red-500" : "bg-white/40"}`} />
         {cameraOn ? (forwarding ? "They can see you" : "Connecting camera…") : "You"}
       </div>
-      <button
-        onClick={onToggle}
-        className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-amber-50/90 backdrop-blur hover:bg-black/80"
-        title={cameraOn ? "Turn camera off" : "Turn camera on"}
-      >
-        {cameraOn ? "📷 Camera off" : "📷 Camera on"}
-      </button>
+      <div className="absolute inset-x-2 bottom-2 flex items-center justify-between gap-2">
+        <button
+          onClick={onEnd}
+          className="rounded-full bg-red-600 px-3 py-1 text-[11px] font-semibold text-white shadow hover:bg-red-500"
+          title="End the conversation"
+        >
+          ✕ End call
+        </button>
+        <button
+          onClick={onToggle}
+          className="rounded-full bg-black/60 px-2.5 py-1 text-[11px] text-amber-50/90 backdrop-blur hover:bg-black/80"
+          title={cameraOn ? "Turn camera off" : "Turn camera on"}
+        >
+          {cameraOn ? "📷 Camera off" : "📷 Camera on"}
+        </button>
+      </div>
     </div>
   );
 }
