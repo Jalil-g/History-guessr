@@ -5,7 +5,10 @@
  * Contract (stable — the game loop depends on it):
  *  - `scene`   the scene to render (first frame = sceneImageUrl(scene.id), prompts = scene.worldPrompt)
  *  - `onEnded` called once if the session ends on its own (time cap, idle, hidden tab, error) with a
- *              short reason; the view then falls back to the still image.
+ *              short reason; the view then falls back to the still image. Reported at most once per
+ *              session (attempt); callbacks from an older, torn-down session are ignored.
+ *  - `onResumed` OPTIONAL — called when a manual reconnect goes live again (the parent can hide its
+ *              "vision fades" banner).
  * Fills its parent (absolute inset-0) — the parent must be `relative` with a size.
  *
  * Modes:
@@ -16,10 +19,19 @@
  *    useWasdControls (WASD walk, arrows look, idle ↔ moving prompt swap) + WorldHud.
  *  - Missing first frame (404 during development): gradient fallback, and no paid session is opened.
  *
+ * Reconnect (live mode only, never automatic): once a session has ended or errored, the HUD offers
+ * "Reopen the portal" (button or the REACTOR.reconnectKey shortcut, R). Clicking bumps an attempt
+ * counter that is part of the provider's key, so React tears the old provider down (disconnect) and
+ * mounts a brand-new <LingbotWorld2Provider> + LiveWorld: fresh token lookup → connect → setImage →
+ * setPrompt → start, with a fresh idle timer, per-session time cap and fresh WASD/look state (the
+ * controls hook lives inside the keyed subtree, so any accumulated camera yaw also starts at 0).
+ * Capped at REACTOR.maxReconnectsPerRound per round (the component is remounted per round/scene);
+ * after that the HUD shows "The portal is spent — make your guess".
+ *
  * Feature files: useWorldSession.ts, useWasdControls.ts, WorldHud.tsx, StillWorld.tsx,
  * useSceneImage.ts, fetchReactorToken.ts (client) + lib/reactor-token.ts & app/api/reactor/token (server).
  */
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LingbotWorld2MainVideoView, LingbotWorld2Provider } from "@reactor-models/lingbot-world-2";
 import { MOCK_WORLD, REACTOR } from "@/lib/config";
 import { log } from "@/lib/log";
@@ -31,13 +43,13 @@ import { useWasdControls } from "./useWasdControls";
 import { useWorldSession } from "./useWorldSession";
 import { WorldHud } from "./WorldHud";
 
-export type WorldViewProps = { scene: Scene; onEnded?: (reason: string) => void };
+export type WorldViewProps = { scene: Scene; onEnded?: (reason: string) => void; onResumed?: () => void };
 
 /**
  * Entry point: picks mock / missing-image / live rendering.
  * @param props see WorldViewProps
  */
-export function WorldView({ scene, onEnded }: WorldViewProps) {
+export function WorldView({ scene, onEnded, onResumed }: WorldViewProps) {
   const image = useSceneImage(scene.id);
   const reportedRef = useRef<string | null>(null);
   useEffect(() => log.info("WorldView", { sceneId: scene.id, mock: MOCK_WORLD }), [scene.id]);
@@ -65,22 +77,113 @@ export function WorldView({ scene, onEnded }: WorldViewProps) {
       </div>
     );
   }
+  return <ReconnectableWorld key={scene.id} scene={scene} onEnded={onEnded} onResumed={onResumed} imageUrl={image.url} />;
+}
+
+/**
+ * Owns the per-round reconnect budget and the attempt counter; renders one keyed provider per attempt.
+ * Guards: onEnded is forwarded at most once per attempt and only for the current attempt (a late
+ * endWorld from a torn-down session is dropped); onResumed fires only when a reconnect (attempt > 0)
+ * reaches "live"; reconnect is only accepted after the current attempt has ended.
+ * @param props scene, parent callbacks and the verified first-frame URL
+ */
+function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewProps & { imageUrl: string }) {
+  const [attempt, setAttempt] = useState(0);
+  const attemptRef = useRef(0);
+  const endedAttemptRef = useRef<number | null>(null);
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
+  const onResumedRef = useRef(onResumed);
+  onResumedRef.current = onResumed;
+  useEffect(() => log.info("ReconnectableWorld", { sceneId: scene.id, attempt }), [scene.id, attempt]);
+
+  /**
+   * Forwards a session end to the parent, once per attempt, ignoring stale sessions.
+   * @param n attempt the ending session belongs to
+   * @param reason short reason from useWorldSession
+   */
+  const handleEnded = useCallback((n: number, reason: string) => {
+    log.info("ReconnectableWorld.handleEnded", { n, current: attemptRef.current, reason });
+    if (n !== attemptRef.current || endedAttemptRef.current === n) return;
+    endedAttemptRef.current = n;
+    onEndedRef.current?.(reason);
+  }, []);
+
+  /** Tells the parent a reconnect went live (ignored for the first session / stale ones). @param n attempt */
+  const handleLive = useCallback((n: number) => {
+    log.info("ReconnectableWorld.handleLive", { n, current: attemptRef.current });
+    if (n === 0 || n !== attemptRef.current) return;
+    onResumedRef.current?.();
+  }, []);
+
+  /** Starts a fresh session for the same scene if the current one has ended and budget remains. */
+  const reconnect = useCallback(() => {
+    log.info("ReconnectableWorld.reconnect", { attempt: attemptRef.current, ended: endedAttemptRef.current });
+    if (endedAttemptRef.current !== attemptRef.current) return;
+    if (attemptRef.current >= REACTOR.maxReconnectsPerRound) return;
+    attemptRef.current += 1;
+    setAttempt(attemptRef.current);
+  }, []);
+
   return (
-    <LingbotWorld2Provider key={scene.id} apiUrl={REACTOR.apiUrl} jwtToken={fetchReactorToken}>
-      <LiveWorld scene={scene} onEnded={onEnded} imageUrl={image.url} />
+    <LingbotWorld2Provider key={`${scene.id}#${attempt}`} apiUrl={REACTOR.apiUrl} jwtToken={fetchReactorToken}>
+      <LiveWorld
+        scene={scene}
+        imageUrl={imageUrl}
+        attempt={attempt}
+        reconnectsLeft={REACTOR.maxReconnectsPerRound - attempt}
+        onSessionEnded={handleEnded}
+        onSessionLive={handleLive}
+        onReconnect={reconnect}
+      />
     </LingbotWorld2Provider>
   );
 }
 
+type LiveWorldProps = {
+  scene: Scene;
+  imageUrl: string;
+  /** Which session of this round this is (0 = first). */
+  attempt: number;
+  /** Reconnects still allowed this round. */
+  reconnectsLeft: number;
+  onSessionEnded: (attempt: number, reason: string) => void;
+  onSessionLive: (attempt: number) => void;
+  onReconnect: () => void;
+};
+
 /**
- * Live Reactor world: video stream over the still poster, HUD on top, keyboard driving.
- * @param props scene, onEnded, and the verified first-frame URL
+ * Live Reactor world: video stream over the still poster, HUD on top, keyboard driving, and the
+ * reconnect affordance (button + R) once the session has ended.
+ * @param props see LiveWorldProps
  */
-function LiveWorld({ scene, onEnded, imageUrl }: WorldViewProps & { imageUrl: string }) {
-  useEffect(() => log.info("LiveWorld", { sceneId: scene.id }), [scene.id]);
-  const s = useWorldSession(scene, onEnded);
+function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, onSessionLive, onReconnect }: LiveWorldProps) {
+  useEffect(() => log.info("LiveWorld", { sceneId: scene.id, attempt }), [scene.id, attempt]);
+  const handleEnded = useCallback((reason: string) => onSessionEnded(attempt, reason), [onSessionEnded, attempt]);
+  const s = useWorldSession(scene, handleEnded);
   const live = s.phase === "live";
+  const closed = s.phase === "ended" || s.phase === "error";
   useWasdControls(live, { onAxis: s.onAxis, onMovingChange: s.onMovingChange, onInput: s.onInput });
+
+  useEffect(() => {
+    if (live) onSessionLive(attempt);
+  }, [live, attempt, onSessionLive]);
+
+  // R = reconnect, bound only while the session is closed and budget remains.
+  useEffect(() => {
+    if (!closed || reconnectsLeft <= 0) return;
+    log.info("LiveWorld.reconnectKey", { attempt, reconnectsLeft });
+    /** keydown handler. @param e keyboard event */
+    const down = (e: KeyboardEvent) => {
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      if ((e.target as HTMLElement | null)?.closest?.("input, textarea, select, [contenteditable]")) return;
+      if (e.key.toLowerCase() !== REACTOR.reconnectKey) return;
+      e.preventDefault();
+      onReconnect();
+    };
+    window.addEventListener("keydown", down);
+    return () => window.removeEventListener("keydown", down);
+  }, [closed, reconnectsLeft, attempt, onReconnect]);
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-black">
@@ -91,7 +194,9 @@ function LiveWorld({ scene, onEnded, imageUrl }: WorldViewProps & { imageUrl: st
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
         />
       )}
-      <WorldHud phase={s.phase} secondsLeft={s.secondsLeft} retry={s.retry} waitingForGpu={s.waitingForGpu} message={s.message} />
+      <WorldHud phase={s.phase} secondsLeft={s.secondsLeft} retry={s.retry} waitingForGpu={s.waitingForGpu} message={s.message}
+        reconnect={closed ? { left: reconnectsLeft, onReconnect } : undefined}
+      />
     </div>
   );
 }
