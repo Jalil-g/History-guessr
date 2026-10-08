@@ -8,11 +8,13 @@
  */
 import { log } from "@/lib/log";
 import type { WorldModelId } from "@/lib/world-models";
+import { lingbotAdapter } from "./lingbot";
 import { lingbotWorld2Adapter } from "./lingbotWorld2";
 import type { WorldAdapter } from "./types";
 
 const ADAPTERS: Record<WorldModelId, WorldAdapter> = {
   "lingbot-world-2": lingbotWorld2Adapter,
+  lingbot: lingbotAdapter,
 };
 
 /**

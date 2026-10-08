@@ -24,7 +24,7 @@ import { MODELS, WORLD } from "@/lib/config";
 import { log } from "@/lib/log";
 
 /** Stable ids of the supported world models (also the adapter keys and the localStorage value). */
-export type WorldModelId = "lingbot-world-2";
+export type WorldModelId = "lingbot-world-2" | "lingbot";
 
 /** One selectable world model. */
 export type WorldModelInfo = {
@@ -49,6 +49,14 @@ export const WORLD_MODELS: readonly WorldModelInfo[] = [
     description: "Steadiest walkable world — separate walk and strafe axes",
     reactorModel: MODELS.reactorWorld,
     npmPackage: "@reactor-models/lingbot-world-2",
+    capabilities: { move: true, look: true },
+  },
+  {
+    id: "lingbot",
+    label: "LingBot",
+    description: "The original LingBot world — looser, more dreamlike walk",
+    reactorModel: MODELS.reactorWorldLingbot,
+    npmPackage: "@reactor-models/lingbot",
     capabilities: { move: true, look: true },
   },
 ];
