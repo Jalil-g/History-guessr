@@ -76,14 +76,14 @@ export const MAP = {
   guessColor: "#f59e0b",
   answerColor: "#22c55e",
   lineColor: "#fde68a",
-  /** Parchment base map: keyless Esri World Terrain Base (no labels), sepia-filtered in globals.css. */
-  parchmentTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}",
-  /** Esri terrain tiles exist up to this zoom; Leaflet upscales beyond it. */
-  parchmentMaxNativeZoom: 13,
+  /** Parchment base map: keyless Esri World Physical Map (no labels), sepia-filtered in globals.css. */
+  parchmentTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}",
+  /** Esri physical tiles exist up to this zoom; Leaflet upscales beyond it (labels overlay stays crisp). */
+  parchmentMaxNativeZoom: 8,
   /** Transparent keyless Esri overlay with borders + place names, drawn over the parchment. */
   labelsTileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
   /** Attribution for the parchment + labels layers. */
-  parchmentAttribution: "Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, NPS",
+  parchmentAttribution: "Tiles &copy; Esri &mdash; Source: US National Park Service, Esri",
   /** Custom divIcon pin colours (guess = cream, answer = brass). */
   pinGuessColor: "#f5ecd7",
   pinAnswerColor: "#e0a530",
@@ -101,10 +101,10 @@ export const MAP = {
 export const TIMELINE = {
   anchors: [
     [0, -3000],
-    [0.16, -1000],
-    [0.36, 0],
-    [0.58, 1000],
-    [0.78, 1600],
+    [0.2, -1000],
+    [0.4, 0],
+    [0.6, 1000],
+    [0.8, 1600],
     [1, 2026],
   ] as [number, number][],
   /** Years that get a large tick + text label under the ruler. */
@@ -138,6 +138,10 @@ export const UI = {
   miniMapHeight: 250,
   expandedMapVw: 70,
   expandedMapVh: 70,
+  /** Zoom applied when the map is expanded while still at the world view. */
+  expandedMinZoom: 2,
+  /** Wait for the expand/collapse resize transition before re-zooming, in ms. */
+  expandSettleMs: 320,
   /** Width of the floating "talk to a local" panel, in px. */
   localPanelWidth: 330,
   /** Keyboard shortcuts (never WASD / arrows — those drive the world). */

@@ -96,7 +96,8 @@ export function TimelineSlider({ value, onChange }: TimelineSliderProps) {
         className="hg-slider group relative cursor-ew-resize touch-none px-0 pb-6 pt-9"
       >
         {/* Track */}
-        <div ref={trackRef} className="relative h-9 border border-cream/25 bg-gradient-to-b from-[#3d2c1b]/90 to-[#24180e]/90 shadow-[inset_0_1px_0_rgba(245,236,215,0.08)] backdrop-blur-sm transition group-hover:border-cream/45">
+        <div ref={trackRef} className="relative h-9 border border-cream/25 shadow-[inset_0_1px_0_rgba(245,236,215,0.08)] transition group-hover:border-cream/45"
+          style={{ background: "linear-gradient(to bottom, rgba(61,44,27,0.92), rgba(36,24,14,0.92))" }}>
           {/* Filled portion */}
           <div className="absolute inset-y-0 left-0 bg-cream/[0.07]" style={{ width: `${pos * 100}%` }} />
           {/* Ticks */}

@@ -97,7 +97,7 @@ export function HudToolbar({ uiHidden, onToggleUi, muted, onToggleMute, popover,
       </div>
 
       {popover && (
-        <div className="hg-glass hg-rise absolute right-0 top-11 w-80 p-5 shadow-2xl">
+        <div className="hg-rise absolute right-0 top-11 z-30 w-80 border border-cream/20 bg-[#0b0906]/90 p-5 shadow-2xl backdrop-blur-md">
           {popover === "hint" ? (
             <>
               <div className="hg-label mb-2 !text-brass">Hint {(hintIndex % UI.hints.length) + 1} / {UI.hints.length}</div>

@@ -71,8 +71,8 @@ body {
 }
 
 /* Parchment look for the Esri terrain tiles. */
-.hg-parchment-tiles { filter: sepia(0.85) saturate(0.75) contrast(1.05) brightness(0.92) hue-rotate(-8deg); }
-.hg-labels-tiles { filter: sepia(1) brightness(0.55) contrast(1.4); opacity: 0.85; }
+.hg-parchment-tiles { filter: sepia(0.9) saturate(0.9) contrast(1.05) brightness(0.88); }
+.hg-labels-tiles { filter: sepia(0.7) contrast(0.9); opacity: 0.7; }
 .leaflet-container { background: #c9b48a; font-family: var(--font-mono); }
 
 /* Custom divIcon pin (components/guess/GuessMap.tsx). */

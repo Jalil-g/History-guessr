@@ -16,9 +16,9 @@
  *    instance is kept (only the wrapper resizes), so zoom and pin survive the toggle.
  *  - pin placed: label switches to "PIN DROPPED · TAP TO MOVE"
  */
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type L from "leaflet";
-import { UI } from "@/lib/config";
+import { MAP, UI } from "@/lib/config";
 import { log } from "@/lib/log";
 import type { LatLng } from "@/lib/scoring";
 import { LazyGuessMap } from "./LazyGuessMap";
@@ -66,6 +66,19 @@ export function MiniMap({ pin, onPick, expanded, onToggleExpand }: MiniMapProps)
     log.info("MiniMap.handleReady", {});
     mapRef.current = m;
   }, []);
+
+  // When expanding a fully zoomed-out map, zoom in one step so the world fills the larger frame.
+  useEffect(() => {
+    log.info("MiniMap.expandEffect", { expanded });
+    const m = mapRef.current;
+    if (!m) return;
+    const t = window.setTimeout(() => {
+      m.invalidateSize();
+      if (expanded && m.getZoom() < UI.expandedMinZoom) m.setZoom(UI.expandedMinZoom, { animate: false });
+      if (!expanded && m.getZoom() >= UI.expandedMinZoom) m.setZoom(MAP.initialZoom, { animate: false });
+    }, UI.expandSettleMs);
+    return () => window.clearTimeout(t);
+  }, [expanded]);
 
   const size = expanded
     ? { width: `${UI.expandedMapVw}vw`, height: `${UI.expandedMapVh}vh` }

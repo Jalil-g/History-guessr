@@ -12,7 +12,7 @@
  * import it through components/guess/LazyGuessMap.tsx (next/dynamic with ssr: false).
  *
  * Details:
- *  - tiles: keyless Esri World Terrain Base, sepia-filtered into parchment (`.hg-parchment-tiles` in
+ *  - tiles: keyless Esri World Physical Map, sepia-filtered into parchment (`.hg-parchment-tiles` in
  *    app/globals.css), plus Esri's transparent boundaries & places overlay for orientation
  *    (URLs, attribution, zooms and pin colours in lib/config.ts MAP)
  *  - pins are crisp SVG divIcons (no broken default image icons under bundlers)
@@ -98,6 +98,15 @@ function MapSync({ pin, answer, onMapReady }: { pin: LatLng | null; answer?: Lat
     if (pin) pts.push([pin.lat, pin.lng]);
     if (pts.length === 1) map.setView(pts[0], 5);
     else map.flyToBounds(pts, { padding: [MAP.revealPadding * 2, MAP.revealPadding * 2], maxZoom: MAP.revealMaxZoom, duration: 1.6 });
+    // Stop any running fly animation before unmount, or Leaflet throws in getPosition.
+    // The map may already be removed by MapContainer's own cleanup — then there is nothing to stop.
+    return () => {
+      try {
+        map.stop();
+      } catch {
+        /* map already destroyed */
+      }
+    };
   }, [map, pin, answer]);
   return null;
 }

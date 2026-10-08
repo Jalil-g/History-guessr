@@ -54,7 +54,7 @@ export function LocalPanel({ scene }: LocalPanelProps) {
         style={{ width: UI.localPanelWidth }}
       >
         <header className="flex items-center justify-between border-b border-cream/10 px-4 py-2.5">
-          <span className="hg-label">A local is nearby</span>
+          <span className="hg-label">Talk to a local</span>
           <button
             type="button"
             aria-label="Collapse"
