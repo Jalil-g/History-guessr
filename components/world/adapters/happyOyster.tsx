@@ -22,7 +22,7 @@
  *
  * Use cases: picked as "HappyOyster" on the intro screen — a game-engine-like explorable world.
  */
-import { useMemo, useRef } from "react";
+import { createContext, useContext, useMemo, useRef } from "react";
 import {
   HappyOysterProvider,
   HappyOysterVideo,
@@ -33,6 +33,9 @@ import { WORLD } from "@/lib/config";
 import { log } from "@/lib/log";
 import type { ChunkInfo, MoveAxis, MoveValue, WorldAdapter, WorldControls, WorldProviderProps, WorldStatus } from "./types";
 
+/** JWT resolver from the Provider props (HappyOyster connect() needs it passed explicitly). */
+const JwtContext = createContext<(() => Promise<string>) | null>(null);
+
 type Translation = "Front" | "Back" | "Left" | "Right" | "Front_Left" | "Front_Right" | "Back_Left" | "Back_Right";
 
 /** Session provider (Adventure mode). @param props children + apiUrl + jwtToken resolver */
@@ -40,7 +43,9 @@ function Provider({ children, apiUrl, jwtToken }: WorldProviderProps) {
   log.info("happyOyster.Provider", { apiUrl });
   return (
     <HappyOysterProvider mode="adventure" apiUrl={apiUrl} jwt={jwtToken}>
-      {children}
+      <JwtContext.Provider value={jwtToken}>
+        {children}
+      </JwtContext.Provider>
     </HappyOysterProvider>
   );
 }
@@ -85,6 +90,7 @@ async function fitFirstFrame(blob: Blob): Promise<Blob> {
  */
 function useWorld(): WorldControls {
   const ho = useHappyOyster();
+  const jwt = useContext(JwtContext);
   const imageRef = useRef<Blob | null>(null);
   const promptRef = useRef<string>("");
   const startedRef = useRef(false);
@@ -98,7 +104,7 @@ function useWorld(): WorldControls {
   return useMemo<WorldControls>(
     () => ({
       status,
-      connect: () => ho.connect(),
+      connect: () => ho.connect(jwt ?? undefined),
       disconnect: () => ho.disconnect(),
       setImage: async (image, name) => {
         imageRef.current = await fitFirstFrame(image);
@@ -132,7 +138,7 @@ function useWorld(): WorldControls {
       look: () => undefined,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [status, ho.connect, ho.disconnect, ho.createWorld, ho.startTravel, ho.move, ho.release],
+    [status, jwt, ho.connect, ho.disconnect, ho.createWorld, ho.startTravel, ho.move, ho.release],
   );
 }
 
