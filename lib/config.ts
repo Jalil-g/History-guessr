@@ -190,9 +190,9 @@ export const REACTOR = {
    * the starting view (0° = facing the scene's landmark) is clamped to ±maxYawDeg so the world model
    * never turns away from — and "forgets" — the main clue.
    */
-  maxYawDeg: 60,
+  maxYawDeg: 100,
   /** Same clamp for pitch (up/down arrows) so the player can't stare at the sky or the ground. */
-  maxPitchDeg: 20,
+  maxPitchDeg: 40,
   /**
    * Rotation frames per chunk used for the look-limit bookkeeping (rotation_speed_deg is "degrees per
    * frame of the chunk"). 0 = use `frames_emitted` from each chunk_complete. If the camera visibly
