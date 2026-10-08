@@ -2,7 +2,11 @@
 /**
  * useWorldSession — the Reactor LingBot World 2 session lifecycle for one round.
  *
- * Must run inside <LingbotWorld2Provider> (WorldView keys the provider by scene id, so every round
+ * Works with both world models (see WorldView): the main LingBot World 2 and the backup LingBot v1.
+ * Their contracts match (set_image / set_prompt / start / look axes / chunk_complete) except movement:
+ * World 2 has two axes (set_move_longitudinal + set_move_lateral), v1 one (`set_movement`, where
+ * forward/back wins over strafing) — `onAxis` translates when `model` is MODELS.reactorWorldFallback.
+ * Must run inside the world provider (WorldView keys the provider by scene id, so every round
  * gets a fresh session and the provider's unmount tears the previous one down = stops billing).
  *
  * Flow:
@@ -46,15 +50,18 @@ export function composeWorldPrompt(scene: Scene, moving: boolean): string {
  * Drives one Reactor world session for `scene`.
  * @param scene the round's scene
  * @param onEnded called once with a short reason when the session ends on its own
+ * @param model the Reactor world model this session runs (main or backup)
  * @returns phase, countdown, retry count, error message and input handlers for useWasdControls
  */
-export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void) {
+export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void, model: string = MODELS.reactorWorld) {
   const lw = useLingbotWorld2();
   const lwRef = useRef(lw);
   lwRef.current = lw;
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
 
+  /** Held movement per axis — LingBot v1 needs both to compute its single `movement` value. */
+  const moveRef = useRef<{ long: string; lat: string }>({ long: "idle", lat: "idle" });
   const [phase, setPhase] = useState<SessionPhase>("connecting");
   const [message, setMessage] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
@@ -89,7 +96,7 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
     log.info("sendPrompt", { sceneId: scene.id, length: prompt.length });
     if (prompt === lastPromptRef.current) return;
     lastPromptRef.current = prompt;
-    const req = { model: MODELS.reactorWorld, command: "set_prompt", prompt };
+    const req = { model, command: "set_prompt", prompt };
     const res = await lwRef.current.setPrompt({ prompt });
     logGenAI("reactor.setPrompt", req, res ?? { error: "no reply (send failed)" });
     return res;
@@ -138,7 +145,7 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
         const blob = await r.blob();
         if (endedRef.current) return;
         const ref = await lwRef.current.uploadFile(blob, { name: `${scene.id}.png` });
-        const imgReq = { model: MODELS.reactorWorld, command: "set_image", image: { url, bytes: blob.size, type: blob.type } };
+        const imgReq = { model, command: "set_image", image: { url, bytes: blob.size, type: blob.type } };
         const imgRes = await lwRef.current.setImage({ image: ref });
         logGenAI("reactor.setImage", imgReq, imgRes ?? { error: "no reply (send failed)" });
         if (!imgRes) throw new Error("image rejected");
@@ -147,7 +154,7 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
         await lwRef.current.setRotationSpeedDeg({ rotation_speed_deg: REACTOR.rotationSpeedDeg });
         if (endedRef.current) return;
         await lwRef.current.start();
-        logGenAI("reactor.start", { model: MODELS.reactorWorld, command: "start" }, { ok: true });
+        logGenAI("reactor.start", { model, command: "start" }, { ok: true });
         lastInputRef.current = Date.now();
         setPhase("live");
       } catch (e) {
@@ -202,11 +209,17 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
     log.info("onAxis", { axis, value });
     if (phaseRef.current !== "live") return;
     const l = lwRef.current;
+    if (model === MODELS.reactorWorldFallback && (axis === "long" || axis === "lat")) {
+      moveRef.current = { ...moveRef.current, [axis]: value };
+      const { long, lat } = moveRef.current;
+      void l.sendCommand("set_movement", { movement: long !== "idle" ? long : lat });
+      return;
+    }
     if (axis === "long") void l.setMoveLongitudinal({ move_longitudinal: value as "idle" | "forward" | "back" });
     if (axis === "lat") void l.setMoveLateral({ move_lateral: value as "idle" | "strafe_left" | "strafe_right" });
     if (axis === "yaw") void l.setLookHorizontal({ look_horizontal: value as "idle" | "left" | "right" });
     if (axis === "pitch") void l.setLookVertical({ look_vertical: value as "idle" | "up" | "down" });
-  }, []);
+  }, [model]);
 
   /** Swaps the idle / moving prompt layer. @param moving true while walking */
   const onMovingChange = useCallback((moving: boolean) => {
