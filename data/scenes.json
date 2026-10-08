@@ -2,9 +2,14 @@
   {
     "id": "giza-pyramids",
     "title": "Building the Great Pyramid",
-    "answer": { "place": "Giza Plateau, Egypt", "lat": 29.9792, "lng": 31.1342, "year": -2560 },
+    "answer": {
+      "place": "Giza Plateau, Egypt",
+      "lat": 29.9792,
+      "lng": 31.1342,
+      "year": -2560
+    },
     "reveal": "The Giza Plateau around 2560 BC: the Great Pyramid of Khufu (Cheops) nearing completion, hauled into place by tens of thousands of workers.",
-    "imagePrompt": "Standing on a dusty construction ramp on a desert plateau beside a great river valley. A colossal pyramid ahead still under construction, its upper courses unfinished with mud-brick ramps, its finished lower faces covered in smooth white limestone casing. Hundreds of workers in white linen kilts haul a huge limestone block on a wooden sledge with ropes, an overseer with a staff, palm trees and a green floodplain in the distance, blazing sun. Photorealistic first-person view at human eye level, natural lighting, sharp detail, wide 16:9 frame, no text, no captions, no watermark.",
+    "imagePrompt": "Standing on a dusty construction ramp on a desert plateau beside a great river valley. A colossal pyramid ahead still under construction, its upper courses unfinished with mud-brick ramps, its finished lower faces covered in smooth white limestone casing. Hundreds of workers in white linen kilts haul a huge limestone block on a wooden sledge with ropes, an overseer with a staff, palm trees and a green floodplain in the distance, blazing sun.",
     "worldPrompt": {
       "base": "An ancient desert construction site: a colossal unfinished pyramid with smooth white limestone casing on its lower faces and rough stepped courses near the top, mud-brick ramps climbing its side. The world contains EXACTLY ONE giant pyramid straight ahead at a fixed position. Teams of workers in white linen kilts haul limestone blocks on wooden sledges with thick ropes. Blazing sun, sand and dust, distant palm trees, photorealistic.",
       "idle": "First-person view at human eye level; the camera does not move on its own. Workers pull ropes in rhythm, dust drifting, the block inching forward on its sledge.",
@@ -16,16 +21,463 @@
       "persona": "You are Neferu, a proud foreman of a work gang building the great tomb for the living god-king. You are paid in bread and beer, your gang has a funny name, and you brag that your fine white stone comes by boat from the quarries across the river. You have never heard of coins, iron, horses, or an alphabet."
     },
     "source": {
-      "chapter": "XVIII. Egypt, Babylon and Assyria",
-      "quote": "Such were Cheops and Chephren and Mycerinus, who built those vast sepulchral piles, the pyramids at Gizeh."
+      "quote": "Such were Cheops and Chephren and Mycerinus, who built those vast sepulchral piles, the pyramids at Gizeh.",
+      "chapter": "XV. Sumeria, Early Egypt and Writing"
+    }
+  },
+  {
+    "id": "hammurabi-babylon",
+    "title": "Hammurabi's Babylon",
+    "answer": {
+      "place": "Babylon, Iraq",
+      "lat": 32.5364,
+      "lng": 44.4208,
+      "year": -1750
+    },
+    "reveal": "Babylon, around 1750 BC: Hammurabi rules a consolidated Mesopotamian empire and establishes one of the earliest known written codes of law.",
+    "imagePrompt": "Standing on a bustling, sun-baked clay street between high mud-brick walls. A massive stepped ziggurat temple of sun-dried brick looms straight ahead against a clear blue sky. People in woven woollen tunics and fringed skirts lead donkeys laden with grain sacks, merchants argue over clay tablets and wooden styluses, and guards with spears and skin shields stand watch.",
+    "worldPrompt": {
+      "base": "A bustling ancient city of sun-baked clay streets and high mud-brick walls. The world contains EXACTLY ONE massive stepped ziggurat temple straight ahead at a fixed position. People in fringed woollen tunics lead donkeys, merchants hold clay tablets, and guards carry spears and skin shields. Bright sunlight, clear sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Merchants gesture over clay tablets, donkeys flick their ears, and dust drifts in the sunlight.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The clay street passes underfoot as the viewer moves past arguing merchants and laden donkeys toward the great temple."
+    },
+    "local": {
+      "name": "Gimil-Marduk, a scribe",
+      "voice": "Orus",
+      "persona": "You are Gimil-Marduk, a scribe who writes contracts and accounts on wet clay with a wedge-shaped stick. You are proud of the new code of laws set up on a great black stone pillar by your mighty king, which brings justice to the land between the two rivers. You buy your beer with weighed silver or barley, and you have never seen a horse or a coined piece of money."
+    },
+    "source": {
+      "quote": "It was consolidated by a great king called Hammurabi (circa 2100 B.C.) who made the earliest code of laws yet known to history.",
+      "chapter": "XVI. Primitive Nomadic Peoples"
+    }
+  },
+  {
+    "id": "pericles-athens",
+    "title": "Building the Parthenon",
+    "answer": {
+      "place": "Acropolis, Athens, Greece",
+      "lat": 37.9715,
+      "lng": 23.7267,
+      "year": -432
+    },
+    "reveal": "The Acropolis of Athens, around 432 BC: Under the leadership of Pericles, the Parthenon is constructed, marking the zenith of classical Greek art and democracy.",
+    "imagePrompt": "Standing on a rocky hilltop under a brilliant Mediterranean sun. A magnificent marble temple surrounded by scaffolding and wooden cranes stands straight ahead, its fluted columns gleaming white. Stonemasons in simple linen tunics chisel marble blocks, painters apply bright red and blue pigments to the upper friezes, and citizens in draped cloaks discuss politics in the shade.",
+    "worldPrompt": {
+      "base": "A rocky hilltop construction site under a brilliant sun. The world contains EXACTLY ONE magnificent marble temple surrounded by wooden scaffolding straight ahead at a fixed position. Stonemasons in linen tunics chisel blocks, painters apply bright pigments to carved friezes, and citizens in draped cloaks converse. Marble dust in the air, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Masons strike their chisels, painters move along the scaffolding, and marble dust catches the sunlight.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The rocky ground passes underfoot as the viewer walks past marble blocks and busy sculptors toward the temple."
+    },
+    "local": {
+      "name": "Phidias, a master sculptor",
+      "voice": "Charon",
+      "persona": "You are Phidias, a master sculptor overseeing the decoration of the great temple to the city's patron goddess. You are paid in silver owls and spend your evenings arguing philosophy and politics in the assembly. You are immensely proud of your city's naval empire and democratic freedom, though you rely heavily on the labour of slaves."
+    },
+    "source": {
+      "quote": "For over thirty years (466 to 428 B.C.) Athens was dominated by a man of great vigour and liberality of mind, Pericles, who set himself to rebuild the city from the ashes to which the Persians had reduced it. The beautiful ruins that still glorify Athens to-day are chiefly the remains of this great effort.",
+      "chapter": "XXV. The Splendour of Greece"
+    }
+  },
+  {
+    "id": "buddha-sarnath",
+    "title": "The First Sermon in the Deer Park",
+    "answer": {
+      "place": "Sarnath, Uttar Pradesh, India",
+      "lat": 25.3811,
+      "lng": 83.0214,
+      "year": -528
+    },
+    "reveal": "Sarnath, near Benares, around 528 BC: Gautama Buddha preaches his first sermon in the Deer Park, setting the Wheel of Dharma in motion.",
+    "imagePrompt": "Standing in a peaceful, shaded park grove with tall trees and grazing deer. A simple wooden pavilion with a thatched roof stands straight ahead. A serene man in a simple yellow ascetic's robe sits cross-legged on the ground, teaching a small group of similarly dressed followers who listen intently. Dappled sunlight filters through the leaves, and the atmosphere is calm and meditative.",
+    "worldPrompt": {
+      "base": "A peaceful, shaded park grove with tall trees and grazing deer. The world contains EXACTLY ONE simple wooden pavilion with a thatched roof straight ahead at a fixed position. A serene man in a yellow ascetic's robe sits cross-legged, teaching a small group of similarly dressed followers. Dappled sunlight, calm atmosphere, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Leaves rustle gently in the breeze, deer graze quietly in the background, and the seated figures remain still and attentive.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The grassy ground passes underfoot as the viewer approaches the seated teacher and his disciples."
+    },
+    "local": {
+      "name": "Kaundinya, an ascetic disciple",
+      "voice": "Zephyr",
+      "persona": "You are Kaundinya, an ascetic who has spent years in the jungle practicing severe fasting and self-torment to find truth. You recently abandoned your former companion when he ate normal food, but now you sit in this deer park listening to his new middle way. You are amazed by his teaching that the subjugation of self and greedy desires leads to ultimate peace."
+    },
+    "source": {
+      "quote": "He went on to Benares and there he sought out and won back his lost disciples to his new teaching. In the King’s Deer Park at Benares they built themselves huts and set up a sort of school to which came many who were seeking after wisdom.",
+      "chapter": "XXVIII. The Life of Gautama Buddha"
+    }
+  },
+  {
+    "id": "library-alexandria",
+    "title": "The Museum and Library of Alexandria",
+    "answer": {
+      "place": "Alexandria, Egypt",
+      "lat": 31.2001,
+      "lng": 29.9187,
+      "year": -280
+    },
+    "reveal": "Alexandria, Egypt, around 280 BC: The Museum and Library flourish under the early Ptolemies, serving as the intellectual center of the Hellenistic world.",
+    "imagePrompt": "Standing in a grand, sunlit colonnaded courtyard of Hellenistic architecture. A majestic marble building with a wide portico and tall columns stands straight ahead. Scholars in draped Greek himations stroll along the porticoes holding rolled papyrus scrolls, while scribes sit at wooden tables copying texts. Bronze statues, geometric instruments, and lush potted palms decorate the stone-paved courtyard under a bright blue sky.",
+    "worldPrompt": {
+      "base": "A grand, sunlit colonnaded courtyard of classical architecture. The world contains EXACTLY ONE majestic marble building with a wide portico straight ahead at a fixed position. Scholars in draped cloaks stroll holding rolled papyrus scrolls, and scribes copy texts at wooden tables. Bronze statues, geometric instruments, lush palms, bright blue sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Scholars gesture as they debate, scribes unroll papyrus, and shadows of the columns shift slightly.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The smooth stone paving passes underfoot as the viewer walks past debating scholars toward the grand portico."
+    },
+    "local": {
+      "name": "Aristarchus, a mathematician and astronomer",
+      "voice": "Charon",
+      "persona": "You are Aristarchus, a scholar studying geometry and the stars at the great royal research institute. You are surrounded by thousands of papyrus rolls containing all the knowledge of the world, copied by an army of scribes. You are currently calculating the size of the earth and the distance to the sun, funded entirely by the royal treasury."
+    },
+    "source": {
+      "quote": "He set up a foundation in Alexandria which was formerly dedicated to the Muses, the Museum of Alexandria. For two or three generations the scientific work done at Alexandria was extraordinarily good.",
+      "chapter": "XXVII. The Museum and Library at Alexandria"
+    }
+  },
+  {
+    "id": "hannibal-alps",
+    "title": "Hannibal Crossing the Alps",
+    "answer": {
+      "place": "The Alps, France/Italy border",
+      "lat": 45.1765,
+      "lng": 6.9292,
+      "year": -218
+    },
+    "reveal": "The Alps, 218 BC: Hannibal's audacious crossing of the Alps with his army and war elephants brings the Second Punic War directly into the heart of the Roman Republic.",
+    "imagePrompt": "Standing on a narrow, treacherous snow-covered mountain pass surrounded by jagged, icy peaks. A massive grey war elephant with a wooden tower on its back trudges straight ahead through the deep snow. Exhausted soldiers in bronze helmets and heavy woollen cloaks struggle against the biting wind, leading pack mules and carrying spears, their faces grim with the freezing cold.",
+    "worldPrompt": {
+      "base": "A treacherous, snow-covered mountain pass surrounded by jagged, icy peaks. The world contains EXACTLY ONE massive grey war elephant with a wooden tower on its back straight ahead at a fixed position. Exhausted soldiers in bronze helmets and heavy cloaks struggle through deep snow, leading pack mules and carrying spears. Biting wind, blowing snow, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Snowflakes whip past in the freezing wind, the elephant shifts its weight, and soldiers shiver in their cloaks.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The crunching snow passes underfoot as the viewer pushes forward through the blizzard behind the great elephant."
+    },
+    "local": {
+      "name": "Mago, a cavalry officer",
+      "voice": "Fenrir",
+      "persona": "You are Mago, a battle-hardened cavalry officer from a great North African trading empire. You have marched for months from the western peninsula, and now you are freezing in these cursed mountains, trying to keep your horses and giant beasts alive. You are driven by a burning hatred for the republic across the sea that humiliated your father, and you will not stop until you reach their capital."
+    },
+    "source": {
+      "quote": "He marched his army from Spain over the Alps into Italy, raised the Gauls against the Romans, and carried on the Second Punic War in Italy itself for fifteen years.",
+      "chapter": "XXXII. Rome and Carthage"
+    }
+  },
+  {
+    "id": "great-wall-qin",
+    "title": "Building the Great Wall",
+    "answer": {
+      "place": "Great Wall, Northern China",
+      "lat": 40.3595,
+      "lng": 116.0136,
+      "year": -214
+    },
+    "reveal": "Northern China, around 214 BC: The first Emperor, Shi Huang-ti, connects older fortifications into the Great Wall to repel nomadic invaders.",
+    "imagePrompt": "Standing on a rugged, barren mountain ridge in a vast eastern landscape. A massive, newly built rammed-earth and stone wall snakes straight ahead across the peaks. Hundreds of peasant laborers in simple wrapped tunics carry baskets of earth and stone on bamboo poles, overseen by guards in lamellar armor with halberds, under a bleak, overcast sky.",
+    "worldPrompt": {
+      "base": "A rugged mountain ridge where a massive rammed-earth and stone wall is under construction. The world contains EXACTLY ONE long fortified wall straight ahead at a fixed position. Laborers in wrapped tunics carry baskets of earth, guards in lamellar armor stand watch, dust rising against a bleak sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Laborers trudge past with heavy baskets, dust swirling in the cold mountain wind.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The uneven, packed-earth path of the wall passes underfoot as workers step aside."
+    },
+    "local": {
+      "name": "Wei, a conscripted laborer",
+      "voice": "Orus",
+      "persona": "You are Wei, a peasant dragged from your village to build this endless barrier against the northern horsemen. You survive on meager rations of millet and fear the harsh overseers who punish any delay. You have never heard of paper, the western deserts, or the lands beyond the mountains."
+    },
+    "source": {
+      "quote": "He fought vigorously against the Hunnish invaders from the northern deserts, and he began that immense work, the Great Wall of China, to set a limit to their incursions.",
+      "chapter": "XXX. Confucius and Lao Tse"
+    }
+  },
+  {
+    "id": "ides-of-march",
+    "title": "The Assassination of the Dictator",
+    "answer": {
+      "place": "Theatre of Pompey, Rome, Italy",
+      "lat": 41.8952,
+      "lng": 12.4748,
+      "year": -44
+    },
+    "reveal": "Rome, 44 BC: Julius Caesar is assassinated in the Senate on the Ides of March, plunging the Republic into its final civil wars.",
+    "imagePrompt": "Standing inside a grand, marble-columned hall with a geometric mosaic floor. A towering marble statue of a military commander stands straight ahead. A chaotic struggle is unfolding at the base of the statue, where a group of older men in white, purple-bordered togas are plunging daggers into a tall man wearing a rich purple toga, blood staining the white cloth.",
+    "worldPrompt": {
+      "base": "A grand classical hall with marble columns and a mosaic floor. The world contains EXACTLY ONE towering marble statue straight ahead at a fixed position. A violent struggle occurs at the statue's base as men in white togas attack a man in a purple toga with daggers, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The attackers thrust their blades in a frantic frenzy, while the victim raises his toga to cover his face.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The smooth mosaic floor glides beneath as the viewer approaches the chaotic struggle."
+    },
+    "local": {
+      "name": "Lucius, a senator's attendant",
+      "voice": "Puck",
+      "persona": "You are Lucius, a scribe waiting outside the meeting hall while the elders debate. There are whispers that the supreme dictator wants to crown himself king, a word hated in this republic for five hundred years. You are shocked by the sudden shouts and the sight of drawn blades flashing in the shadows."
+    },
+    "source": {
+      "quote": "The expiring republicanism of Rome flared up in a last protest, and Cæsar was stabbed to death in the Senate at the foot of the statue of his murdered rival, Pompey the Great.",
+      "chapter": "XXXIII. The Growth of the Roman Empire"
+    }
+  },
+  {
+    "id": "sack-of-rome",
+    "title": "The Fall of the Eternal City",
+    "answer": {
+      "place": "Rome, Italy",
+      "lat": 41.8925,
+      "lng": 12.4853,
+      "year": 410
+    },
+    "reveal": "Rome, 410 AD: The Visigoths under Alaric sack Rome, shattering the myth of the eternal city's invincibility and signaling the fall of the Western Empire.",
+    "imagePrompt": "Standing in a grand but decaying classical city square, smoke billowing into the sky. A magnificent, partially looted marble temple stands straight ahead. Bearded warriors in furs, chainmail, and iron helmets are smashing statues and carrying off gold vessels and silk tapestries, while terrified citizens in simple tunics flee through the colonnades.",
+    "worldPrompt": {
+      "base": "A classical city square filled with smoke and chaos. The world contains EXACTLY ONE magnificent marble temple straight ahead at a fixed position. Bearded warriors in furs and chainmail loot gold and tapestries, smashing statues while citizens flee through the colonnades, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Smoke drifts across the square, and the sounds of shattering stone and shouting warriors echo around the temple.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Debris and broken statues crunch underfoot as the viewer navigates the panicked crowd."
+    },
+    "local": {
+      "name": "Gaius, a terrified patrician",
+      "voice": "Charon",
+      "persona": "You are Gaius, a wealthy landowner whose villa has just been stripped of its treasures by northern invaders. You cannot believe the eternal city has fallen to barbarians after ruling the world for centuries. You cling to your faith, hoping the bishop can negotiate with the conquerors to spare your family."
+    },
+    "source": {
+      "quote": "In the course of their struggle Alaric marched into Italy and after a short siege took Rome (410 A.D.).",
+      "chapter": "XXXIX. The Barbarians Break the Empire into East and West"
+    }
+  },
+  {
+    "id": "hagia-sophia",
+    "title": "The Completion of the Great Church",
+    "answer": {
+      "place": "Constantinople (Istanbul), Turkey",
+      "lat": 41.0082,
+      "lng": 28.9784,
+      "year": 537
+    },
+    "reveal": "Constantinople, 537 AD: The Emperor Justinian completes the Hagia Sophia, a masterpiece of Byzantine architecture and the center of Eastern Christianity.",
+    "imagePrompt": "Standing in a vast, echoing interior bathed in golden light from high windows. A colossal, breathtaking central dome covered in shimmering gold mosaics rises straight ahead. Priests in rich embroidered vestments swing silver censers, while nobles in heavy silk robes and jewels marvel at the massive marble pillars and the sheer scale of the newly finished sanctuary.",
+    "worldPrompt": {
+      "base": "A vast, echoing sanctuary bathed in golden light. The world contains EXACTLY ONE colossal dome covered in shimmering gold mosaics straight ahead at a fixed position. Priests in embroidered vestments swing censers, and nobles in heavy silk robes stand among massive marble pillars, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Incense smoke curls upward into the shafts of sunlight, illuminating the glittering gold mosaics.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The polished marble floor reflects the light as the viewer walks among the awe-struck congregation."
+    },
+    "local": {
+      "name": "Theodore, a mosaic artist",
+      "voice": "Zephyr",
+      "persona": "You are Theodore, a master craftsman who has spent years pressing gold leaf into glass for this magnificent ceiling. You are immensely proud of the emperor's grand project, which has nearly bankrupted the treasury but created the greatest sanctuary on earth. You hear rumors of a terrible plague spreading from the south, but today you only feel awe."
+    },
+    "source": {
+      "quote": "He founded a university, built the great church of Sta. Sophia in Constantinople and codified the Roman law.",
+      "chapter": "XLI. The Byzantine and Sassanid Empires"
+    }
+  },
+  {
+    "id": "muhammad-mecca",
+    "title": "The Return to the Holy City",
+    "answer": {
+      "place": "Mecca, Saudi Arabia",
+      "lat": 21.4225,
+      "lng": 39.8262,
+      "year": 630
+    },
+    "reveal": "Mecca, 630 AD: Muhammad returns triumphantly to his home city, cleansing the Kaaba of idols and establishing it as the holiest site in Islam.",
+    "imagePrompt": "Standing in a sun-baked desert city square surrounded by flat-roofed mud-brick houses. A large, cube-shaped stone shrine draped in dark cloth stands straight ahead. A procession of men in simple desert robes and turbans approaches peacefully, some carrying wooden staffs, as onlookers watch in respectful silence under the bright, arid sky.",
+    "worldPrompt": {
+      "base": "A sun-baked desert city square surrounded by mud-brick houses. The world contains EXACTLY ONE cube-shaped stone shrine draped in dark cloth straight ahead at a fixed position. Men in simple robes and turbans walk peacefully toward it, watched by silent onlookers under a bright sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The desert sun beats down as the procession slowly circles the dark, draped shrine.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The dusty ground passes beneath as the viewer moves closer to the ancient stone shrine."
+    },
+    "local": {
+      "name": "Zayd, a merchant",
+      "voice": "Charon",
+      "persona": "You are Zayd, a trader who once opposed the new teachings but has now accepted them as the victorious exiles return peacefully. You are relieved that the pilgrimage trade will continue, though the old idols are being cleared from the shrine. You marvel at how this new faith has united the warring desert tribes."
+    },
+    "source": {
+      "quote": "In 629 Muhammad returned to Mecca as its master, a year after he had sent out these envoys of his to Heraclius, Tai-tsung, Kavadh and all the rulers of the earth.",
+      "chapter": "XLIII. Muhammad and Islam"
+    }
+  },
+  {
+    "id": "charlemagne-crowned",
+    "title": "The Coronation of Charlemagne",
+    "answer": {
+      "place": "St. Peter's Basilica, Rome, Italy",
+      "lat": 41.9022,
+      "lng": 12.4539,
+      "year": 800
+    },
+    "reveal": "Rome, Christmas Day 800: Charlemagne is unexpectedly crowned Emperor of the Romans by Pope Leo III, reviving the Western Roman Empire.",
+    "imagePrompt": "Standing in the nave of a vast, ancient basilica lit by thousands of flickering oil lamps and wax candles on a cold winter morning. A magnificent high altar straight ahead, where a bearded king in a rich mantle kneels before a white-robed patriarch holding a golden crown. Surrounding them are nobles in heavy wool cloaks, mail-shirted guards, and tonsured priests chanting, incense smoke rising into the timber-roofed shadows.",
+    "worldPrompt": {
+      "base": "A vast, ancient basilica lit by thousands of flickering oil lamps and wax candles on a cold winter morning. The world contains EXACTLY ONE magnificent high altar straight ahead at a fixed position. A bearded king in a rich mantle kneels before a white-robed patriarch holding a golden crown, surrounded by nobles in heavy wool cloaks, mail-shirted guards, and tonsured priests chanting, incense smoke rising, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The flickering candlelight dances on gold mosaics, incense smoke drifts, and the priests chant softly.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The marble floor passes underfoot as the viewer moves down the nave toward the altar."
+    },
+    "local": {
+      "name": "Lothar, a palace guard",
+      "voice": "Fenrir",
+      "persona": "You are Lothar, a loyal guard to the great king of the north. You have travelled far over snowy mountains to reach this ancient, ruined southern city, and you grumble about the strange customs of the locals. You whisper that the patriarch is about to place a crown on your master's head by surprise, reviving an ancient title that has been dead in the west for centuries."
+    },
+    "source": {
+      "quote": "The Pope succeeded in crowning his visitor and conqueror by surprise in St. Peter’s on Christmas Day 800 A.D. He produced a crown, put it on the head of Charlemagne and hailed him Cæsar and Augustus.",
+      "chapter": "XLV. The Development of Latin Christendom"
+    }
+  },
+  {
+    "id": "harun-baghdad",
+    "title": "The Court of Harun al-Rashid",
+    "answer": {
+      "place": "Baghdad, Iraq",
+      "lat": 33.3152,
+      "lng": 44.3661,
+      "year": 800
+    },
+    "reveal": "Baghdad, around 800: The Abbasid Caliphate reaches its cultural and political zenith under Harun al-Rashid, a contemporary of Charlemagne.",
+    "imagePrompt": "Standing in a bustling, sun-drenched courtyard of a magnificent eastern palace complex, shaded by palm trees and silk awnings. A grand domed audience hall of baked brick and intricate geometric tiles straight ahead. Wealthy merchants in silk robes and turbans, scholars carrying parchment scrolls, and guards with curved swords mingle near a splashing marble fountain, while a handler leads a massive elephant adorned with gold tassels.",
+    "worldPrompt": {
+      "base": "A bustling, sun-drenched courtyard of a magnificent eastern palace complex, shaded by palm trees and silk awnings. The world contains EXACTLY ONE grand domed audience hall of baked brick and intricate geometric tiles straight ahead at a fixed position. Merchants in silk robes and turbans, scholars, and guards mingle near a splashing marble fountain, while a handler leads an elephant adorned with gold tassels, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Water splashes in the marble fountain, palm fronds sway gently, and the crowd murmurs in conversation.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The tiled courtyard passes underfoot, people stepping aside as the viewer approaches the domed hall."
+    },
+    "local": {
+      "name": "Zayd, a silk merchant",
+      "voice": "Zephyr",
+      "persona": "You are Zayd, a prosperous merchant trading in silks and spices in the greatest city of the world. You marvel at the wealth of the ruler, who has just received an elephant and a water clock to send as gifts to a distant northern king. You spend your evenings listening to poets and storytellers, and you have heard rumors of a new material called paper being made in the east."
+    },
+    "source": {
+      "quote": "It is recorded that Haroun-al-Raschid sent ambassadors from Bagdad—which had now replaced Damascus as the Moslem capital—with a splendid tent, a water clock, an elephant and the keys of the Holy Sepulchre.",
+      "chapter": "XLVI. The Crusades and the Age of Papal Dominion"
+    }
+  },
+  {
+    "id": "crusade-jerusalem",
+    "title": "The Capture of Jerusalem",
+    "answer": {
+      "place": "Church of the Holy Sepulchre, Jerusalem",
+      "lat": 31.778,
+      "lng": 35.2296,
+      "year": 1099
+    },
+    "reveal": "Jerusalem, 15 July 1099: The First Crusade culminates in the storming of the city and the Church of the Holy Sepulchre, followed by a brutal massacre.",
+    "imagePrompt": "Standing in a narrow, blood-stained alleyway of an ancient walled city in the blazing summer heat. A great circular church with a massive dome straight ahead, its wooden doors battered and broken. Exhausted, dirt-streaked warriors in chainmail and surcoats lean on their bloodied swords, weeping and kneeling in the dust, while fallen defenders in light robes and turbans lie scattered among shattered shields and arrows.",
+    "worldPrompt": {
+      "base": "A narrow, blood-stained alleyway of an ancient walled city in the blazing summer heat. The world contains EXACTLY ONE great circular church with a massive dome straight ahead at a fixed position, its wooden doors battered and broken. Exhausted warriors in chainmail and surcoats kneel weeping in the dust, while fallen defenders in light robes lie scattered among shattered shields, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Dust motes dance in the harsh sunlight, warriors sob quietly, and smoke drifts from burning buildings nearby.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The blood-stained cobblestones pass underfoot as the viewer steps past fallen weapons toward the church doors."
+    },
+    "local": {
+      "name": "Godefroi, a weary man-at-arms",
+      "voice": "Charon",
+      "persona": "You are Godefroi, a battered soldier who has marched for three years across mountains and deserts to reach this holy city. You are starving, parched, and covered in the dust of battle, but you weep with overwhelming joy because the great sanctuary has finally been taken. You believe your sins are now forgiven, though you are horrified by the slaughter that just took place in the streets."
+    },
+    "source": {
+      "quote": "At nightfall on July 15th the Crusaders had fought their way into the Church of the Holy Sepulchre and overcome all opposition there: blood-stained, weary and “sobbing from excess of joy” they knelt down in prayer.",
+      "chapter": "XLVI. The Crusades and the Age of Papal Dominion"
+    }
+  },
+  {
+    "id": "kublai-court",
+    "title": "Marco Polo at the Court of Kublai Khan",
+    "answer": {
+      "place": "Beijing (Pekin), China",
+      "lat": 39.9042,
+      "lng": 116.4074,
+      "year": 1275
+    },
+    "reveal": "Beijing (Pekin), around 1275: The Venetian traveler Marco Polo is received at the court of Kublai Khan, founder of the Yuan dynasty in China.",
+    "imagePrompt": "Standing in a vast, opulent pavilion supported by lacquered red pillars and draped with yellow silk, smelling of incense. A magnificent elevated golden throne straight ahead, where a powerful emperor in embroidered silk robes sits surrounded by advisors. A young, dark-haired foreign traveler in a velvet tunic kneels respectfully before the throne, presenting a golden tablet, while courtiers in long flowing garments and guards with bows watch in silence.",
+    "worldPrompt": {
+      "base": "A vast, opulent pavilion supported by lacquered red pillars and draped with yellow silk. The world contains EXACTLY ONE magnificent elevated golden throne straight ahead at a fixed position. A powerful emperor in embroidered silk robes sits on the throne, while a young foreign traveler in a velvet tunic kneels presenting a golden tablet, surrounded by courtiers in flowing garments and guards with bows, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Silk banners flutter slightly in the breeze, incense smoke curls upward, and the courtiers remain perfectly still.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The polished wooden floor passes underfoot as the viewer approaches the golden throne."
+    },
+    "local": {
+      "name": "Wang, a court scribe",
+      "voice": "Puck",
+      "persona": "You are Wang, a meticulous scribe recording the events of the imperial court. You are fascinated by the young western traveler who has just arrived with his father and uncle, speaking your language surprisingly well. You note that the emperor is pleased with the foreigner and plans to make him a governor, though you secretly consider all outsiders to be uncultured barbarians."
+    },
+    "source": {
+      "quote": "Marco particularly pleased Kublai; he was young and clever, and it is clear he had mastered the Tartar language very thoroughly.",
+      "chapter": "XLIX. The Intellectual Revival of the Europeans"
+    }
+  },
+  {
+    "id": "fall-of-constantinople",
+    "title": "The Fall of Constantinople",
+    "answer": {
+      "place": "Theodosian Walls, Constantinople (Istanbul), Turkey",
+      "lat": 41.0122,
+      "lng": 28.9225,
+      "year": 1453
+    },
+    "reveal": "Constantinople, 1453: The Ottoman Turks under Sultan Muhammad II capture the Byzantine capital, ending the last remnant of the Roman Empire.",
+    "imagePrompt": "Standing in a ruined garden just inside a massive, breached triple stone wall under a sky dark with smoke. A colossal, smoking bronze cannon straight ahead, being dragged through the rubble by teams of oxen and shouting soldiers in turbans and chainmail. The ground is littered with shattered masonry, broken armor, and the bodies of defenders in scale mail, while victorious attackers pour through the gap waving curved swords and crescent banners.",
+    "worldPrompt": {
+      "base": "A ruined garden just inside a massive, breached triple stone wall under a sky dark with smoke. The world contains EXACTLY ONE colossal, smoking bronze cannon straight ahead at a fixed position, being dragged through the rubble by teams of oxen. Soldiers in turbans and chainmail pour through the gap waving curved swords, stepping over shattered masonry and fallen defenders in scale mail, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Smoke billows through the breached wall, dust settles over the rubble, and the banners flap in the wind.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Broken stones and trampled earth pass underfoot as the viewer moves toward the massive cannon."
+    },
+    "local": {
+      "name": "Hassan, an artilleryman",
+      "voice": "Orus",
+      "persona": "You are Hassan, a master gunner who helped cast the monstrous bronze bombard that shattered the invincible walls. You are exhausted and deafened by weeks of continuous firing, but elated that the great eastern capital has finally fallen. You marvel at the size of the ancient city and its great domed sanctuary, knowing that a new era has begun for your victorious ruler."
+    },
+    "source": {
+      "quote": "In 1453 the Ottoman Sultan, Muhammad II, took Constantinople, attacking it from the European side with a great number of guns.",
+      "chapter": "XLVIII. The Mongol Conquests"
+    }
+  },
+  {
+    "id": "columbus-landing",
+    "title": "Columbus Reaches the Americas",
+    "answer": {
+      "place": "San Salvador, Bahamas",
+      "lat": 24.0415,
+      "lng": -74.5251,
+      "year": 1492
+    },
+    "reveal": "San Salvador, Bahamas, 1492: Christopher Columbus makes his first landing in the Americas, believing he has reached the Indies.",
+    "imagePrompt": "Standing on a pristine white sand beach fringed with lush green palm trees on a bright sunny morning. A small wooden sailing ship with square rigging and a high stern is anchored in the turquoise bay straight ahead. A group of men in canvas doublets, hose, and steel helmets are wading ashore carrying a large banner with a cross, while curious indigenous people with painted skin and feathered ornaments watch from the edge of the jungle.",
+    "worldPrompt": {
+      "base": "A pristine tropical beach with white sand, lush green palm trees, and turquoise water. The world contains EXACTLY ONE small wooden sailing ship with square rigging straight ahead at a fixed position. Men in doublets and steel helmets wade ashore holding a banner, met by indigenous people with painted skin and feathers. Bright morning sunlight, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Gentle waves lap the shore, palm fronds sway in the breeze, and the men slowly wade through the shallows.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The white sand crunches underfoot as the viewer approaches the water's edge and the wading men."
+    },
+    "local": {
+      "name": "Guanacagari, an island fisherman",
+      "voice": "Zephyr",
+      "persona": "You are Guanacagari, a fisherman of the islands. You have just seen three massive canoes with white wings arrive from the sunrise, carrying pale men covered in hard, shiny shells. You are amazed by the sharp, cold stones they carry that can cut wood with ease. You have never seen beasts of burden, wheeled carts, or such strange woven clothing."
+    },
+    "source": {
+      "quote": "After a voyage of two months and nine days he came to a land which he believed to be India, but which was really a new continent, whose distinct existence the old world had never hitherto suspected.",
+      "chapter": "XLIX. The Intellectual Revival of the Europeans"
+    }
+  },
+  {
+    "id": "luther-wittenberg",
+    "title": "Posting the 95 Theses",
+    "answer": {
+      "place": "Wittenberg, Germany",
+      "lat": 51.8663,
+      "lng": 12.638,
+      "year": 1517
+    },
+    "reveal": "Wittenberg, Germany, 1517: Martin Luther posts his 95 Theses on the door of the Castle Church, sparking the Protestant Reformation.",
+    "imagePrompt": "Standing in a cobbled town square before a grand stone church with tall arched doors on a crisp autumn afternoon. A heavy wooden church door straight ahead. A stout man in the dark robes of a monk is using a hammer to nail a large parchment document to the wood, surrounded by a few curious townsfolk in woollen cloaks, flat caps, and leather boots. The sky is overcast, and fallen leaves scatter across the cobblestones.",
+    "worldPrompt": {
+      "base": "A cobbled square in a traditional European town on an autumn day. The world contains EXACTLY ONE heavy wooden church door straight ahead at a fixed position. A monk in dark robes is nailing a parchment document to the door, watched by townsfolk in woollen cloaks and flat caps. Overcast sky, fallen leaves, stone architecture, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The monk raises his hammer, the parchment flutters slightly in the wind, and the onlookers murmur among themselves.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The cobblestones pass underfoot as the viewer approaches the church door and the gathering crowd."
+    },
+    "local": {
+      "name": "Hans, a university student",
+      "voice": "Puck",
+      "persona": "You are Hans, a theology student at the local university. You are excited by the bold arguments against the selling of pardons for sins that your professor is making public today. You have read his arguments on the new printed papers that are circulating everywhere. You have never heard of a world where the universal church is divided into different sects."
+    },
+    "source": {
+      "quote": "In Germany the attack upon the church gathered round the personality of an ex-monk, Martin Luther (1483-1546), who appeared in Wittenberg in 1517 offering disputations against various orthodox doctrines and practices.",
+      "chapter": "L. The Reformation of the Latin Church"
     }
   },
   {
     "id": "storming-bastille",
     "title": "The Storming of the Bastille",
-    "answer": { "place": "Bastille, Paris, France", "lat": 48.8532, "lng": 2.3692, "year": 1789 },
+    "answer": {
+      "place": "Bastille, Paris, France",
+      "lat": 48.8532,
+      "lng": 2.3692,
+      "year": 1789
+    },
     "reveal": "Paris, 14 July 1789: crowds storm the Bastille fortress-prison, the opening act of the French Revolution.",
-    "imagePrompt": "Standing in a crowded cobbled street in a late-18th-century European city on a hot summer afternoon. A grim medieval stone fortress with eight massive round towers looms ahead, smoke rising from it. An angry crowd of townspeople in tricorne hats, waistcoats, breeches and long skirts, carrying muskets, pikes and pitchforks, some wearing red-white-blue cockades, a cart of hay burning, a cannon being dragged forward. Photorealistic first-person view at human eye level, natural lighting, sharp detail, wide 16:9 frame, no text, no captions, no watermark.",
+    "imagePrompt": "Standing in a crowded cobbled street in a late-18th-century European city on a hot summer afternoon. A grim medieval stone fortress with eight massive round towers looms ahead, smoke rising from it. An angry crowd of townspeople in tricorne hats, waistcoats, breeches and long skirts, carrying muskets, pikes and pitchforks, some wearing red-white-blue cockades, a cart of hay burning, a cannon being dragged forward.",
     "worldPrompt": {
       "base": "A crowded cobbled street in an 18th-century city in revolt. The world contains EXACTLY ONE grim stone fortress with massive round towers straight ahead at a fixed position, smoke drifting from its walls. An agitated crowd in tricorne hats, waistcoats and long skirts carries muskets, pikes and pitchforks; a hay cart burns; a cannon is pushed forward. Hot summer haze, photorealistic.",
       "idle": "First-person view at human eye level; the camera does not move on its own. The crowd surges and shouts, raising pikes, smoke curling from the towers.",
@@ -37,8 +489,34 @@
       "persona": "You are Jeanne, a fiery laundress from the eastern working quarter of the capital on a scorching summer day. Bread prices are ruinous, the king has brought foreign troops around the city, and the popular minister was just dismissed. Your neighbours are hunting for gunpowder to defend themselves, and you think the old prison everyone hates is where it is stored."
     },
     "source": {
-      "chapter": "LV. The French Revolution and the Restoration of Monarchy in France",
-      "quote": "The grim-looking prison of the Bastille was stormed by the people of Paris, and the insurrection spread rapidly throughout France."
+      "quote": "The grim-looking prison of the Bastille was stormed by the people of Paris, and the insurrection spread rapidly throughout France.",
+      "chapter": "LV. The French Revolution and the Restoration of Monarchy in France"
+    }
+  },
+  {
+    "id": "stephenson-rocket",
+    "title": "The Dawn of the Railway",
+    "answer": {
+      "place": "Liverpool, England",
+      "lat": 53.402,
+      "lng": -2.948,
+      "year": 1830
+    },
+    "reveal": "Liverpool, England, 1830: The opening of the Liverpool and Manchester Railway, featuring Stephenson's 'Rocket', heralds the dawn of the railway age.",
+    "imagePrompt": "Standing on a gravel platform beside a pair of iron rails on a bright, breezy afternoon. A primitive steam locomotive with a tall yellow cylindrical boiler, a high smokestack, and large wooden-spoked driving wheels straight ahead, puffing white steam. Gentlemen in top hats and tailcoats and ladies in large bonnets and full skirts watch in awe from the platform, while a stoker in a soot-stained shirt shovels coal into the firebox.",
+    "worldPrompt": {
+      "base": "A gravel platform beside newly laid iron rails. The world contains EXACTLY ONE primitive steam locomotive with a tall yellow boiler and high smokestack straight ahead at a fixed position. The engine puffs white steam, while a crowd of gentlemen in top hats and ladies in bonnets watch in amazement. A stoker shovels coal. Bright afternoon light, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Steam billows from the tall smokestack, the firebox glows, and the crowd points and chatters excitedly.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The gravel crunches underfoot as the viewer walks along the platform toward the hissing locomotive."
+    },
+    "local": {
+      "name": "Thomas, a railway navvy",
+      "voice": "Charon",
+      "persona": "You are Thomas, a labourer who helped lay these very iron rails. You marvel at the hissing iron horse that can pull carriages faster than any galloping stallion, though you worry it might explode. You earn a few shillings a week and spend it at the local tavern. You have never heard of an automobile, an aeroplane, or electric lights."
+    },
+    "source": {
+      "quote": "In 1825 the first railway, between Stockton and Darlington, was opened, and Stephenson’s “Rocket,” with a thirteen-ton train, got up to a speed of forty-four miles per hour.",
+      "chapter": "LVII. The Development of Material Knowledge"
     }
   }
 ]

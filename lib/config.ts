@@ -17,9 +17,9 @@
 
 export const MODELS = {
   /** Gemini text model used offline to extract scenes from the history book. */
-  sceneText: "gemini-3.1-pro",
+  sceneText: "gemini-3.1-pro-preview",
   /** Tried in order if MODELS.sceneText errors (e.g. unknown model id). */
-  sceneTextFallbacks: ["gemini-3.1-pro-preview", "gemini-2.5-pro"],
+  sceneTextFallbacks: ["gemini-2.5-pro"],
   /** Gemini image model (Nano Banana 2) used offline to paint each scene's first frame. */
   sceneImage: "gemini-3.1-flash-image",
   /** Gemini Live model for the voice conversation with a local. */

@@ -44,6 +44,7 @@
  *  - Full run:   node --env-file=.env.local scripts/extract-scenes.ts
  *  - Only some:  node --env-file=.env.local scripts/extract-scenes.ts hannibal-alps sack-of-rome
  *                (regenerates the named target ids, keeps every other scene from data/scenes.json)
+ *  - Check only: node scripts/extract-scenes.ts --verify   (no API calls; verifies quotes + lints)
  * The two hand-written seed scenes (giza-pyramids, storming-bastille) are the quality bar: they are
  * kept as-is (after quote verification) and passed to the model as examples.
  */
@@ -363,7 +364,7 @@ function stripStyle(imagePrompt: string): string {
 function lintScene(scene: Scene): string[] {
   log.info("lintScene", { id: scene.id });
   const problems: string[] = [];
-  const generic = new Set(["the", "and", "of", "great", "city", "near", "old", "new", "plateau", "river", "modern"]);
+  const generic = new Set(["the", "and", "of", "great", "city", "near", "old", "new", "plateau", "river", "modern", "wall", "basilica", "church", "cathedral"]);
   const words = scene.answer.place
     .split(/[\s,()\-]+/)
     .map((w) => w.toLowerCase())
@@ -387,16 +388,27 @@ function lintScene(scene: Scene): string[] {
  */
 async function main(onlyIds: string[]): Promise<void> {
   log.info("extractScenes.main", { onlyIds, model: MODELS.sceneText, sceneCount: GAME.sceneCount });
+  const verifyOnly = onlyIds.includes("--verify");
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY missing — run with node --env-file=.env.local");
-  const ai = new GoogleGenAI({ apiKey });
+  if (!apiKey && !verifyOnly) throw new Error("GEMINI_API_KEY missing — run with node --env-file=.env.local");
+  const ai = new GoogleGenAI({ apiKey: apiKey ?? "unused" });
 
-  const book = readFileSync(PATHS.book, "utf8");
+  // The Gutenberg file has CRLF line endings; normalise so chapter parsing and offsets line up.
+  const book = readFileSync(PATHS.book, "utf8").replace(/\r\n/g, "\n");
   const bookNorm = normalizeWithMap(book);
   const chapters = parseChapters(book);
   const existing: Scene[] = existsSync(PATHS.scenes) ? JSON.parse(readFileSync(PATHS.scenes, "utf8")) : [];
   const byId = new Map(existing.map((s) => [s.id, s]));
-  const examples = SEED_IDS.map((id) => byId.get(id)).filter((s): s is Scene => !!s);
+  const examples = SEED_IDS.map((id) => byId.get(id)).filter((s): s is Scene => !!s)
+    .map((s) => ({ ...s, imagePrompt: stripStyle(s.imagePrompt) }));
+
+  if (verifyOnly) {
+    for (const scene of existing) {
+      const v = verifyQuote(scene.source.quote, bookNorm, book, chapters);
+      log.info("verify", { id: scene.id, ok: !!v, chapter: v?.chapter, problems: lintScene(scene) });
+    }
+    return;
+  }
 
   const todo = TARGETS.filter((t) =>
     onlyIds.length ? onlyIds.includes(t.id) : !(SEED_IDS.includes(t.id) && byId.has(t.id)),
