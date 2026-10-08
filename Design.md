@@ -125,9 +125,23 @@ video on top, status / **Talk to <name>** / **End conversation** / mic status / 
 - **Token**: `GET /api/reactor/token?model=reactor/vidu-s2-avatar` — the route takes an optional
   `model` validated against `REACTOR_TOKEN_MODELS` (default stays the world model, so WorldView is
   unchanged). `components/avatar/fetchAvatarToken.ts` memoizes the avatar JWT.
+- **Prebuilt avatars** (`data/avatars.json`, loader `lib/avatars.ts`): creating an avatar from a
+  portrait takes 5–60 s, attaching an existing one ~1 s after connect, and Reactor keeps avatars 90
+  days. So every scene's avatar is created once offline and its id committed:
+  `{ "<sceneId>": { avatarId, createdAt, portrait } }`. Entries older than
+  `AVATAR.prebuiltMaxAgeDays` (85) are ignored. Regenerate with a dev server running:
+  `node scripts/prewarm-avatars.ts [ids] [--force] [--attach] [--url http://localhost:3000]` — it
+  drives the dev-only page `/dev/prewarm-avatars?ids=…[&mode=attach]` (404 outside development) in
+  headless Chrome over the DevTools protocol; the page connects one session per scene
+  (`AVATAR.prewarmConcurrency`, 429 quota retries — vidu-s2-avatar allows 10 sessions/min),
+  uploads the portrait, `createAvatar`, waits for `avatar_ready`, disconnects (never `startCall`),
+  and exposes `window.__prewarmResult`; the script merges new ids into `data/avatars.json` (skips
+  existing unless `--force`). `--attach` only measures connect → `avatar_ready` via `attachAvatar`.
 - **Session** (`useAvatarSession.ts`): portrait HEAD check (missing → fallback, no paid session) →
-  token → `connect` → wait "ready" → `attachAvatar` with the scene's cached `avatar_id` (localStorage,
-  90-day reuse; `AVATAR_NOT_FOUND` → recreate) or `uploadFile(portrait)` + `createAvatar` →
+  token → `connect` → wait "ready" → avatar source in order: prebuilt id (`attachAvatar`) →
+  localStorage cached id (`attachAvatar`) → `uploadFile(portrait)` + `createAvatar`;
+  `AVATAR_NOT_FOUND` / any attach error falls through to the next source, a freshly created id is
+  cached in localStorage; `avatar.ready` logs the source and ms from connect / prepare →
   `avatar_ready` → Talk: mic → `publishMic` → `listVoices` → gender-matched voice
   (`avatarHelpers.ts`, `local.gender`, else inferred from the Gemini voice name / persona) →
   `startCall({ persona: buildLocalInstruction(scene), greeting, voice, language, call_mode: "audio",
