@@ -26,6 +26,7 @@ import { log } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
 import { AvatarHud } from "./AvatarHud";
 import { AvatarPortrait } from "./AvatarPortrait";
+import { SelfView } from "./SelfView";
 import { useAvatarSession } from "./useAvatarSession";
 
 export type LocalAvatarProps = { scene: Scene };
@@ -122,6 +123,7 @@ function LiveAvatar({ scene }: { scene: Scene }) {
           </div>
         )}
       </div>
+      <SelfView stream={s.selfStream} cameraOn={s.cameraOn} forwarding={s.cameraForwarding} onToggle={s.toggleCamera} />
       <div className="flex min-h-0 flex-1 flex-col p-3">
         <AvatarHud
           firstName={firstName}
