@@ -39,10 +39,15 @@ export type WorldModelInfo = {
   npmPackage: string;
   /** What the player can do: walk (WASD) and/or look (arrows, with the look clamp). */
   capabilities: { move: boolean; look: boolean };
+  /**
+   * Shown in the picker? false = adapter exists but the model failed the live smoke test
+   * (see Design.md "World models"); flip to true once it works.
+   */
+  inPicker: boolean;
 };
 
-/** All world models offered in the picker, in display order (the first is the fallback). */
-export const WORLD_MODELS: readonly WorldModelInfo[] = [
+/** Every world model with an adapter, in display order (the first is the fallback). */
+const ALL_WORLD_MODELS: readonly WorldModelInfo[] = [
   {
     id: "lingbot-world-2",
     label: "LingBot World 2",
@@ -50,6 +55,7 @@ export const WORLD_MODELS: readonly WorldModelInfo[] = [
     reactorModel: MODELS.reactorWorld,
     npmPackage: "@reactor-models/lingbot-world-2",
     capabilities: { move: true, look: true },
+    inPicker: true,
   },
   {
     id: "lingbot",
@@ -58,6 +64,7 @@ export const WORLD_MODELS: readonly WorldModelInfo[] = [
     reactorModel: MODELS.reactorWorldLingbot,
     npmPackage: "@reactor-models/lingbot",
     capabilities: { move: true, look: true },
+    inPicker: true,
   },
   {
     id: "happy-oyster",
@@ -66,8 +73,13 @@ export const WORLD_MODELS: readonly WorldModelInfo[] = [
     reactorModel: MODELS.reactorWorldHappyOyster,
     npmPackage: "@reactor-models/happy-oyster",
     capabilities: { move: true, look: false },
+    // Smoke test 2026-10-08: session auth OK but "429 no available servers" on every attempt.
+    inPicker: false,
   },
 ];
+
+/** World models offered in the picker (inPicker only). */
+export const WORLD_MODELS: readonly WorldModelInfo[] = ALL_WORLD_MODELS.filter((m) => m.inPicker);
 
 /**
  * Looks up a world model by id, falling back to WORLD.defaultModelId (then the first entry).
