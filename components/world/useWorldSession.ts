@@ -175,19 +175,21 @@ export function useWorldSession(scene: Scene, model: WorldModelInfo, adapter: Wo
     if (phaseRef.current === "staging") endWorld("error: world model rejected the scene", true);
   });
 
-  // Countdown (hard cap) + idle guard.
+  // Countdown (hard cap) + idle guard. Watch-only models (no walk, no look) have no input to wait
+  // for, so only the hard cap applies to them.
   useEffect(() => {
     if (phase !== "live") return;
-    log.info("useWorldSession.timer", { sceneId: scene.id, cap: REACTOR.exploreSeconds, idle: REACTOR.idleDisconnectSeconds });
+    const idleGuard = canMove || canLook;
+    log.info("useWorldSession.timer", { sceneId: scene.id, cap: REACTOR.exploreSeconds, idle: idleGuard ? REACTOR.idleDisconnectSeconds : "off" });
     const startedAt = Date.now();
     const t = setInterval(() => {
       const left = REACTOR.exploreSeconds - Math.floor((Date.now() - startedAt) / 1000);
       setSecondsLeft(Math.max(0, left));
       if (left <= 0) endWorld("time up");
-      else if (Date.now() - lastInputRef.current > REACTOR.idleDisconnectSeconds * 1000) endWorld("idle");
+      else if (idleGuard && Date.now() - lastInputRef.current > REACTOR.idleDisconnectSeconds * 1000) endWorld("idle");
     }, REACTOR.tickMs);
     return () => clearInterval(t);
-  }, [phase, scene.id, endWorld]);
+  }, [phase, scene.id, endWorld, canMove, canLook]);
 
   // Hidden tab → stop paying.
   useEffect(() => {
