@@ -6,9 +6,8 @@
  * vertically centred in the space above the submit card. Its job is PURELY LAYOUT + CHROME: a glass
  * card (UI.localPanelWidth wide, up to ~60vh tall) with a small header and a collapse button that
  * shrinks it to a "Talk to a local" pill. The content is the scene's conversation feature:
- *  - today:  <VoiceChat scene={scene} /> (components/voice/VoiceChat.tsx, Gemini Live)
- *  - later:  the Reactor talking-video avatar (components/avatar/LocalAvatar.tsx) is swapped in here —
- *            change only the `content` line below; nothing else in the round depends on it.
+ *  - <LocalAvatar scene={scene} /> (components/avatar/LocalAvatar.tsx): the Reactor talking-video avatar,
+ *    which itself falls back to <VoiceChat /> (Gemini Live) in mock mode or when the avatar can't start.
  *
  * Cost safety: collapsing and the H "hide UI" toggle only HIDE the content (CSS), they never unmount
  * it, so an open voice session isn't killed by accident. The whole panel unmounts with RoundScreen
@@ -16,7 +15,7 @@
  * Never shows the answer (the local's name is fine — it is part of the scene's persona).
  */
 import { useState } from "react";
-import { VoiceChat } from "@/components/voice/VoiceChat";
+import { LocalAvatar } from "@/components/avatar/LocalAvatar";
 import { UI } from "@/lib/config";
 import { log } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
@@ -33,8 +32,7 @@ export function LocalPanel({ scene }: LocalPanelProps) {
   log.info("LocalPanel", { sceneId: scene.id });
   const [collapsed, setCollapsed] = useState(false);
 
-  // ── Swap point: replace with <LocalAvatar scene={scene} /> when the avatar feature lands. ──
-  const content = <VoiceChat scene={scene} />;
+  const content = <LocalAvatar scene={scene} />;
 
   return (
     <div className="flex flex-col items-end">
