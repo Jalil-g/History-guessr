@@ -17,10 +17,22 @@ Next.js 15 + React 19 + TypeScript + Tailwind 4. `lib/config.ts` holds every mod
 extraction runs). `components/world/WorldView.tsx`, `components/voice/VoiceChat.tsx` and
 `components/game/Game.tsx` are placeholders with fixed props that the feature PRs replace.
 
-## Book-grounded scene extraction 📋
-`scripts/extract-scenes.ts` — Gemini reads the book and returns ~20 vivid, guessable scenes spread
-across eras and continents, each with answer (place, lat, lng, year), image prompt, world prompt,
-local persona and `source { chapter, quote }` quoted verbatim. Output: `data/scenes.json`.
+## Book-grounded scene extraction ✅
+`scripts/extract-scenes.ts` — sends the whole book to Gemini (`MODELS.sceneText`, falling back through
+`MODELS.sceneTextFallbacks`) with a curated list of 20 famous, instantly-recognisable moments (Great
+Pyramid → Stephenson's Rocket) and gets structured JSON (`responseSchema` = the `Scene` type) in
+parallel batches of `EXTRACT.batchSize`. Each scene has answer (place, lat, lng, year — Wells' dates
+corrected by modern scholarship), image prompt, world prompt (≤ 600 chars, "EXACTLY ONE <landmark>"),
+local persona and `source { chapter, quote }`.
+- **Quote verification in code**: every quote must be a verbatim substring of the book (whitespace,
+  curly quotes, dashes and `_italics_` normalised); the stored quote is the exact book text and the
+  chapter heading is recomputed from where the quote sits. Failures are re-asked
+  (`EXTRACT.quoteRepairAttempts`); a scene that still fails aborts the run.
+- **Leak lint**: warns if an image/world prompt contains a place word or the year, or breaks the world
+  prompt format.
+- The seed scenes `giza-pyramids` and `storming-bastille` are kept and used as style examples.
+- Re-run a subset: `node --env-file=.env.local scripts/extract-scenes.ts <id> <id>`.
+Output: `data/scenes.json` (20 scenes).
 
 ## Scene images 📋
 `scripts/generate-images.ts` — Gemini image model paints each scene's first frame (16:9, first-person,
