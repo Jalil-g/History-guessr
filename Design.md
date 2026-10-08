@@ -72,6 +72,14 @@ server-minted token, session time cap and idle disconnect. Mock mode shows the s
 - **HUD** (`WorldHud.tsx`): status pill (connecting / waiting for GPU / retrying / LIVE · Ns / closed),
   key hints. **Mock** (`NEXT_PUBLIC_MOCK_WORLD=1`): Ken Burns still (`StillWorld.tsx`), no Reactor.
 - **Missing image**: gradient fallback, no paid session, `onEnded("no scene image")`.
+- **Reconnect** (`WorldView.tsx` `ReconnectableWorld`, button in `WorldHud.tsx`): after the session
+  ends or errors (idle, time up, tab hidden, server drop, busy GPUs…) a centred **Reopen the portal**
+  button (or **R**, ignored while typing) starts a fresh session for the same scene — the provider is
+  re-keyed `<scene>#<attempt>`, so the old one disconnects and the new one runs connect → setImage →
+  setPrompt → start with a fresh idle timer, time cap and look/WASD state. Never automatic; capped at
+  `REACTOR.maxReconnectsPerRound` per round, then "The portal is spent — make your guess". Not in mock
+  mode. `onEnded` fires at most once per session and stale sessions are ignored; the optional
+  `onResumed` prop fires when a reconnect goes live (RoundScreen hides "The vision fades…").
 
 ## Voice chat with a local (Gemini Live) ✅
 Side panel (`components/voice/VoiceChat.tsx`, props `{ scene }`) with the local's name, a big **Talk**
