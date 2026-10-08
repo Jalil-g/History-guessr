@@ -26,9 +26,23 @@ local persona and `source { chapter, quote }` quoted verbatim. Output: `data/sce
 `scripts/generate-images.ts` — Gemini image model paints each scene's first frame (16:9, first-person,
 no text) to `public/scenes/<id>.png`.
 
-## Walkable world (Reactor) 📋
+## Walkable world (Reactor) ✅
 Reactor LingBot World 2 session started from the scene image + world prompt, WASD-driven, with a
 server-minted token, session time cap and idle disconnect. Mock mode shows the still image.
+
+- **Token**: `GET /api/reactor/token` (`lib/reactor-token.ts`) exchanges `REACTOR_API_KEY` for a JWT
+  scoped to `MODELS.reactorWorld`, `REACTOR.maxSessionsPerToken` sessions, `REACTOR.tokenLifetimeSeconds`.
+  The browser memoizes it (`components/world/fetchReactorToken.ts`); the key never leaves the server.
+- **Session** (`components/world/useWorldSession.ts`): provider keyed by scene id → connect (retry
+  `REACTOR.connectRetries`× on 429/no capacity) → upload `/scenes/<id>.png` → `setImage` →
+  `setPrompt(base + idle)` → `start`. Image/prompt/start calls logged with `logGenAI`.
+- **Controls** (`useWasdControls.ts`): WASD walk, arrows look; prompt swaps to `base + moving` while
+  walking and back to `base + idle` when stopped.
+- **Cost guards**: hard cap `REACTOR.exploreSeconds`, idle disconnect `REACTOR.idleDisconnectSeconds`,
+  disconnect on hidden tab and unmount. On end/error → `onEnded(reason)` once + still image.
+- **HUD** (`WorldHud.tsx`): status pill (connecting / waiting for GPU / retrying / LIVE · Ns / closed),
+  key hints. **Mock** (`NEXT_PUBLIC_MOCK_WORLD=1`): Ken Burns still (`StillWorld.tsx`), no Reactor.
+- **Missing image**: gradient fallback, no paid session, `onEnded("no scene image")`.
 
 ## Voice chat with a local (Gemini Live) 📋
 Server mints an ephemeral Gemini Live token with the persona locked in; the local gives period clues
