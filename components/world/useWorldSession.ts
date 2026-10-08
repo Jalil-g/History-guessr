@@ -33,6 +33,9 @@ import { log, logGenAI } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
 import type { Axis } from "./useWasdControls";
 
+/** End reason when every connect attempt hit 429 / no capacity — WorldView then tries the backup model. */
+export const WORLD_BUSY_REASON = "all time machines are busy";
+
 export type SessionPhase = "connecting" | "staging" | "live" | "ended" | "error";
 
 /**
@@ -121,7 +124,7 @@ export function useWorldSession(scene: Scene, onEnded?: (reason: string) => void
           timer = setTimeout(() => attempt(n + 1), REACTOR.connectRetryDelayMs);
           return;
         }
-        endWorld(busy ? "all time machines are busy" : `error: ${msg}`, true);
+        endWorld(busy ? WORLD_BUSY_REASON : `error: ${msg}`, true);
       });
     };
     attempt(0);

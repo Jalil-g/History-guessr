@@ -14,7 +14,12 @@
  * Modes:
  *  - MOCK_WORLD (NEXT_PUBLIC_MOCK_WORLD=1): never contacts Reactor; shows the still image with a slow
  *    Ken Burns pan/zoom (StillWorld) and the same HUD.
- *  - Live: <LingbotWorld2Provider> keyed by scene id (fresh session per round, torn down on unmount)
+ *  - Backup engine: if MODELS.reactorWorld stays at capacity after every connect retry
+ *    (WORLD_BUSY_REASON), ReconnectableWorld swaps to MODELS.reactorWorldFallback (LingBot v1) once —
+ *    same scene image + prompt, a fresh provider, and a "backup engine" badge — without spending the
+ *    player's reconnect budget. The provider is the generic ReactorProvider (the typed lingbot-world-2
+ *    hooks read the same context), so one component tree serves both models.
+ *  - Live: <ReactorProvider> keyed by scene id (fresh session per round, torn down on unmount)
  *    → useWorldSession (token → connect → setImage → setPrompt → start, cost guards) +
  *    useWasdControls (WASD walk, arrows look, idle ↔ moving prompt swap) + WorldHud.
  *  - Missing first frame (404 during development): gradient fallback, and no paid session is opened.
@@ -32,15 +37,16 @@
  * useSceneImage.ts, fetchReactorToken.ts (client) + lib/reactor-token.ts & app/api/reactor/token (server).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LingbotWorld2MainVideoView, LingbotWorld2Provider } from "@reactor-models/lingbot-world-2";
-import { MOCK_WORLD, REACTOR } from "@/lib/config";
+import { LingbotWorld2MainVideoView } from "@reactor-models/lingbot-world-2";
+import { ReactorProvider } from "@reactor-team/js-sdk";
+import { MODELS, MOCK_WORLD, REACTOR } from "@/lib/config";
 import { log } from "@/lib/log";
 import type { Scene } from "@/lib/scene";
-import { fetchReactorToken } from "./fetchReactorToken";
+import { fetchReactorTokenFor } from "./fetchReactorToken";
 import { StillWorld } from "./StillWorld";
 import { useSceneImage } from "./useSceneImage";
 import { useWasdControls } from "./useWasdControls";
-import { useWorldSession } from "./useWorldSession";
+import { WORLD_BUSY_REASON, useWorldSession } from "./useWorldSession";
 import { WorldHud } from "./WorldHud";
 import { LookIndicator } from "./LookIndicator";
 
@@ -91,6 +97,8 @@ export function WorldView({ scene, onEnded, onResumed }: WorldViewProps) {
 function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewProps & { imageUrl: string }) {
   const [attempt, setAttempt] = useState(0);
   const attemptRef = useRef(0);
+  const [model, setModel] = useState<string>(MODELS.reactorWorld);
+  const modelRef = useRef<string>(MODELS.reactorWorld);
   const endedAttemptRef = useRef<number | null>(null);
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
@@ -106,6 +114,13 @@ function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewPr
   const handleEnded = useCallback((n: number, reason: string) => {
     log.info("ReconnectableWorld.handleEnded", { n, current: attemptRef.current, reason });
     if (n !== attemptRef.current || endedAttemptRef.current === n) return;
+    // Main model at capacity → open the backup model instead of ending the round's world.
+    if (reason === WORLD_BUSY_REASON && modelRef.current === MODELS.reactorWorld) {
+      log.info("ReconnectableWorld.fallback", { from: modelRef.current, to: MODELS.reactorWorldFallback });
+      modelRef.current = MODELS.reactorWorldFallback;
+      setModel(MODELS.reactorWorldFallback);
+      return;
+    }
     endedAttemptRef.current = n;
     onEndedRef.current?.(reason);
   }, []);
@@ -127,9 +142,16 @@ function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewPr
   }, []);
 
   return (
-    <LingbotWorld2Provider key={`${scene.id}#${attempt}`} apiUrl={REACTOR.apiUrl} jwtToken={fetchReactorToken}>
+    <ReactorProvider
+      key={`${scene.id}#${attempt}#${model}`}
+      modelName={model}
+      modelTracks={[{ name: "main_video", kind: "video", direction: "recvonly" }]}
+      apiUrl={REACTOR.apiUrl}
+      jwtToken={() => fetchReactorTokenFor(model)}
+    >
       <LiveWorld
         scene={scene}
+        model={model}
         imageUrl={imageUrl}
         attempt={attempt}
         reconnectsLeft={REACTOR.maxReconnectsPerRound - attempt}
@@ -137,12 +159,14 @@ function ReconnectableWorld({ scene, onEnded, onResumed, imageUrl }: WorldViewPr
         onSessionLive={handleLive}
         onReconnect={reconnect}
       />
-    </LingbotWorld2Provider>
+    </ReactorProvider>
   );
 }
 
 type LiveWorldProps = {
   scene: Scene;
+  /** Reactor world model this session runs (main or backup). */
+  model: string;
   imageUrl: string;
   /** Which session of this round this is (0 = first). */
   attempt: number;
@@ -158,10 +182,10 @@ type LiveWorldProps = {
  * reconnect affordance (button + R) once the session has ended.
  * @param props see LiveWorldProps
  */
-function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, onSessionLive, onReconnect }: LiveWorldProps) {
+function LiveWorld({ scene, model, imageUrl, attempt, reconnectsLeft, onSessionEnded, onSessionLive, onReconnect }: LiveWorldProps) {
   useEffect(() => log.info("LiveWorld", { sceneId: scene.id, attempt }), [scene.id, attempt]);
   const handleEnded = useCallback((reason: string) => onSessionEnded(attempt, reason), [onSessionEnded, attempt]);
-  const s = useWorldSession(scene, handleEnded);
+  const s = useWorldSession(scene, handleEnded, model);
   const live = s.phase === "live";
   const closed = s.phase === "ended" || s.phase === "error";
   const wasd = useWasdControls(live, { onAxis: s.onAxis, onMovingChange: s.onMovingChange, onInput: s.onInput });
@@ -199,6 +223,11 @@ function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, o
       <WorldHud phase={s.phase} secondsLeft={s.secondsLeft} retry={s.retry} waitingForGpu={s.waitingForGpu} message={s.message}
         reconnect={closed ? { left: reconnectsLeft, onReconnect } : undefined}
       />
+      {model === MODELS.reactorWorldFallback && (
+        <div className="pointer-events-none absolute left-6 top-[7.5rem] rounded-full bg-black/60 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200/80 backdrop-blur">
+          Backup engine · LingBot
+        </div>
+      )}
 
     </div>
   );
