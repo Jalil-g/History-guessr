@@ -45,8 +45,12 @@
  *  - Only some:  node --env-file=.env.local scripts/extract-scenes.ts hannibal-alps sack-of-rome
  *                (regenerates the named target ids, keeps every other scene from data/scenes.json)
  *  - Check only: node scripts/extract-scenes.ts --verify   (no API calls; verifies quotes + lints)
- * The two hand-written seed scenes (giza-pyramids, storming-bastille) are the quality bar: they are
- * kept as-is (after quote verification) and passed to the model as examples.
+ * Framing: the player is an ordinary, anonymous passer-by at street level, with ONE world-famous
+ * landmark in view (often new or under construction); the local is an ordinary worker/vendor. When
+ * Wells does not mention the landmark itself, the quote is his passage on that civilisation/era —
+ * still verbatim and verified.
+ * The hand-written seed scene (giza-pyramids) is the quality bar: it is kept as-is (after quote
+ * verification, with style boilerplate stripped) and passed to the model as the example.
  */
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -59,30 +63,33 @@ import type { Scene } from "../lib/scene.ts";
 type Target = { id: string; hint: string };
 
 /** Hand-written seed scenes kept verbatim (they are the quality bar). */
-const SEED_IDS = ["giza-pyramids", "storming-bastille"];
+const SEED_IDS = ["giza-pyramids"];
 
-/** The 20 famous moments (seeds included). Ids are stable kebab-case image filenames. */
+/**
+ * The 20 moments (seed included): ordinary street-level daily life with ONE world-famous landmark in
+ * view, each a clearly different time, spread across continents. Ids are stable image filenames.
+ */
 const TARGETS: Target[] = [
-  { id: "giza-pyramids", hint: "Building the Great Pyramid, Giza (~2560 BC)" },
-  { id: "hammurabi-babylon", hint: "Hammurabi's Babylon (~1750 BC)" },
-  { id: "pericles-athens", hint: "Athens under Pericles, the Parthenon being built (~432 BC)" },
-  { id: "buddha-sarnath", hint: "Gautama Buddha preaching his first sermon at the deer park of Sarnath near Benares (~528 BC)" },
-  { id: "library-alexandria", hint: "The Museum and Library of Alexandria under the early Ptolemies (~280 BC)" },
-  { id: "hannibal-alps", hint: "Hannibal crossing the Alps with his elephants (218 BC)" },
+  { id: "giza-pyramids", hint: "Giza, the Great Pyramid under construction (~2560 BC)" },
+  { id: "babylon-ishtar-gate", hint: "Babylon under Nebuchadnezzar II, the blue-glazed Ishtar Gate with the great ziggurat behind (~575 BC)" },
+  { id: "athens-parthenon", hint: "Athens, the Parthenon newly finished on the Acropolis, seen from the agora (~432 BC)" },
+  { id: "alexandria-pharos", hint: "Alexandria harbour, the Pharos lighthouse newly built (~280 BC)" },
   { id: "great-wall-qin", hint: "The Great Wall being built under Shi Huang-ti (~214 BC)" },
-  { id: "ides-of-march", hint: "The assassination of Julius Caesar, Rome (44 BC)" },
-  { id: "sack-of-rome", hint: "The sack of Rome by Alaric and the Goths (410)" },
-  { id: "hagia-sophia", hint: "Hagia Sophia newly completed, Constantinople under Justinian (537)" },
-  { id: "muhammad-mecca", hint: "Muhammad's return to Mecca (630)" },
-  { id: "charlemagne-crowned", hint: "Charlemagne crowned emperor by the Pope in Rome, Christmas Day (800)" },
-  { id: "harun-baghdad", hint: "Baghdad of Harun al-Rashid (~800)" },
-  { id: "crusade-jerusalem", hint: "The First Crusade takes Jerusalem (1099)" },
-  { id: "kublai-court", hint: "Kublai Khan's court with Marco Polo (~1275)" },
-  { id: "fall-of-constantinople", hint: "Fall of Constantinople to the Ottoman Turks (1453)" },
-  { id: "columbus-landing", hint: "Columbus lands in the Americas (1492)" },
-  { id: "luther-wittenberg", hint: "Luther posts his theses at Wittenberg (1517)" },
-  { id: "storming-bastille", hint: "Storming of the Bastille, Paris (1789)" },
-  { id: "stephenson-rocket", hint: "Stephenson's Rocket / the first railways in industrial England (~1830)" },
+  { id: "rome-colosseum", hint: "Rome, the Colosseum at its opening (AD 80)" },
+  { id: "constantinople-hagia-sophia", hint: "Constantinople, Hagia Sophia just completed (537)" },
+  { id: "cordoba-mezquita", hint: "Cordoba, the Great Mosque in the caliphate's heyday (~950)" },
+  { id: "angkor-wat", hint: "Angkor Wat under construction (~1150)" },
+  { id: "beijing-forbidden-city", hint: "Beijing, the Forbidden City newly built (~1420)" },
+  { id: "florence-duomo", hint: "Florence, Brunelleschi's dome being completed (~1436)" },
+  { id: "tenochtitlan-templo-mayor", hint: "Tenochtitlan, the Templo Mayor, just before the Spanish arrive (1519)" },
+  { id: "machu-picchu", hint: "Machu Picchu, the Inca citadel in use (~1530)" },
+  { id: "moscow-st-basils", hint: "Moscow, St Basil's Cathedral newly built on Red Square (~1561)" },
+  { id: "agra-taj-mahal", hint: "Agra, the Taj Mahal under construction (~1648)" },
+  { id: "edo-nihonbashi", hint: "Edo, the busy Nihonbashi bridge with Mount Fuji in the distance (~1700)" },
+  { id: "philadelphia-independence-hall", hint: "Philadelphia, Independence Hall in the summer of 1776" },
+  { id: "paris-bastille-1789", hint: "Paris, July 1789: a bystander in the tense street near the Bastille fortress (not leading the assault)" },
+  { id: "port-said-suez", hint: "Port Said, the opening of the Suez Canal (1869)" },
+  { id: "paris-eiffel-tower", hint: "Paris, the Eiffel Tower under construction (1888)" },
 ];
 
 /** A parsed chapter of the book: its display heading and its char range in the book text. */
@@ -113,8 +120,15 @@ const SCENE_SCHEMA = {
     },
     local: {
       type: Type.OBJECT,
-      properties: { name: { type: Type.STRING }, voice: { type: Type.STRING }, persona: { type: Type.STRING } },
-      required: ["name", "voice", "persona"],
+      properties: {
+        name: { type: Type.STRING },
+        role: { type: Type.STRING },
+        gender: { type: Type.STRING, enum: ["male", "female"] },
+        appearance: { type: Type.STRING },
+        voice: { type: Type.STRING },
+        persona: { type: Type.STRING },
+      },
+      required: ["name", "role", "gender", "appearance", "voice", "persona"],
     },
     source: {
       type: Type.OBJECT,
@@ -276,6 +290,11 @@ function buildPrompt(book: string, batch: Target[], examples: Scene[]): string {
   return `You are building scenes for a GeoGuessr-style history game. The player is dropped into a walkable,
 photorealistic first-person scene, talks to a local by voice, then guesses WHERE (map pin) and WHEN (year).
 
+FRAMING: the player is an ordinary, anonymous person walking around a city or site at a historical moment, NOT a
+participant in a dramatic event. Each scene is daily life at street level (markets, workers, traffic and dress of the
+period), with ONE world-famous, instantly recognisable landmark clearly visible straight ahead (often brand-new or
+under construction), so a player looking around can work out where and when they are.
+
 Below is the full text of H.G. Wells, "A Short History of the World" (1922) between <BOOK> tags.
 
 <BOOK>
@@ -289,7 +308,9 @@ Rules:
 - answer: precise "place" (site, city, modern country), accurate lat/lng of the exact site (4 decimals) and year
   (negative = BC). Correct Wells' 1922 dates with modern scholarship where they differ.
 - source.quote: ONE OR TWO CONSECUTIVE SENTENCES COPIED EXACTLY, CHARACTER FOR CHARACTER, from the book text above,
-  that mention this event/place/person. Do not paraphrase, do not join non-adjacent sentences, no ellipses.
+  about this landmark/place; if Wells does not mention the landmark, use his passage most relevant to that
+  civilisation, region and era (e.g. late-19th-century France or industry for a 1888 iron tower). Never invent text.
+  Do not paraphrase, do not join non-adjacent sentences, no ellipses.
   It will be machine-checked against the book. source.chapter: the chapter heading as "<ROMAN>. <Title Case Title>",
   e.g. "LV. The French Revolution and the Restoration of Monarchy in France".
 - imagePrompt and worldPrompt must NEVER name the city, country, region, ruler, people/nation, event or year.
@@ -301,14 +322,19 @@ Rules:
   "The world contains EXACTLY ONE <landmark> straight ahead at a fixed position." (fill in the landmark).
   worldPrompt.idle starts "First-person view at human eye level; the camera does not move on its own."
   worldPrompt.moving starts "First-person view at human eye level, walking steadily forward with a slight head bob."
-- local: an ordinary person of the time (name + role, e.g. "Neferu, a work-gang foreman"); voice is one of
+- local: an ordinary passer-by, worker or vendor of the time, never a famous figure.
+  role: short everyday occupation (stonemason, legionary on leave, spice merchant, ironworker riveter, tea-house
+  waitress...). Across the batch mix workers, tradespeople, soldiers, vendors, sailors, artisans and vary gender
+  and age. name: "<first name>, a <role>". gender: "male" or "female".
+  appearance: 1-2 sentences for a half-body portrait: age, face, period-accurate clothing/headwear, tools of the
+  trade; no text or insignia naming the place. voice is one of
   Charon, Leda, Puck, Orus, Kore, Fenrir, Aoede, Zephyr (match gender). persona: second person ("You are ..."),
-  3-4 sentences, rich period clues (daily life, prices, rumours, what they have never heard of) WITHOUT naming the
+  3-4 sentences, speaking in first person about their own work and daily life, rich period clues (daily life, prices, rumours, what they have never heard of) WITHOUT naming the
   city, country, ruler, event or year.
 - reveal: one or two sentences shown AFTER the guess, naming place, date and why the moment matters.
-- title: short title, e.g. "The Storming of the Bastille".
+- title: short title, e.g. "Building the Great Pyramid".
 
-Match the style and quality of these two example scenes:
+Match the style and quality of this example scene:
 ${JSON.stringify(examples, null, 2)}
 
 Return a JSON array of ${batch.length} scene objects.`;
@@ -364,7 +390,7 @@ function stripStyle(imagePrompt: string): string {
 function lintScene(scene: Scene): string[] {
   log.info("lintScene", { id: scene.id });
   const problems: string[] = [];
-  const generic = new Set(["the", "and", "of", "great", "city", "near", "old", "new", "plateau", "river", "modern", "wall", "basilica", "church", "cathedral"]);
+  const generic = new Set(["the", "and", "of", "great", "city", "near", "old", "new", "plateau", "river", "modern", "wall", "basilica", "church", "cathedral", "mosque", "square"]);
   const words = scene.answer.place
     .split(/[\s,()\-]+/)
     .map((w) => w.toLowerCase())
