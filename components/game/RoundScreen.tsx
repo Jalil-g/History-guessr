@@ -47,14 +47,16 @@ export type RoundScreenProps = {
   totalRounds: number;
   totalScore: number;
   onSubmit: (guess: Guess) => void;
+  /** World model id chosen on the intro screen (lib/world-models.ts); default WORLD.defaultModelId. */
+  modelId?: string;
 };
 
 /**
  * Renders the round: full-bleed world under the HUD.
  * @param props see RoundScreenProps
  */
-export function RoundScreen({ scene, roundIndex, totalRounds, totalScore, onSubmit }: RoundScreenProps) {
-  log.info("RoundScreen", { sceneId: scene.id, roundIndex, totalRounds });
+export function RoundScreen({ scene, roundIndex, totalRounds, totalScore, onSubmit, modelId }: RoundScreenProps) {
+  log.info("RoundScreen", { sceneId: scene.id, roundIndex, totalRounds, modelId });
   const [pin, setPin] = useState<LatLng | null>(null);
   const [year, setYear] = useState<number>(GAME.defaultGuessYear);
   const [endedReason, setEndedReason] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export function RoundScreen({ scene, roundIndex, totalRounds, totalScore, onSubm
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-black">
       <div className="hg-world absolute inset-0">
-        <WorldView scene={scene} onEnded={handleEnded} onResumed={handleResumed} />
+        <WorldView scene={scene} onEnded={handleEnded} onResumed={handleResumed} modelId={modelId} />
       </div>
       <div className={`hg-vignette pointer-events-none absolute inset-0 transition-opacity duration-500 ${uiHidden ? "opacity-0" : ""}`} />
 
