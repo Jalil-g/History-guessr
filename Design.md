@@ -56,8 +56,37 @@ to real PNG with macOS `sips`. Skips existing files unless `--force`; positional
 by eye and regenerated with `--force <id>` if any text appears.
 
 ## Walkable world (Reactor) ✅
-Reactor LingBot World 2 session started from the scene image + world prompt, WASD-driven, with a
-server-minted token, session time cap and idle disconnect. Mock mode shows the still image.
+Reactor world-model session (player's choice, LingBot World 2 by default) started from the scene
+image + world prompt, WASD-driven, with a server-minted token, session time cap and idle disconnect.
+Mock mode shows the still image.
+
+- **World-model choice** (`lib/world-models.ts`, `components/world/adapters/*`): a registry lists each
+  model (id, label, one-line description, Reactor model name from `MODELS`, npm package, capabilities
+  `{ move, look }`, `inPicker`). Each model's typed SDK is wrapped in one adapter implementing
+  `WorldAdapter` (`adapters/types.ts`): `Provider`, `Video`, `useWorld()` → `connect` → `setImage(blob)`
+  → `setPrompt` → `setRotationSpeedDeg` → `start`, `move(axis, value)`, `look(axis, value)`,
+  `disconnect`, plus `useChunkComplete` (feeds the look clamp) and `useCommandError`.
+  `useWorldSession` / `useWasdControls` are model-agnostic. Intro screen has a **World model** picker
+  next to the rounds picker (remembered in localStorage `WORLD.storageKey`); Game → RoundScreen →
+  WorldView pass `modelId?` (default `WORLD.defaultModelId`). The HUD shows the model name next to
+  the status pill and hides WASD / arrow hints and the look indicator when the model lacks move / look.
+  Tokens: `fetchReactorToken(model)` caches one JWT per model; every model name is in
+  `REACTOR_TOKEN_MODELS`.
+- **World models** — research (2026-10-08, `@reactor-models/*` READMEs). Kept only models that start
+  from an image, take a prompt and accept real-time movement/look:
+
+  | Model (package) | Image start | Prompt | Movement | Look | Notes |
+  |---|---|---|---|---|---|
+  | lingbot-world-2 1.0.1 | ✅ set_image | ✅ hot-swap | ✅ long + lat axes | ✅ yaw/pitch + speed | **In picker (default).** chunk_complete with action + frames |
+  | lingbot 1.0.1 | ✅ set_image | ✅ hot-swap | ✅ single `set_movement` | ✅ yaw/pitch + speed | **In picker.** Smoke test OK (live video, W/←/D accepted). Emits 24 frames/chunk, so the look clamp hits ±100° after ~1 chunk of turning — tune `REACTOR.lookFramesPerChunk` if needed |
+  | happy-oyster 1.0.1 (Adventure) | ✅ first frame ≤2 MB, 1.5–2.0 ratio | ✅ at createWorld only | ✅ held 8-way | ✅ held 8-way, no progress events | Adapter built (walk only, look off since the clamp can't track it; PNG >2 MB re-encoded to JPEG). **Hidden from picker**: smoke test got `429 no available servers` on every attempt. ~2 min travel cap |
+  | helios, visko-orbis-dynamic/-stable | ✅ | ✅ | ❌ | ❌ | image-to-video, no camera control |
+  | longlive-v2, sana-streaming, ltx2 | ❌ | ✅ | ❌ | ❌ | text/webcam/avatar video |
+  | x2 | ref image | ✅ | ❌ (pointer) | ❌ | pointer-steered |
+  | fast-h3, h3-reference-to-video-turbo-realtime | clip queue | ✅ | ❌ | ❌ | clip generator ("move" = queue reorder) |
+  | vidu-s2-avatar | portrait | — | ❌ | ❌ | talking avatar (used for the local) |
+
+  No prices are documented in the packages.
 
 - **Token**: `GET /api/reactor/token` (`lib/reactor-token.ts`) exchanges `REACTOR_API_KEY` for a JWT
   scoped to `MODELS.reactorWorld`, `REACTOR.maxSessionsPerToken` sessions, `REACTOR.tokenLifetimeSeconds`.
