@@ -48,7 +48,7 @@ export function LocalPanel({ scene }: LocalPanelProps) {
       )}
       <section
         aria-label="Talk to a local"
-        className={`hg-glass flex max-h-[60vh] flex-col shadow-[0_20px_60px_rgba(0,0,0,0.45)] ${collapsed ? "hidden" : "hg-rise"}`}
+        className={`hg-glass flex max-h-[calc(100vh-300px)] flex-col shadow-[0_20px_60px_rgba(0,0,0,0.45)] ${collapsed ? "hidden" : "hg-rise"}`}
         style={{ width: UI.localPanelWidth }}
       >
         <header className="flex items-center justify-between border-b border-cream/10 px-4 py-2.5">

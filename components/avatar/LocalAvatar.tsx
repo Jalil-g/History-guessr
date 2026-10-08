@@ -30,8 +30,8 @@ import { useAvatarSession } from "./useAvatarSession";
 
 export type LocalAvatarProps = { scene: Scene };
 
-const CARD = "flex max-h-[60vh] w-full flex-col overflow-hidden rounded-xl border border-amber-200/20 bg-black/40 text-amber-50 shadow-2xl backdrop-blur-md";
-const FRAME = "relative h-[30vh] min-h-[180px] w-full shrink-0 overflow-hidden bg-black";
+const CARD = "flex max-h-[calc(100vh-300px)] w-full flex-col overflow-hidden rounded-xl border border-amber-200/20 bg-black/40 text-amber-50 shadow-2xl backdrop-blur-md";
+const FRAME = "relative h-[min(24vh,230px)] min-h-[150px] w-full shrink-0 overflow-hidden bg-black";
 
 /**
  * Talking-avatar card for one scene's local, with voice-only fallback.
