@@ -116,8 +116,10 @@ toggle, connection status / speaking indicator / time left, and a live transcrip
 
 ## Talking avatar (Reactor vidu-s2-avatar) ✅
 The local becomes a live, lip-synced video character (`components/avatar/LocalAvatar.tsx`, props
-`{ scene }`, drop-in for `<VoiceChat scene />` in the local panel): a ~300–340 px glass card, ≤ 60vh,
-video on top, status / **Talk to <name>** / **End conversation** / mic status / live transcript below.
+`{ scene }`, drop-in for `<VoiceChat scene />` in the local panel): a ~300–340 px glass card,
+video on top, the player's own webcam under it (video call), status / **End conversation** / mic
+status / live transcript below. The call **starts automatically** when the avatar is ready
+(`AVATAR.autoStart`); **Talk to <name>** only appears to restart a call that ended.
 - **Portraits** (offline): `node --env-file=.env.local scripts/generate-portraits.ts [ids] [--force]
   [--scenes <path>]` paints `public/locals/<id>.png` (3:4, half body, facing camera, period clothing
   from `local.appearance`, else derived from name + persona, shared `PORTRAIT_STYLE`, no text) with
@@ -137,15 +139,24 @@ video on top, status / **Talk to <name>** / **End conversation** / mic status / 
   uploads the portrait, `createAvatar`, waits for `avatar_ready`, disconnects (never `startCall`),
   and exposes `window.__prewarmResult`; the script merges new ids into `data/avatars.json` (skips
   existing unless `--force`). `--attach` only measures connect → `avatar_ready` via `attachAvatar`.
-- **Session** (`useAvatarSession.ts`): portrait HEAD check (missing → fallback, no paid session) →
-  token → `connect` → wait "ready" → avatar source in order: prebuilt id (`attachAvatar`) →
-  localStorage cached id (`attachAvatar`) → `uploadFile(portrait)` + `createAvatar`;
-  `AVATAR_NOT_FOUND` / any attach error falls through to the next source, a freshly created id is
-  cached in localStorage; `avatar.ready` logs the source and ms from connect / prepare →
-  `avatar_ready` → Talk: mic → `publishMic` → `listVoices` → gender-matched voice
-  (`avatarHelpers.ts`, `local.gender`, else inferred from the Gemini voice name / persona) →
-  `startCall({ persona: buildLocalInstruction(scene), greeting, voice, language, call_mode: "audio",
-  transcripts: true, llm })`. Video on `main_video`, audio on `main_audio`, `transcript` messages.
+- **Session** (`useAvatarSession.ts`): at mount, mic + camera are requested (one prompt) **in parallel**
+  with: portrait HEAD check (missing → fallback, no paid session) ‖ token → `connect` → wait "ready" →
+  avatar source in order: prebuilt id (`attachAvatar`) → localStorage cached id (`attachAvatar`) →
+  `uploadFile(portrait)` + `createAvatar`; `AVATAR_NOT_FOUND` / any attach error falls through to the
+  next source, a freshly created id is cached in localStorage; `avatar.ready` logs the source and ms
+  from connect / prepare → `avatar_ready` → **auto-start** (`AVATAR.autoStart`): `publishMic` +
+  `publishWebcam` → `listVoices` (cached per page) → gender-matched voice (`avatarHelpers.ts`) →
+  `startCall({ persona: buildLocalInstruction(scene) + AVATAR.seeingInstruction, greeting:
+  AVATAR.videoGreeting, voice, language, call_mode: "video", transcripts: true, llm })`. Camera refused
+  / missing → mic only, `call_mode: "audio"`, the old greeting. Video on `main_video`, audio on
+  `main_audio`, `transcript` messages.
+- **Video call** (`SelfView.tsx`): the player's webcam goes to the character (`call_mode: "video"`),
+  which sees them and remarks on real details — hair, glasses, shirt, the room — as strange foreign
+  fashion (`AVATAR.seeingInstruction`, never invent details, never mention a camera). Under the
+  character: mirrored self-view, "They can see you" once `session_state.camera_forwarding`, and a
+  camera on/off toggle (track disabled, call continues). Settings: `AVATAR.camera` (640×480 @ 15 fps).
+- **Speed**: prebuilt ids (attach, not create), HEAD ‖ token in parallel, permission prompt during
+  connect, cached voice list, and auto-start (no "Talk" click).
 - **Cost guards** (`AVATAR` in `lib/config.ts`): call cap `callMaxSeconds` (or server cap if lower),
   call idle end `idleEndSeconds`, session disconnect if no call `readyIdleSeconds` after ready, tab
   hidden → end + disconnect ("Wake <name>" reconnects), unmount (round end) → end + disconnect.
