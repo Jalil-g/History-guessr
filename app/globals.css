@@ -1,28 +1,111 @@
+/*
+ * Global styles for History Guesser — the EraGuessr-style cinematic HUD.
+ *
+ * What lives here (everything else is Tailwind utility classes in the components):
+ *  - theme fonts: Cinzel (`font-display`), Cormorant Garamond (`font-serif`), JetBrains Mono
+ *    (`font-mono`, used for the tiny wide-tracked HUD labels) — variables set by next/font in app/layout.tsx
+ *  - colour tokens for the parchment / cream palette (`text-cream`, `bg-ink`, `text-brass`, …)
+ *  - phase fade-in (`.hg-fade`) used by components/game/Game.tsx between intro / rounds / reveal / summary
+ *  - top/bottom vignette (`.hg-vignette`) so overlays read on any scene; glass panels (`.hg-glass`);
+ *    tiny HUD labels (`.hg-label`)
+ *  - the parchment filter on the Leaflet base tiles (`.hg-parchment-tiles`) and the custom divIcon pins
+ *  - `.hg-world` overrides that move the world HUD (components/world/WorldHud.tsx, owned by the world
+ *    feature) out from under our top bar / timeline without touching that component
+ */
 @import "tailwindcss";
 
-/* Theme fonts: variables are set by next/font in app/layout.tsx. */
 @theme inline {
   --font-display: var(--font-cinzel), "Times New Roman", serif;
   --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --color-cream: #f5ecd7;
+  --color-parchment: #d9c7a1;
+  --color-sepia: #3a2a1a;
+  --color-ink: #0b0906;
+  --color-brass: #e0a530;
 }
 
+html,
 body {
   background: #0b0906;
-  color: #fdf6e3;
+  color: #f5ecd7;
+  overflow: hidden;
 }
+
+/* Phase / round fade-in. */
+@keyframes hg-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.hg-fade { animation: hg-fade-in 600ms ease-out both; }
+
+@keyframes hg-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.hg-rise { animation: hg-rise 700ms cubic-bezier(.2,.7,.2,1) both; }
+
+/* Cinematic vignette: dark at top and bottom so the HUD reads on bright scenes. */
+.hg-vignette {
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,.62) 0%, rgba(0,0,0,0) 22%),
+    linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,0) 36%),
+    radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.35) 100%);
+}
+
+/* Glass panel. */
+.hg-glass {
+  background: rgba(8, 6, 4, 0.45);
+  border: 1px solid rgba(245, 236, 215, 0.16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Tiny wide-tracked HUD label. */
+.hg-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(245, 236, 215, 0.62);
+}
+
+/* Parchment look for the Esri terrain tiles. */
+.hg-parchment-tiles { filter: sepia(0.9) saturate(0.9) contrast(1.05) brightness(0.88); }
+.hg-labels-tiles { filter: sepia(0.7) contrast(0.9); opacity: 0.7; }
+.leaflet-container { background: #c9b48a; font-family: var(--font-mono); }
+
+/* Custom divIcon pin (components/guess/GuessMap.tsx). */
+.hg-pin { background: none; border: none; }
+@keyframes hg-drop { from { transform: translateY(-14px); opacity: 0; } to { transform: none; opacity: 1; } }
+.hg-pin svg { filter: drop-shadow(0 3px 4px rgba(0,0,0,.55)); animation: hg-drop 260ms ease-out both; }
 
 /* Leaflet tooltips / attribution in the dark parchment style. */
 .leaflet-container .leaflet-tooltip {
-  background: #1c1610;
-  color: #fde68a;
-  border: 1px solid rgba(253, 230, 138, 0.3);
-  font-size: 11px;
+  background: rgba(11, 9, 6, 0.85);
+  color: #f5ecd7;
+  border: 1px solid rgba(245, 236, 215, 0.25);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  box-shadow: none;
 }
+.leaflet-container .leaflet-tooltip-top::before { border-top-color: rgba(11, 9, 6, 0.85); }
 .leaflet-container .leaflet-control-attribution {
-  background: rgba(11, 9, 6, 0.7);
-  color: rgba(253, 246, 227, 0.5);
-  font-size: 9px;
+  background: rgba(11, 9, 6, 0.55);
+  color: rgba(245, 236, 215, 0.45);
+  font-size: 8px;
 }
-.leaflet-container .leaflet-control-attribution a {
-  color: rgba(253, 230, 138, 0.7);
+.leaflet-container .leaflet-control-attribution a { color: rgba(245, 236, 215, 0.6); }
+
+/* Move the world HUD (status pill top-left, key hints bottom-centre) clear of our top bar / timeline. */
+.hg-world .pointer-events-none.absolute.left-3.top-3 { top: 96px; left: 24px; }
+.hg-world .pointer-events-none.absolute.bottom-3 { bottom: auto; top: 24px; }
+
+/* Timeline slider focus ring. */
+.hg-slider:focus-visible { outline: 1px solid rgba(245, 236, 215, 0.5); outline-offset: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hg-fade, .hg-rise, .hg-pin svg { animation: none; }
 }

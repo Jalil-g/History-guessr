@@ -126,8 +126,7 @@ video on top, status / **Talk to <name>** / **End conversation** / mic status / 
   broken default icon; longitudes wrapped to ±180). Reveal mode (`answer` prop) shows guess + answer
   with a dashed line and fits both in view. Always imported via `components/guess/LazyGuessMap.tsx`
   (next/dynamic, `ssr: false`).
-- `components/guess/YearSlider.tsx` — range `GAME.minYear..GAME.maxYear`, BC/AD readout, ±1/10/100
-  fine-adjust buttons.
+- Year picking: see "UI (EraGuessr-style HUD)" below (`TimelineSlider` replaced `YearSlider`).
 - `lib/scoring.ts` — haversine distance; location points = round(5000·e^(−km/`GAME.locationDecayKm`=2000)),
   year points = round(5000·e^(−|Δy|/`GAME.yearDecayYears`=100)); `formatYear` ("2560 BC", "AD 410"),
   `formatKm`, `formatPoints`.
@@ -148,3 +147,35 @@ video on top, status / **Talk to <name>** / **End conversation** / mic status / 
   out of rounds × 10 000 + Play again.
 - Style: dark parchment & brass (bg `#0b0906`, amber accents), Cinzel display / Cormorant Garamond
   serif via next/font (`font-display`, `font-serif` in `app/globals.css`).
+
+## UI (EraGuessr-style HUD) ✅
+Cinematic, dark, minimal: thin 1px cream borders, glass panels (black/45 + blur), tiny wide-tracked
+JetBrains Mono labels (`.hg-label`), Cinzel / Cormorant serif titles. Tokens + helpers in `app/globals.css`,
+timings / sizes / hints in `lib/config.ts` `UI`, timeline scale in `TIMELINE`.
+- **Round** (`RoundScreen.tsx`): `<WorldView>` full-bleed (wrapped in `.hg-world`, whose CSS moves the
+  world HUD pill/key hints clear of our overlays) + top/bottom vignette. Overlays:
+  - `TopBar.tsx` — logo box, "ROUND i OF N" + one progress segment per round, "SCORE · n";
+    `HudToolbar.tsx` — hint (generic answer-free tips from `UI.hints`), hide-UI eye, mute world video, help.
+  - `LocalPanel.tsx` — floating glass card on the right edge, collapsible to a "Talk to a local" pill;
+    renders `<VoiceChat scene />` (swap point for `components/avatar/LocalAvatar.tsx`). Hide/collapse
+    only hide it — the paid session stays mounted until the round ends.
+  - `components/guess/MiniMap.tsx` — "1 PLACE" parchment mini-map (480×250), EXPAND to 70vw×70vh
+    (same Leaflet instance), custom +/− zoom.
+  - `components/guess/TimelineSlider.tsx` — "2 TIME" ruler: sepia track, minor/major/labelled ticks,
+    cream thumb with hairline, year above the thumb; pointer drag, ←/→ (Shift = 25 yr) when focused.
+    Non-linear scale in `lib/timeline.ts` (`posToYear`, `yearToPos`, `timelineTicks`, `formatEra`)
+    from `TIMELINE.anchors`; range `GAME.minYear..maxYear` (−3000..2026).
+  - `SubmitCard.tsx` — "3 LOCATION + YEAR NEEDED" → "READY · year" card that is the submit button
+    ("DROP PIN →" / "GUESS →").
+- **Map** (`GuessMap.tsx`): keyless Esri World Physical Map, sepia-filtered into parchment, plus Esri
+  boundaries & places label overlay; SVG divIcon pins (cream = you, brass star = answer); reveal flies
+  to fit both with a dotted line.
+- **Keys** (`useGameKeys.ts`): Space/Enter guess (reveal: next; intro: begin; summary: play again),
+  M expand map, H hide UI, Esc close. Never W A S D / arrows; ignored while typing or when a button
+  has focus.
+- **Reveal**: dimmed full-bleed scene (`SceneBackdrop.tsx`), large map with "n km away", title, place ·
+  year, reveal text, place/year points counting up (`CountUp.tsx`) with bars, round total, Wells quote
+  in an italic serif card with chapter.
+- **Intro**: blurred hero of the first scene image, big serif title, three steps, round picker, Begin.
+  **Summary**: counting total, per-round rows with bars, Play again. Phases fade in (`.hg-fade`, `UI.fadeMs`).
+
