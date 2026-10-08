@@ -52,7 +52,36 @@ import {
 import { fetchAvatarToken } from "./fetchAvatarToken";
 
 export type AvatarPhase = "connecting" | "preparing" | "ready" | "starting" | "live" | "closed" | "fallback";
-export type AvatarLine = { who: "you" | "local"; text: string; final: boolean };
+export type AvatarLine = {
+  who: "you" | "local";
+  /** Text shown in the bubble (settled sentences + current draft). */
+  text: string;
+  final: boolean;
+  /** Settled sentences only, so a later draft can replace the previous draft. */
+  settled?: string;
+};
+
+/**
+ * Folds one transcript message into the conversation so each speaker's turn reads as ONE bubble.
+ * The avatar model emits a message per finished sentence (and sometimes a non-final draft first),
+ * so: a draft replaces the previous draft of the same speaker; a sentence from the same speaker as
+ * the last bubble is appended to it with a space; a new speaker starts a new bubble.
+ * @param prev current lines
+ * @param who speaker of the new message
+ * @param text spoken text of the new message
+ * @param final whether the model marked it settled
+ * @returns the new lines array
+ */
+export function mergeTranscript(prev: AvatarLine[], who: AvatarLine["who"], text: string, final: boolean): AvatarLine[] {
+  const clean = text.trim();
+  if (!clean) return prev;
+  const last = prev[prev.length - 1];
+  if (!last || last.who !== who) return [...prev, { who, text: clean, final, settled: final ? clean : "" }];
+  // Same speaker: rebuild from the settled part of the bubble plus this message.
+  const settled = last.settled ?? (last.final ? last.text : "");
+  const joined = settled ? `${settled} ${clean}` : clean;
+  return [...prev.slice(0, -1), { who, text: joined, final, settled: final ? joined : settled }];
+}
 
 /**
  * Resolves once the Reactor session reports status "ready".
@@ -262,12 +291,7 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
         log.info("avatar.transcript", { speaker: t.speaker, final: t.final, text: t.text });
         lastActivityRef.current = Date.now();
         const who = t.speaker === "user" ? "you" : "local";
-        setLines((prev) => {
-          const last = prev[prev.length - 1];
-          const next = last && last.who === who && !last.final ? [...prev.slice(0, -1)] : [...prev];
-          next.push({ who, text: t.text, final: t.final !== false });
-          return next.slice(-AVATAR.maxTranscriptLines);
-        });
+        setLines((prev) => mergeTranscript(prev, who, t.text, t.final !== false).slice(-AVATAR.maxTranscriptLines));
       }),
     );
     offs.push(model.onMainVideo((_t, stream) => !disposed && setVideoStream(stream)));
