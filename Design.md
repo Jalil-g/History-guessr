@@ -127,8 +127,11 @@ Side panel (`components/voice/VoiceChat.tsx`, props `{ scene }`) with the local'
 toggle, connection status / speaking indicator / time left, and a live transcript of both sides.
 - `lib/persona.ts` builds the system instruction: scene persona + secret answer + rules (stay in
   character, 1–3 short sentences, never name city/country/empire/ruler/event/year/century, vivid period
-  clues that get more specific when the player is stuck, puzzled by modern words, greets first by
-  remarking on the player's strange clothes).
+  clues that get more specific when the player is stuck, puzzled by modern words). The local is a
+  **guide**: it leads the conversation, points the player at things worth noticing, asks what they
+  think and steers them to narrow down first the part of the world, then roughly when — never naming
+  the answer. Friendly, never flirtatious (no remarks on looks). Greets first by offering to help the
+  lost traveller get their bearings.
 - `POST /api/live-token { sceneId, fallback? }` (`lib/live-token.ts`) looks the scene up server-side
   and mints a single-use ephemeral token with model, persona, voice (`scene.local.voice`), AUDIO
   response and input/output transcription locked in → `{ token, model }`. Primary
@@ -181,8 +184,9 @@ status / live transcript below. The call **starts automatically** when the avata
   / missing → mic only, `call_mode: "audio"`, the old greeting. Video on `main_video`, audio on
   `main_audio`, `transcript` messages.
 - **Video call** (`SelfView.tsx`): the player's webcam goes to the character (`call_mode: "video"`),
-  which sees them and remarks on real details — hair, glasses, shirt, the room — as strange foreign
-  fashion (`AVATAR.seeingInstruction`, never invent details, never mention a camera). Under the
+  which sees them. It may make at most one short, neutral remark about their foreign-looking clothes
+  at the start (never face, body or attractiveness, no compliments), then spends the call guiding
+  (`AVATAR.seeingInstruction`, `AVATAR.videoGreeting`; never mentions a camera). Under the
   character: mirrored self-view, "They can see you" once `session_state.camera_forwarding`, and a
   camera on/off toggle (track disabled, call continues). Settings: `AVATAR.camera` (640×480 @ 15 fps).
 - **Speed**: prebuilt ids (attach, not create), HEAD ‖ token in parallel, permission prompt during
