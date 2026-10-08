@@ -1,24 +1,48 @@
 "use client";
 /**
- * useWasdControls — keyboard → LingBot World 2 movement axes.
+ * useWasdControls — keyboard → LingBot World 2 movement axes, with a look limit.
  *
  * Maps WASD to walking (longitudinal forward/back, lateral strafe) and the arrow keys to looking
  * (horizontal yaw, vertical pitch). For each axis the most recently pressed held key wins; releasing
- * it falls back to the other held key on that axis or "idle". It knows nothing about Reactor: it
- * reports changes through callbacks, and useWorldSession turns them into `set_move_*` /
- * `set_look_*` commands and the idle ↔ moving prompt swap.
+ * it falls back to the other held key on that axis or "idle". Walking is reported straight through
+ * callbacks; useWorldSession turns them into `set_move_*` / `set_look_*` commands and the
+ * idle ↔ moving prompt swap.
+ *
+ * Look limit (lib/look-limit.ts, REACTOR.maxYawDeg / maxPitchDeg): the world model forgets the
+ * scene's landmark if the player spins away from it, so look input is GATED before it reaches
+ * `onAxis`:
+ *  - Accumulation: every `chunk_complete` reports the chunk's `active_action` ("w+left+up"…) and
+ *    `frames_emitted`; the real rotation of that chunk = sign × frames × the rotation_speed_deg that
+ *    was in effect when the chunk started (the "in-flight" snapshot taken at the previous
+ *    chunk_complete). This is added to the committed yaw/pitch (0 = starting view, facing the landmark).
+ *  - Clamping: on every key change and every chunk_complete, planLook projects committed + in-flight
+ *    rotation and decides the next chunk's look commands: pass through, lower the shared
+ *    rotation_speed_deg so the chunk lands exactly on the limit, or send "idle" when there is no room
+ *    in that direction. The opposite direction always works. WASD strafing never rotates.
+ *  - resetLook(): zeroes the bookkeeping. Called automatically every time the hook becomes enabled
+ *    (= a world session goes live, including after a reconnect), so each session starts facing the
+ *    landmark; also returned for callers that want to reset explicitly.
+ * The hook must run inside <LingbotWorld2Provider> (it listens to chunk_complete and sets the
+ * rotation speed directly). No mouse-look exists, so the arrow keys are the only rotation source.
  *
  * Use cases:
- *  - `onAxis(axis, value)`   → send the movement command for that axis
+ *  - `onAxis(axis, value)`   → send the movement command for that axis (look values already gated)
  *  - `onMovingChange(bool)`  → swap the `moving` / `idle` prompt layer
  *  - `onInput()`             → reset the idle-disconnect timer
+ *  - returned `look`         → current yaw/pitch for the HUD heading indicator (LookIndicator)
  * Ignores keys while the user types in an input/textarea (e.g. a guess field), ignores auto-repeat,
  * and releases everything when disabled or when the window loses focus.
  */
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useLingbotWorld2, useLingbotWorld2ChunkComplete } from "@reactor-models/lingbot-world-2";
+import { REACTOR } from "@/lib/config";
 import { log } from "@/lib/log";
+import { chunkDelta, cmdSign, lookSigns, planLook, type LookPlan, type PitchCmd, type YawCmd } from "@/lib/look-limit";
 
 export type Axis = "long" | "lat" | "yaw" | "pitch";
+
+/** Accumulated camera rotation relative to the starting view (right / up positive), in degrees. */
+export type LookState = { yaw: number; pitch: number };
 
 const KEY_MAP: Record<string, { axis: Axis; value: string }> = {
   KeyW: { axis: "long", value: "forward" },
@@ -37,25 +61,104 @@ type Callbacks = {
   onInput: () => void;
 };
 
+/** Look commands + speed with nothing held (also the state right after a session starts). */
+const IDLE_PLAN: LookPlan = { yaw: "idle", pitch: "idle", speedDeg: REACTOR.rotationSpeedDeg };
+
 /**
- * Listens to the keyboard while `enabled` and reports axis / moving changes.
+ * Listens to the keyboard while `enabled` and reports axis / moving changes, clamping look rotation.
  * @param enabled only listen while true (i.e. the live world is generating)
  * @param callbacks see Callbacks (read through a ref, so they may change every render)
+ * @returns `look` (accumulated yaw/pitch for the HUD) and `resetLook()`
  */
-export function useWasdControls(enabled: boolean, callbacks: Callbacks): void {
+export function useWasdControls(enabled: boolean, callbacks: Callbacks): { look: LookState; resetLook: () => void } {
   const cbRef = useRef(callbacks);
   cbRef.current = callbacks;
+  const lw = useLingbotWorld2();
+  const lwRef = useRef(lw);
+  lwRef.current = lw;
+
+  const enabledRef = useRef(false);
+  const lookRef = useRef<LookState>({ yaw: 0, pitch: 0 });
+  const wantRef = useRef<{ yaw: YawCmd; pitch: PitchCmd }>({ yaw: "idle", pitch: "idle" });
+  const sentRef = useRef<LookPlan>(IDLE_PLAN);
+  const inFlightRef = useRef<LookPlan>(IDLE_PLAN);
+  const framesRef = useRef<number>(REACTOR.lookFramesPerChunk || REACTOR.lookFramesPerChunkFallback);
+  const [look, setLook] = useState<LookState>({ yaw: 0, pitch: 0 });
+
+  /** Recomputes the gated look commands for the next chunk and sends whatever changed. */
+  const replan = useCallback(() => {
+    if (!enabledRef.current) return;
+    const frames = framesRef.current;
+    const f = inFlightRef.current;
+    const d = chunkDelta(cmdSign(f.yaw), cmdSign(f.pitch), f.speedDeg, frames);
+    const plan = planLook({
+      yaw: lookRef.current.yaw + d.yaw,
+      pitch: lookRef.current.pitch + d.pitch,
+      wantYaw: wantRef.current.yaw,
+      wantPitch: wantRef.current.pitch,
+      baseSpeedDeg: REACTOR.rotationSpeedDeg,
+      frames,
+      maxYawDeg: REACTOR.maxYawDeg,
+      maxPitchDeg: REACTOR.maxPitchDeg,
+    });
+    const sent = sentRef.current;
+    if (plan.yaw === sent.yaw && plan.pitch === sent.pitch && Math.abs(plan.speedDeg - sent.speedDeg) < 1e-3) return;
+    log.info("useWasdControls.replan", { look: lookRef.current, inFlight: f, want: wantRef.current, plan, frames });
+    sentRef.current = plan;
+    if (Math.abs(plan.speedDeg - sent.speedDeg) >= 1e-3) {
+      void lwRef.current.setRotationSpeedDeg({ rotation_speed_deg: plan.speedDeg }).catch((e: unknown) => log.warn("setRotationSpeedDeg failed", e));
+    }
+    if (plan.yaw !== sent.yaw) cbRef.current.onAxis("yaw", plan.yaw);
+    if (plan.pitch !== sent.pitch) cbRef.current.onAxis("pitch", plan.pitch);
+  }, []);
+
+  /** Resets the accumulated yaw/pitch to 0 (= facing the landmark, as at session start). */
+  const resetLook = useCallback(() => {
+    log.info("resetLook", { from: lookRef.current });
+    lookRef.current = { yaw: 0, pitch: 0 };
+    wantRef.current = { yaw: "idle", pitch: "idle" };
+    sentRef.current = IDLE_PLAN;
+    inFlightRef.current = IDLE_PLAN;
+    setLook({ yaw: 0, pitch: 0 });
+  }, []);
+
+  // Accumulate the real rotation of each finished chunk, then re-plan the next one.
+  useLingbotWorld2ChunkComplete((m) => {
+    if (!enabledRef.current) return;
+    const frames = REACTOR.lookFramesPerChunk || m.frames_emitted || REACTOR.lookFramesPerChunkFallback;
+    framesRef.current = frames;
+    const s = lookSigns(m.active_action);
+    const d = chunkDelta(s.yaw, s.pitch, inFlightRef.current.speedDeg, frames);
+    if (d.yaw !== 0 || d.pitch !== 0) {
+      lookRef.current = { yaw: lookRef.current.yaw + d.yaw, pitch: lookRef.current.pitch + d.pitch };
+      setLook(lookRef.current);
+      log.info("useWasdControls.chunk", { chunk: m.chunk_index, action: m.active_action, frames, speedDeg: inFlightRef.current.speedDeg, look: lookRef.current });
+    }
+    // The next chunk starts now with whatever was last sent.
+    inFlightRef.current = sentRef.current;
+    replan();
+  });
 
   useEffect(() => {
     log.info("useWasdControls", { enabled });
     if (!enabled) return;
+    resetLook(); // every live session (incl. a reconnect) starts facing the landmark
+    enabledRef.current = true;
     const held: string[] = [];
     let moving = false;
 
     /** Re-evaluates one axis and the moving flag after a key change. @param axis changed axis */
     const update = (axis: Axis) => {
       const last = [...held].reverse().find((k) => KEY_MAP[k].axis === axis);
-      cbRef.current.onAxis(axis, last ? KEY_MAP[last].value : "idle");
+      const value = last ? KEY_MAP[last].value : "idle";
+      if (axis === "yaw" || axis === "pitch") {
+        if (axis === "yaw") wantRef.current = { ...wantRef.current, yaw: value as YawCmd };
+        else wantRef.current = { ...wantRef.current, pitch: value as PitchCmd };
+        if (enabledRef.current) replan();
+        else cbRef.current.onAxis(axis, value); // tearing down: just release
+      } else {
+        cbRef.current.onAxis(axis, value);
+      }
       const nowMoving = held.some((k) => KEY_MAP[k].axis === "long" || KEY_MAP[k].axis === "lat");
       if (nowMoving !== moving) {
         moving = nowMoving;
@@ -97,7 +200,10 @@ export function useWasdControls(enabled: boolean, callbacks: Callbacks): void {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", releaseAll);
+      enabledRef.current = false;
       releaseAll();
     };
-  }, [enabled]);
+  }, [enabled, replan, resetLook]);
+
+  return { look, resetLook };
 }
