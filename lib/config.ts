@@ -147,7 +147,7 @@ export const IMAGES = {
  * The no-text clause also blocks shop signs, which leaked the place/language in testing.
  */
 export const IMAGE_STYLE =
-  "Photorealistic cinematic film still, first-person view from human eye level as if the viewer is standing in the scene, camera about 1.7 m above flat ground with the horizon at eye level, never an aerial, high or elevated vantage, 35mm lens, warm natural late-afternoon light, consistent subtle warm film color grade, high detail, wide 16:9 frame. No text, letters, signs with writing, captions, logos or watermarks anywhere; any signboards are blank.";
+  "Photorealistic cinematic film still, first-person view from human eye level as if the viewer is an ordinary bystander standing in an everyday street or site scene among ordinary people of the period, with the one famous landmark ahead clearly recognisable by its true silhouette and proportions, camera about 1.7 m above flat ground with the horizon at eye level, never an aerial, high or elevated vantage, 35mm lens, warm natural late-afternoon light, consistent subtle warm film color grade, high detail, wide 16:9 frame. No text, letters, signs with writing, captions, logos or watermarks anywhere; any signboards are blank.";
 
 export const PATHS = {
   /** Source book (plain text). */
