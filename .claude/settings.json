@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install*)",
+      "Bash(pnpm dev*)",
+      "Bash(pnpm build*)",
+      "Bash(pnpm typecheck*)",
+      "Bash(pnpm exec tsc*)",
+      "Bash(NEXT_PUBLIC_MOCK_WORLD=1 pnpm build*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git fetch*)",
+      "Bash(git checkout*)",
+      "Bash(git switch*)",
+      "Bash(git rebase*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git worktree*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr comment*)",
+      "Bash(gh pr diff*)"
+    ],
+    "deny": [
+      "Bash(git push origin main*)",
+      "Bash(git push -f origin main*)",
+      "Bash(git push --force origin main*)",
+      "Read(./.env.local)",
+      "Read(./.env)"
+    ]
+  }
+}
