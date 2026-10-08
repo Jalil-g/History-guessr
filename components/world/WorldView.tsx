@@ -42,6 +42,7 @@ import { useSceneImage } from "./useSceneImage";
 import { useWasdControls } from "./useWasdControls";
 import { useWorldSession } from "./useWorldSession";
 import { WorldHud } from "./WorldHud";
+import { LookIndicator } from "./LookIndicator";
 
 export type WorldViewProps = { scene: Scene; onEnded?: (reason: string) => void; onResumed?: () => void };
 
@@ -163,7 +164,7 @@ function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, o
   const s = useWorldSession(scene, handleEnded);
   const live = s.phase === "live";
   const closed = s.phase === "ended" || s.phase === "error";
-  useWasdControls(live, { onAxis: s.onAxis, onMovingChange: s.onMovingChange, onInput: s.onInput });
+  const wasd = useWasdControls(live, { onAxis: s.onAxis, onMovingChange: s.onMovingChange, onInput: s.onInput });
 
   useEffect(() => {
     if (live) onSessionLive(attempt);
@@ -194,9 +195,11 @@ function LiveWorld({ scene, imageUrl, attempt, reconnectsLeft, onSessionEnded, o
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
         />
       )}
+      {live && <LookIndicator look={wasd.look} />}
       <WorldHud phase={s.phase} secondsLeft={s.secondsLeft} retry={s.retry} waitingForGpu={s.waitingForGpu} message={s.message}
         reconnect={closed ? { left: reconnectsLeft, onReconnect } : undefined}
       />
+
     </div>
   );
 }
