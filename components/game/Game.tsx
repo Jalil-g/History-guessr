@@ -3,7 +3,8 @@
  * Game — the top-level state machine of History Guesser.
  *
  * Phases:  intro → playing(round i) → reveal(round i) → playing(i+1) → … → summary → intro
- *  - intro    components/game/IntroScreen.tsx   — pick the number of rounds
+ *  - intro    components/game/IntroScreen.tsx   — pick the number of rounds and the world model
+ *             (the model id is kept here and passed to RoundScreen → WorldView `modelId`)
  *  - playing  components/game/RoundScreen.tsx   — WorldView + VoiceChat + guess panel
  *  - reveal   components/game/RevealScreen.tsx  — answer, distance, points, book citation
  *  - summary  components/game/SummaryScreen.tsx — per-round table, total, play again
@@ -38,18 +39,24 @@ export function Game() {
   const [phase, setPhase] = useState<Phase>({ kind: "intro" });
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [results, setResults] = useState<RoundResult[]>([]);
+  const [modelId, setModelId] = useState<string | undefined>(undefined);
   log.info("Game", { phase });
 
   const totalScore = results.reduce((s, r) => s + r.total, 0);
 
-  /** Starts a new game. @param rounds requested round count */
-  function start(rounds: number) {
-    log.info("Game.start", { rounds });
+  /**
+   * Starts a new game.
+   * @param rounds requested round count
+   * @param chosenModel world model id picked on the intro screen (threaded to WorldView)
+   */
+  function start(rounds: number, chosenModel?: string) {
+    log.info("Game.start", { rounds, chosenModel });
     const picked = pickScenes(rounds);
     if (picked.length === 0) {
       log.warn("Game.start", { error: "no scenes available" });
       return;
     }
+    setModelId(chosenModel);
     setScenes(picked);
     setResults([]);
     setPhase({ kind: "playing", round: 0 });
@@ -102,6 +109,7 @@ export function Game() {
             totalRounds={scenes.length}
             totalScore={totalScore}
             onSubmit={submit}
+            modelId={modelId}
           />
         );
       }
