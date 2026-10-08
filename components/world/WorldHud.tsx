@@ -5,6 +5,12 @@
  * Shared by the live Reactor world and mock mode so both look the same. It is purely
  * presentational: WorldView passes in the phase (from useWorldSession, or "mock") and the countdown.
  * Never shows the scene's place or year.
+ *
+ * Reconnect: when WorldView passes `reconnect` (live mode, session ended / errored), a centred
+ * "Reopen the portal" button (dark glass, thin cream border, tiny letter-spaced caps — the game HUD
+ * style) offers a fresh session for the same scene, with the remaining count and the R shortcut.
+ * Once the per-round budget (REACTOR.maxReconnectsPerRound) is spent it is replaced by a
+ * non-interactive "The portal is spent — make your guess" note. Never shown in mock mode.
  */
 import { useEffect } from "react";
 import { REACTOR } from "@/lib/config";
@@ -23,6 +29,8 @@ type Props = {
   waitingForGpu?: boolean;
   /** Short reason shown when ended / error. */
   message?: string | null;
+  /** Reconnect affordance (ended / error in live mode only); omit to hide it. */
+  reconnect?: { left: number; onReconnect: () => void };
 };
 
 /**
@@ -75,6 +83,39 @@ export function WorldHud(props: Props) {
           {phase === "live" ? "WASD walk · ←↑→↓ look" : "Live world off — look closely for clues"}
         </div>
       )}
+      {(phase === "ended" || phase === "error") && props.reconnect && <ReconnectButton {...props.reconnect} />}
     </>
+  );
+}
+
+/**
+ * Centred "Reopen the portal" button, or the "portal is spent" note once no reconnects are left.
+ * Deliberately avoids the `left-3 top-3` / `bottom-3` classes that app/globals.css repositions.
+ * @param props left = reconnects remaining this round; onReconnect = start a fresh session
+ */
+function ReconnectButton({ left, onReconnect }: { left: number; onReconnect: () => void }) {
+  useEffect(() => log.info("ReconnectButton", { left }), [left]);
+  if (left <= 0) {
+    return (
+      <div className="pointer-events-none absolute inset-x-0 top-[38%] flex justify-center">
+        <div className="hg-glass rounded-full px-5 py-2">
+          <span className="hg-label !text-cream/80">The portal is spent — make your guess</span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-[38%] flex justify-center">
+      <button
+        type="button"
+        onClick={onReconnect}
+        className="hg-rise hg-glass pointer-events-auto flex flex-col items-center gap-1 rounded-full px-6 py-2.5 transition hover:border-cream/50 hover:bg-black/60"
+      >
+        <span className="hg-label !text-cream">Reopen the portal</span>
+        <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-cream/50">
+          Press {REACTOR.reconnectKey.toUpperCase()} · {left} left
+        </span>
+      </button>
+    </div>
   );
 }
