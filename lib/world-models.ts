@@ -24,7 +24,7 @@ import { MODELS, WORLD } from "@/lib/config";
 import { log } from "@/lib/log";
 
 /** Stable ids of the supported world models (also the adapter keys and the localStorage value). */
-export type WorldModelId = "lingbot-world-2" | "lingbot";
+export type WorldModelId = "lingbot-world-2" | "lingbot" | "happy-oyster";
 
 /** One selectable world model. */
 export type WorldModelInfo = {
@@ -58,6 +58,14 @@ export const WORLD_MODELS: readonly WorldModelInfo[] = [
     reactorModel: MODELS.reactorWorldLingbot,
     npmPackage: "@reactor-models/lingbot",
     capabilities: { move: true, look: true },
+  },
+  {
+    id: "happy-oyster",
+    label: "HappyOyster",
+    description: "Game-like first-person world — walk only, view stays on the landmark",
+    reactorModel: MODELS.reactorWorldHappyOyster,
+    npmPackage: "@reactor-models/happy-oyster",
+    capabilities: { move: true, look: false },
   },
 ];
 
