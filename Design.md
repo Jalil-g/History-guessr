@@ -30,8 +30,11 @@ local persona and `source { chapter, quote }`.
   (`EXTRACT.quoteRepairAttempts`); a scene that still fails aborts the run.
 - **Leak lint**: warns if an image/world prompt contains a place word or the year, or breaks the world
   prompt format.
+- `imagePrompt` is **content only** (viewer position, the one landmark, people, weather, daylight);
+  style boilerplate is stripped because the image script appends a shared style suffix.
 - The seed scenes `giza-pyramids` and `storming-bastille` are kept and used as style examples.
-- Re-run a subset: `node --env-file=.env.local scripts/extract-scenes.ts <id> <id>`.
+- Re-run a subset: `node --env-file=.env.local scripts/extract-scenes.ts <id> <id>`; check without API
+  calls: `node scripts/extract-scenes.ts --verify`. Model in use: `gemini-3.1-pro-preview`.
 Output: `data/scenes.json` (20 scenes).
 
 ## Scene images 📋
