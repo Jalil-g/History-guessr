@@ -1,1 +1,92 @@
-{}
+{
+  "giza-pyramids": {
+    "avatarId": "1005830860148060160",
+    "createdAt": "2026-10-08T17:35:16.560Z",
+    "portrait": "/locals/giza-pyramids.png"
+  },
+  "babylon-ishtar-gate": {
+    "avatarId": "1005833612542619648",
+    "createdAt": "2026-10-08T17:36:18.748Z",
+    "portrait": "/locals/babylon-ishtar-gate.png"
+  },
+  "athens-parthenon": {
+    "avatarId": "1005833797947629568",
+    "createdAt": "2026-10-08T17:37:21.850Z",
+    "portrait": "/locals/athens-parthenon.png"
+  },
+  "alexandria-pharos": {
+    "avatarId": "1005831664049332224",
+    "createdAt": "2026-10-08T17:35:34.942Z",
+    "portrait": "/locals/alexandria-pharos.png"
+  },
+  "great-wall-qin": {
+    "avatarId": "1005833608696442880",
+    "createdAt": "2026-10-08T17:36:00.920Z",
+    "portrait": "/locals/great-wall-qin.png"
+  },
+  "rome-colosseum": {
+    "avatarId": "1005830181526450176",
+    "createdAt": "2026-10-08T17:36:48.100Z",
+    "portrait": "/locals/rome-colosseum.png"
+  },
+  "constantinople-hagia-sophia": {
+    "avatarId": "1005831509812195328",
+    "createdAt": "2026-10-08T17:37:13.444Z",
+    "portrait": "/locals/constantinople-hagia-sophia.png"
+  },
+  "cordoba-mezquita": {
+    "avatarId": "1005831932920995840",
+    "createdAt": "2026-10-08T17:36:47.790Z",
+    "portrait": "/locals/cordoba-mezquita.png"
+  },
+  "angkor-wat": {
+    "avatarId": "1005833676585443328",
+    "createdAt": "2026-10-08T17:36:53.605Z",
+    "portrait": "/locals/angkor-wat.png"
+  },
+  "beijing-forbidden-city": {
+    "avatarId": "1005833993930682368",
+    "createdAt": "2026-10-08T17:37:54.784Z",
+    "portrait": "/locals/beijing-forbidden-city.png"
+  },
+  "tenochtitlan-templo-mayor": {
+    "avatarId": "1005834045243797504",
+    "createdAt": "2026-10-08T17:38:13.128Z",
+    "portrait": "/locals/tenochtitlan-templo-mayor.png"
+  },
+  "machu-picchu": {
+    "avatarId": "1005834084099829760",
+    "createdAt": "2026-10-08T17:38:13.608Z",
+    "portrait": "/locals/machu-picchu.png"
+  },
+  "moscow-st-basils": {
+    "avatarId": "1005833967330406400",
+    "createdAt": "2026-10-08T17:38:02.619Z",
+    "portrait": "/locals/moscow-st-basils.png"
+  },
+  "agra-taj-mahal": {
+    "avatarId": "1005833490161217536",
+    "createdAt": "2026-10-08T17:38:05.410Z",
+    "portrait": "/locals/agra-taj-mahal.png"
+  },
+  "edo-nihonbashi": {
+    "avatarId": "1005831259273834496",
+    "createdAt": "2026-10-08T17:38:10.201Z",
+    "portrait": "/locals/edo-nihonbashi.png"
+  },
+  "paris-bastille-1789": {
+    "avatarId": "1005834317806448640",
+    "createdAt": "2026-10-08T17:39:08.166Z",
+    "portrait": "/locals/paris-bastille-1789.png"
+  },
+  "port-said-suez": {
+    "avatarId": "1005834333270847488",
+    "createdAt": "2026-10-08T17:39:10.915Z",
+    "portrait": "/locals/port-said-suez.png"
+  },
+  "paris-eiffel-tower": {
+    "avatarId": "1005834300282642432",
+    "createdAt": "2026-10-08T17:39:15.168Z",
+    "portrait": "/locals/paris-eiffel-tower.png"
+  }
+}
