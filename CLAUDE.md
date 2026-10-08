@@ -12,8 +12,9 @@ historically grounded and citable. ~20 scenes.
 - Next.js (App Router) + React 19 + TypeScript + Tailwind, pnpm 10 (`corepack prepare pnpm@10.18.0 --activate`)
 - **Gemini** (Google AI Studio key): text model to extract scenes from the book; image model to paint
   each scene's first frame; Gemini Live for voice chat with a local.
-- **Reactor** world model (`@reactor-team/js-sdk`, LingBot World 2): turns the first frame + a prompt
-  into a walkable real-time world driven by WASD.
+- **Reactor** world model (`@reactor-team/js-sdk` + `@reactor-models/*`; player picks LingBot World 2
+  (default) or LingBot — registry `lib/world-models.ts`, adapters `components/world/adapters/*`): turns
+  the first frame + a prompt into a walkable real-time world driven by WASD.
 - Leaflet for the guess map. Cloud Run for hosting.
 
 ## Commands (once scaffolded — keep this list accurate)
