@@ -30,7 +30,15 @@ export const MODELS = {
   geminiLiveFallback: "gemini-3.1-flash-live-preview",
   /** Reactor real-time world model the player walks around in. */
   reactorWorld: "reactor/lingbot-world-2",
+  /** Reactor talking-avatar model the local is rendered with (right side panel). */
+  reactorAvatar: "reactor/vidu-s2-avatar",
 } as const;
+
+/**
+ * Reactor models a browser JWT minted by /api/reactor/token may be scoped to (`?model=` query param).
+ * Anything else is rejected with 400, so a client cannot mint tokens for arbitrary paid models.
+ */
+export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar];
 
 export const GAME = {
   /** Total scenes the extractor should produce. */
@@ -149,6 +157,47 @@ export const IMAGES = {
 export const IMAGE_STYLE =
   "Photorealistic cinematic film still, first-person view from human eye level as if the viewer is an ordinary bystander standing in an everyday street or site scene among ordinary people of the period, with the one famous landmark ahead clearly recognisable by its true silhouette and proportions, camera about 1.7 m above flat ground with the horizon at eye level, never an aerial, high or elevated vantage, 35mm lens, warm natural late-afternoon light, consistent subtle warm film color grade, high detail, wide 16:9 frame. No text, letters, signs with writing, captions, logos or watermarks anywhere; any signboards are blank.";
 
+export const AVATAR = {
+  /** Master switch for the live talking avatar; false → portrait still + Gemini Live voice chat. */
+  enabled: true,
+  /** Hard cap on one avatar call, in seconds — the main avatar cost guard. */
+  callMaxSeconds: 120,
+  /** End the call after this many seconds without any transcript activity from either side. */
+  idleEndSeconds: 40,
+  /** Give up on createAvatar / attachAvatar if `avatar_ready` has not arrived after this many ms. */
+  prepareTimeoutMs: 60_000,
+  /** Language the local speaks in. */
+  language: "English",
+  /** Reply generation settings passed to startCall (short spoken turns). */
+  llm: { max_tokens: 90 },
+  /** localStorage key prefix under which a scene's reusable avatar_id is cached (90-day lifetime). */
+  cacheKeyPrefix: "hg.avatar.",
+  /** Countdown tick, in ms. */
+  tickMs: 500,
+  /** Max transcript lines kept on screen. */
+  maxTranscriptLines: 40,
+  /** Greeting (≤ 200 chars) — a curious, in-character line about the player's strange clothes. */
+  greeting: "Well now, stranger, where did you get such peculiar clothes? I have never seen the like around here!",
+} as const;
+
+export const PORTRAITS = {
+  /** Aspect ratio of each local's portrait (portrait-orientation frame for the avatar card). */
+  aspectRatio: "3:4",
+  /** Portraits painted in parallel by scripts/generate-portraits.ts. */
+  concurrency: 4,
+  /** Retries per portrait on 429 / 5xx / empty responses (total attempts = retries + 1). */
+  retries: 3,
+  /** Base backoff in ms; doubles each retry, plus jitter. */
+  backoffMs: 2000,
+} as const;
+
+/**
+ * ONE shared style for every local's portrait (scripts/generate-portraits.ts appends it to the
+ * per-scene description). Half-body, facing camera, single person: what vidu-s2-avatar animates best.
+ */
+export const PORTRAIT_STYLE =
+  "Photorealistic half-body portrait of exactly one person, facing the camera and looking into the lens, framed from the waist up with head and shoulders fully visible and centred, mouth closed and relaxed, neutral friendly expression, period-accurate clothing and hair, soft natural window light, plain softly blurred period-appropriate background, 50mm lens, shallow depth of field, high detail, natural skin texture. No other people, no hands covering the face, no text, letters, captions, logos or watermarks.";
+
 export const PATHS = {
   /** Source book (plain text). */
   book: "data/short-history-of-the-world.txt",
@@ -156,7 +205,14 @@ export const PATHS = {
   scenes: "data/scenes.json",
   /** Where generated first frames are written (served from /scenes/<id>.png). */
   sceneImagesDir: "public/scenes",
+  /** Where generated local portraits are written (served from /locals/<id>.png). */
+  localPortraitsDir: "public/locals",
 } as const;
+
+/** Public URL of a scene local's portrait (talking-avatar source image). @param id scene id */
+export function localPortraitUrl(id: string): string {
+  return `/locals/${id}.png`;
+}
 
 /** Public URL of a scene's first frame. @param id scene id */
 export function sceneImageUrl(id: string): string {
