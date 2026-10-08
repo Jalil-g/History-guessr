@@ -71,6 +71,24 @@ export const REACTOR = {
   exploreSeconds: 90,
   /** Disconnect after this many seconds without any input. */
   idleDisconnectSeconds: 25,
+  /** Extra connect attempts when Reactor answers 429 / "no capacity". */
+  connectRetries: 2,
+  /** Delay between connect retries, in ms. */
+  connectRetryDelayMs: 3000,
+  /** Reactor API base URL (overridable with NEXT_PUBLIC_REACTOR_API_URL). */
+  apiUrl: process.env.NEXT_PUBLIC_REACTOR_API_URL || "https://api.reactor.inc",
+  /** Lifetime of a minted browser JWT, in seconds (server caps at 6 h). */
+  tokenLifetimeSeconds: 60 * 60,
+  /** How many sessions one minted JWT may create (closed ones count too). */
+  maxSessionsPerToken: 20,
+  /** Re-mint the browser JWT this many ms before it expires. */
+  tokenRefreshSkewMs: 60_000,
+  /** Arrow-key look speed, degrees per step. */
+  rotationSpeedDeg: 4,
+  /** Countdown / idle-check tick, in ms. */
+  tickMs: 500,
+  /** Ken Burns pan/zoom cycle of the still image (mock mode / fallback), in seconds. */
+  kenBurnsSeconds: 40,
 } as const;
 
 export const PATHS = {
