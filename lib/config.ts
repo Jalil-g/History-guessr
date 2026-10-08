@@ -8,7 +8,7 @@
  * Use cases:
  *  - scripts/extract-scenes.ts reads MODELS.sceneText and PATHS.book / PATHS.scenes
  *  - scripts/generate-images.ts reads MODELS.sceneImage and PATHS.sceneImagesDir
- *  - the world component reads MODELS.reactorWorld and REACTOR.* cost guards
+ *  - the world component reads MODELS.reactorWorld* (via lib/world-models.ts), WORLD.* and REACTOR.*
  *  - the voice route reads MODELS.geminiLive (+ fallback)
  *  - the game loop reads GAME.* (rounds, year range, scoring decay constants)
  *  - the guess / reveal maps read MAP.* (keyless Esri tiles, zoom, marker colours)
@@ -39,6 +39,14 @@ export const MODELS = {
  * Anything else is rejected with 400, so a client cannot mint tokens for arbitrary paid models.
  */
 export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar];
+
+/** World-model picker (lib/world-models.ts registry, intro screen, WorldView adapters). */
+export const WORLD = {
+  /** World model used when the player has not picked one (an id from lib/world-models.ts). */
+  defaultModelId: "lingbot-world-2",
+  /** localStorage key under which the intro screen remembers the picked world model. */
+  storageKey: "hg.worldModel",
+} as const;
 
 export const GAME = {
   /** Total scenes the extractor should produce. */
