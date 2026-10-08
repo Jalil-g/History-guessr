@@ -164,6 +164,12 @@ export const AVATAR = {
   callMaxSeconds: 120,
   /** End the call after this many seconds without any transcript activity from either side. */
   idleEndSeconds: 40,
+  /** Disconnect the (billed) avatar session if the player hasn't started a call this long after it is ready. */
+  readyIdleSeconds: 90,
+  /** Max wait for the Reactor session to reach "ready" after connect(), in ms. */
+  connectTimeoutMs: 45_000,
+  /** How long to wait for end_call's reply before disconnecting anyway, in ms. */
+  endCallGraceMs: 1500,
   /** Give up on createAvatar / attachAvatar if `avatar_ready` has not arrived after this many ms. */
   prepareTimeoutMs: 60_000,
   /** Language the local speaks in. */
