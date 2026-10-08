@@ -25,6 +25,8 @@ pnpm typecheck         # tsc --noEmit — must pass before every PR
 pnpm build             # must pass before every PR (the merge agent runs it too)
 node --env-file=.env.local scripts/extract-scenes.ts    # book → data/scenes.json
 node --env-file=.env.local scripts/generate-images.ts   # scenes.json → public/scenes/<id>.png
+node scripts/prewarm-avatars.ts [ids] [--force] [--attach] [--url http://localhost:3000]
+                       # dev server running → headless Chrome creates Reactor avatars → data/avatars.json
 ```
 
 Node 24 runs `.ts` scripts directly (type stripping) — no ts-node/tsx needed.
