@@ -91,6 +91,25 @@ export const REACTOR = {
   kenBurnsSeconds: 40,
 } as const;
 
+export const VOICE = {
+  /** Hard cap on one voice conversation, in seconds (session auto-closes after this). */
+  sessionSeconds: 180,
+  /** How long a minted ephemeral token stays valid for messages, in minutes. */
+  tokenExpireMinutes: 15,
+  /** How long the token can be used to OPEN a new session, in minutes (single use). */
+  tokenNewSessionMinutes: 2,
+  /** Gemini Live API version for ephemeral tokens. */
+  apiVersion: "v1alpha",
+  /** Mic capture sample rate expected by Gemini Live (PCM16 mono). */
+  inputSampleRate: 16000,
+  /** Sample rate of the audio Gemini Live sends back (PCM16 mono). */
+  outputSampleRate: 24000,
+  /** Samples per mic chunk sent upstream (1600 @ 16 kHz = 100 ms). */
+  micChunkSamples: 1600,
+  /** First message sent so the local greets the player. */
+  greetingCue: "(A strangely dressed time traveller suddenly appears right next to you.)",
+} as const;
+
 export const PATHS = {
   /** Source book (plain text). */
   book: "data/short-history-of-the-world.txt",
