@@ -63,8 +63,15 @@ server-minted token, session time cap and idle disconnect. Mock mode shows the s
   scoped to `MODELS.reactorWorld`, `REACTOR.maxSessionsPerToken` sessions, `REACTOR.tokenLifetimeSeconds`.
   The browser memoizes it (`components/world/fetchReactorToken.ts`); the key never leaves the server.
 - **Session** (`components/world/useWorldSession.ts`): provider keyed by scene id → connect (retry
-  `REACTOR.connectRetries`× on 429/no capacity) → upload `/scenes/<id>.png` → `setImage` →
+  `REACTOR.connectRetries`× (6 × 7 s) on 429/no capacity) → upload `/scenes/<id>.png` → `setImage` →
   `setPrompt(base + idle)` → `start`. Image/prompt/start calls logged with `logGenAI`.
+- **Backup engine** (`WorldView.tsx` `ReconnectableWorld`): when `MODELS.reactorWorld` (LingBot World 2)
+  is still at capacity after all `REACTOR.connectRetries` (~40 s), the world automatically reopens on
+  `MODELS.reactorWorldFallback` (LingBot v1) — same image + prompt, a "Backup engine · LingBot" badge,
+  no reconnect budget spent. The provider is the generic `ReactorProvider` with the model chosen at
+  runtime (the typed lingbot-world-2 hooks read the same context); tokens are cached per model
+  (`fetchReactorTokenFor`, `?model=` on the token route). v1 has one movement axis: `onAxis` sends
+  `set_movement` (forward/back wins over strafing) instead of `set_move_longitudinal` / `_lateral`.
 - **Controls** (`useWasdControls.ts`): WASD walk, arrows look; prompt swaps to `base + moving` while
   walking and back to `base + idle` when stopped.
 - **Look limit** (`lib/look-limit.ts` + `useWasdControls.ts`): arrow-key look is clamped to
