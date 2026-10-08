@@ -123,7 +123,13 @@ function LiveAvatar({ scene }: { scene: Scene }) {
           </div>
         )}
       </div>
-      <SelfView stream={s.selfStream} cameraOn={s.cameraOn} forwarding={s.cameraForwarding} onToggle={s.toggleCamera} />
+      <SelfView
+        stream={s.selfStream}
+        cameraOn={s.cameraOn}
+        forwarding={s.cameraForwarding}
+        onToggle={s.toggleCamera}
+        onEnd={() => void s.endTalk("button")}
+      />
       <div className="flex min-h-0 flex-1 flex-col p-3">
         <AvatarHud
           firstName={firstName}
