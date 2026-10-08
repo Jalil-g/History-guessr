@@ -49,6 +49,11 @@
     "createdAt": "2026-10-08T17:37:54.784Z",
     "portrait": "/locals/beijing-forbidden-city.png"
   },
+  "florence-duomo": {
+    "avatarId": "1005833961764564992",
+    "createdAt": "2026-10-08T17:39:31.549Z",
+    "portrait": "/locals/florence-duomo.png"
+  },
   "tenochtitlan-templo-mayor": {
     "avatarId": "1005834045243797504",
     "createdAt": "2026-10-08T17:38:13.128Z",
@@ -73,6 +78,11 @@
     "avatarId": "1005831259273834496",
     "createdAt": "2026-10-08T17:38:10.201Z",
     "portrait": "/locals/edo-nihonbashi.png"
+  },
+  "philadelphia-independence-hall": {
+    "avatarId": "1005834264001912832",
+    "createdAt": "2026-10-08T17:39:33.991Z",
+    "portrait": "/locals/philadelphia-independence-hall.png"
   },
   "paris-bastille-1789": {
     "avatarId": "1005834317806448640",
