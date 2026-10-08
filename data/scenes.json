@@ -2,9 +2,14 @@
   {
     "id": "giza-pyramids",
     "title": "Building the Great Pyramid",
-    "answer": { "place": "Giza Plateau, Egypt", "lat": 29.9792, "lng": 31.1342, "year": -2560 },
+    "answer": {
+      "place": "Giza Plateau, Egypt",
+      "lat": 29.9792,
+      "lng": 31.1342,
+      "year": -2560
+    },
     "reveal": "The Giza Plateau around 2560 BC: the Great Pyramid of Khufu (Cheops) nearing completion, hauled into place by tens of thousands of workers.",
-    "imagePrompt": "Standing on a dusty construction ramp on a desert plateau beside a great river valley. A colossal pyramid ahead still under construction, its upper courses unfinished with mud-brick ramps, its finished lower faces covered in smooth white limestone casing. Hundreds of workers in white linen kilts haul a huge limestone block on a wooden sledge with ropes, an overseer with a staff, palm trees and a green floodplain in the distance, blazing sun. Photorealistic first-person view at human eye level, natural lighting, sharp detail, wide 16:9 frame, no text, no captions, no watermark.",
+    "imagePrompt": "Standing on a dusty construction ramp on a desert plateau beside a great river valley. A colossal pyramid ahead still under construction, its upper courses unfinished with mud-brick ramps, its finished lower faces covered in smooth white limestone casing. Hundreds of workers in white linen kilts haul a huge limestone block on a wooden sledge with ropes, an overseer with a staff, palm trees and a green floodplain in the distance, blazing sun.",
     "worldPrompt": {
       "base": "An ancient desert construction site: a colossal unfinished pyramid with smooth white limestone casing on its lower faces and rough stepped courses near the top, mud-brick ramps climbing its side. The world contains EXACTLY ONE giant pyramid straight ahead at a fixed position. Teams of workers in white linen kilts haul limestone blocks on wooden sledges with thick ropes. Blazing sun, sand and dust, distant palm trees, photorealistic.",
       "idle": "First-person view at human eye level; the camera does not move on its own. Workers pull ropes in rhythm, dust drifting, the block inching forward on its sledge.",
@@ -12,33 +17,566 @@
     },
     "local": {
       "name": "Neferu, a work-gang foreman",
+      "role": "work-gang foreman",
+      "gender": "male",
+      "appearance": "A sun-weathered man in his forties with a shaved head and a short black beard, bare-chested in a white linen kilt, a wooden measuring rod in one hand and a coil of palm-fibre rope over his shoulder.",
       "voice": "Orus",
       "persona": "You are Neferu, a proud foreman of a work gang building the great tomb for the living god-king. You are paid in bread and beer, your gang has a funny name, and you brag that your fine white stone comes by boat from the quarries across the river. You have never heard of coins, iron, horses, or an alphabet."
     },
     "source": {
-      "chapter": "XVIII. Egypt, Babylon and Assyria",
-      "quote": "Such were Cheops and Chephren and Mycerinus, who built those vast sepulchral piles, the pyramids at Gizeh."
+      "quote": "Such were Cheops and Chephren and Mycerinus, who built those vast sepulchral piles, the pyramids at Gizeh.",
+      "chapter": "XV. Sumeria, Early Egypt and Writing"
     }
   },
   {
-    "id": "storming-bastille",
-    "title": "The Storming of the Bastille",
-    "answer": { "place": "Bastille, Paris, France", "lat": 48.8532, "lng": 2.3692, "year": 1789 },
-    "reveal": "Paris, 14 July 1789: crowds storm the Bastille fortress-prison, the opening act of the French Revolution.",
-    "imagePrompt": "Standing in a crowded cobbled street in a late-18th-century European city on a hot summer afternoon. A grim medieval stone fortress with eight massive round towers looms ahead, smoke rising from it. An angry crowd of townspeople in tricorne hats, waistcoats, breeches and long skirts, carrying muskets, pikes and pitchforks, some wearing red-white-blue cockades, a cart of hay burning, a cannon being dragged forward. Photorealistic first-person view at human eye level, natural lighting, sharp detail, wide 16:9 frame, no text, no captions, no watermark.",
+    "id": "babylon-ishtar-gate",
+    "title": "The Ishtar Gate of Babylon",
+    "answer": {
+      "place": "Babylon, Iraq",
+      "lat": 32.5422,
+      "lng": 44.4211,
+      "year": -575
+    },
+    "reveal": "Babylon around 575 BC: the magnificent Ishtar Gate, built by Nebuchadnezzar II, served as the main entrance to the inner city and a symbol of the Neo-Babylonian Empire's wealth.",
+    "imagePrompt": "Standing on a wide paved processional street lined with high brick walls featuring reliefs of striding lions. A massive double gateway of brilliant blue glazed brick covered in golden bulls and dragons straight ahead, with a towering stepped ziggurat rising in the distance behind it. Merchants with donkeys, priests in fringed robes, and soldiers with spears walk the sunlit avenue under a clear blue sky.",
     "worldPrompt": {
-      "base": "A crowded cobbled street in an 18th-century city in revolt. The world contains EXACTLY ONE grim stone fortress with massive round towers straight ahead at a fixed position, smoke drifting from its walls. An agitated crowd in tricorne hats, waistcoats and long skirts carries muskets, pikes and pitchforks; a hay cart burns; a cannon is pushed forward. Hot summer haze, photorealistic.",
-      "idle": "First-person view at human eye level; the camera does not move on its own. The crowd surges and shouts, raising pikes, smoke curling from the towers.",
-      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Cobblestones pass underfoot as the viewer pushes through the crowd toward the fortress."
+      "base": "A wide paved processional avenue flanked by high brick walls with lion reliefs in glazed brick. The world contains EXACTLY ONE massive blue-glazed brick double gateway straight ahead at a fixed position. Beyond the gate rises a towering stepped ziggurat. People in fringed tunics and robes walk alongside donkeys carrying baskets. Bright sunlight, clear sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. People in fringed robes pass by, and the shadows of the high walls shift slightly in the bright sun.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The lion reliefs on the walls slide past as the great blue gateway looms larger."
     },
     "local": {
-      "name": "Jeanne, a laundress",
-      "voice": "Leda",
-      "persona": "You are Jeanne, a fiery laundress from the eastern working quarter of the capital on a scorching summer day. Bread prices are ruinous, the king has brought foreign troops around the city, and the popular minister was just dismissed. Your neighbours are hunting for gunpowder to defend themselves, and you think the old prison everyone hates is where it is stored."
+      "name": "Gimil, a brick-glazer",
+      "role": "brick-glazer",
+      "gender": "male",
+      "appearance": "A sturdy man with a thick, curled black beard and a patterned headband, wearing a knee-length fringed tunic stained with blue and yellow pigments. He carries a small wooden palette and a trowel.",
+      "voice": "Orus",
+      "persona": "You are Gimil, a master artisan working on the great blue gate for the king. You are proud of the fierce bulls and dragons you have helped glaze to protect the city. You complain about the cost of barley and the influx of foreign captives from the western hills who do the heavy lifting. You have never heard of iron coins, paper, or the compass."
     },
     "source": {
-      "chapter": "LV. The French Revolution and the Restoration of Monarchy in France",
-      "quote": "The grim-looking prison of the Bastille was stormed by the people of Paris, and the insurrection spread rapidly throughout France."
+      "quote": "To the south of this in a great crescent was a new Chaldean Empire, the Second Babylonian Empire, which rose to a very great degree of wealth and power under the rule of Nebuchadnezzar the Great (the Nebuchadnezzar of the Bible). The last great days, the greatest days of all, for Babylon began.",
+      "chapter": "XX. The Last Babylonian Empire and the Empire of Darius I"
+    }
+  },
+  {
+    "id": "athens-parthenon",
+    "title": "The Parthenon Completed",
+    "answer": {
+      "place": "Acropolis of Athens, Greece",
+      "lat": 37.9715,
+      "lng": 23.7267,
+      "year": -432
+    },
+    "reveal": "Athens around 432 BC: the Parthenon stands newly completed on the Acropolis, the crowning achievement of Pericles' massive building program after the Persian Wars.",
+    "imagePrompt": "Standing in a bustling marketplace plaza filled with colonnaded porticoes and stalls selling pottery and olives. A steep rocky hill rises straight ahead, crowned by a magnificent, newly finished marble temple with painted friezes and Doric columns gleaming in the afternoon sun. Citizens in draped white and dyed woollen garments gather in groups discussing politics, while artisans carry baskets of goods.",
+    "worldPrompt": {
+      "base": "A vibrant ancient marketplace with stone colonnades and wooden market stalls. The world contains EXACTLY ONE magnificent marble temple with painted friezes and Doric columns on a steep rocky hill straight ahead at a fixed position. People in draped woollen garments converse and trade in the warm afternoon sunlight. Olive trees cast long shadows, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Citizens gesture as they debate in the shade of the colonnades, while vendors arrange their wares.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The market stalls pass by on either side as you approach the base of the great rocky hill."
+    },
+    "local": {
+      "name": "Kallias, a pottery merchant",
+      "role": "pottery merchant",
+      "gender": "male",
+      "appearance": "A middle-aged man with a neatly trimmed beard, wearing a simple woollen tunic fastened at the shoulder. He holds a beautifully painted black-and-red terracotta drinking cup.",
+      "voice": "Charon",
+      "persona": "You are Kallias, a merchant selling fine painted pottery in the marketplace. You proudly point to the great new temple on the hill, boasting that your city's wealth and the tribute of allies built it. You enjoy arguing about philosophy and politics with the young men who gather near your stall. You have never heard of an emperor, trousers, or a printing press."
+    },
+    "source": {
+      "quote": "For over thirty years (466 to 428 B.C.) Athens was dominated by a man of great vigour and liberality of mind, Pericles, who set himself to rebuild the city from the ashes to which the Persians had reduced it. The beautiful ruins that still glorify Athens to-day are chiefly the remains of this great effort.",
+      "chapter": "XXV. The Splendour of Greece"
+    }
+  },
+  {
+    "id": "alexandria-pharos",
+    "title": "The Pharos of Alexandria",
+    "answer": {
+      "place": "Alexandria, Egypt",
+      "lat": 31.214,
+      "lng": 29.8856,
+      "year": -280
+    },
+    "reveal": "Alexandria around 280 BC: the Pharos lighthouse, one of the Seven Wonders of the Ancient World, guides ships into the bustling harbour of the Ptolemaic capital.",
+    "imagePrompt": "Standing on a busy stone quay beside a sparkling blue harbour filled with wooden galleys and merchant ships with painted eyes on their prows. A colossal, multi-tiered white marble lighthouse straight ahead, rising hundreds of feet into the clear sky, with a fire blazing at its peak. Sailors, scholars in draped robes, and merchants in fine linens mingle among bales of papyrus and amphorae.",
+    "worldPrompt": {
+      "base": "A bustling stone harbour quay lined with moored galleys and merchant ships. The world contains EXACTLY ONE colossal, multi-tiered white marble lighthouse straight ahead at a fixed position. Bales of goods, amphorae, and papyrus rolls are stacked on the docks. A diverse crowd of sailors and scholars in draped robes walk in the bright Mediterranean sun, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Gulls circle overhead, and the rigging of the moored ships creaks gently in the sea breeze.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. You navigate through stacks of amphorae and crowds of busy dockworkers."
+    },
+    "local": {
+      "name": "Berenice, a spice vendor",
+      "role": "spice vendor",
+      "gender": "female",
+      "appearance": "A young woman with dark braided hair, wearing a light linen dress with a colourful woven sash. She carries a woven basket filled with small linen sacks of fragrant spices and a bronze weighing scale.",
+      "voice": "Leda",
+      "persona": "You are Berenice, selling exotic spices brought by ships from the eastern seas. You marvel at the giant new beacon tower at the harbour mouth that guides the great galleys safely to port. You hear scholars from the great library arguing in the streets in a language you only half understand. You have never heard of a compass, a steam engine, or a gun."
+    },
+    "source": {
+      "quote": "Here the Macedonian general Ptolemy had become Pharaoh, with a court that spoke Greek. He had become an intimate of Alexander before he became king, and he was deeply saturated with the ideas of Aristotle.",
+      "chapter": "XXVII. The Museum and Library at Alexandria"
+    }
+  },
+  {
+    "id": "great-wall-qin",
+    "title": "Building the Great Wall",
+    "answer": {
+      "place": "Ordos Region, China",
+      "lat": 38.2833,
+      "lng": 109.7333,
+      "year": -214
+    },
+    "reveal": "The northern frontier of China around 214 BC: hundreds of thousands of conscripted labourers toil to connect and expand the Great Wall under the orders of Qin Shi Huang.",
+    "imagePrompt": "Standing on a rugged, windswept mountain ridge covered in scrub brush. A massive earthen and stone fortification wall under construction stretches straight ahead, snaking over the mountain peaks into the distance. Thousands of conscripted labourers in ragged padded tunics carry baskets of earth and stone on bamboo poles, overseen by guards in leather armour with halberds. Overcast, dusty sky.",
+    "worldPrompt": {
+      "base": "A rugged, windswept mountain ridge with scrub brush and loose rocks. The world contains EXACTLY ONE massive earthen and stone fortification wall under construction straight ahead at a fixed position, snaking over the peaks. Conscripted labourers carry baskets of earth on bamboo poles, watched by guards in leather armour. Dusty, overcast sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Dust blows across the ridge as exhausted labourers trudge past with their heavy burdens.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. You step over loose stones and packed earth as the endless line of workers moves alongside you."
+    },
+    "local": {
+      "name": "Wei, a conscript labourer",
+      "role": "conscript labourer",
+      "gender": "male",
+      "appearance": "An exhausted, sun-baked man with a topknot, wearing a ragged, dirt-stained padded tunic and straw sandals. His shoulders are calloused from carrying heavy bamboo carrying-poles.",
+      "voice": "Fenrir",
+      "persona": "You are Wei, a farmer dragged from your village to build the endless barrier against the northern horsemen. You work from dawn to dusk pounding earth and carrying stones, fearing the harsh whips of the guards and the emperor's cruel laws. You whisper to your friends that the new emperor burns books and buries scholars. You have never heard of a telescope, a flying machine, or a printing press."
+    },
+    "source": {
+      "quote": "He fought vigorously against the Hunnish invaders from the northern deserts, and he began that immense work, the Great Wall of China, to set a limit to their incursions.",
+      "chapter": "XXX. Confucius and Lao Tse"
+    }
+  },
+  {
+    "id": "rome-colosseum",
+    "title": "The Opening of the Colosseum",
+    "answer": {
+      "place": "Rome, Italy",
+      "lat": 41.8902,
+      "lng": 12.4922,
+      "year": 80
+    },
+    "reveal": "Rome in AD 80: the Flavian Amphitheatre, known today as the Colosseum, opens to the public with 100 days of spectacular games ordered by the Emperor Titus.",
+    "imagePrompt": "Standing on a wide, paved street crowded with citizens in togas and tunics. A colossal, newly completed four-tiered stone amphitheatre straight ahead, its arches filled with statues and its top ringed with wooden masts holding a massive canvas awning. Vendors sell wine and bread, while a detachment of soldiers in segmented armour marches past under the bright Mediterranean sun.",
+    "worldPrompt": {
+      "base": "A wide, paved city street crowded with people in tunics and togas. The world contains EXACTLY ONE colossal four-tiered stone amphitheatre straight ahead at a fixed position, its arches adorned with statues. Vendors sell food from wooden carts, and soldiers in segmented armour march by. Bright sunlight, clear blue sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The crowd mills about, chatting and buying food, while the massive canvas awning high above ripples in the wind.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. You push through the bustling crowd of citizens heading towards the arched entrances of the great arena."
+    },
+    "local": {
+      "name": "Livia, a wine seller",
+      "role": "wine seller",
+      "gender": "female",
+      "appearance": "A sharp-eyed woman in her thirties wearing a simple linen stola and a shawl draped over her shoulders. She stands behind a wooden cart loaded with terracotta amphorae and bronze cups.",
+      "voice": "Kore",
+      "persona": "You are Livia, a street vendor selling watered wine to the massive crowds flocking to the new amphitheatre. You are thrilled by the hundred days of games the emperor has declared, bringing you endless thirsty customers. You gossip about the exotic beasts and gladiators fighting inside. You have never heard of a printing press, a compass, or a tomato."
+    },
+    "source": {
+      "quote": "In a great number of cities life centred on the red excitement of the arena, where men and beasts fought and were tormented and slain. Amphitheatres are the most characteristic of Roman ruins.",
+      "chapter": "XXXVI. Religious Developments under the Roman Empire"
+    }
+  },
+  {
+    "id": "constantinople-hagia-sophia",
+    "title": "Completion of Hagia Sophia",
+    "answer": {
+      "place": "Hagia Sophia, Istanbul, Turkey",
+      "lat": 41.0082,
+      "lng": 28.9784,
+      "year": 537
+    },
+    "reveal": "Constantinople in 537 AD: The great church of Hagia Sophia, commissioned by Justinian I, has just been completed, standing as the architectural marvel of the Byzantine Empire.",
+    "imagePrompt": "Standing in a bustling paved plaza near a massive new basilica with a gigantic central dome and cascading half-domes, its exterior walls a mix of brick and stone, gleaming in the afternoon sun. Masons and laborers are clearing away wooden scaffolding and debris from the entrance. People in long tunics and cloaks, some with embroidered borders, walk by carrying baskets and tools.",
+    "worldPrompt": {
+      "base": "A bustling paved plaza near a massive new basilica with a gigantic central dome and cascading half-domes, its exterior walls a mix of brick and stone, gleaming in the afternoon sun. The world contains EXACTLY ONE massive domed basilica straight ahead at a fixed position. Masons and laborers clear away wooden scaffolding and debris, while people in long tunics and cloaks walk by carrying baskets and tools, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Dust settles around the entrance as workers dismantle the last wooden scaffolds, and citizens in tunics stroll past.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The paved plaza passes underfoot as the towering dome looms larger against the bright sky."
+    },
+    "local": {
+      "name": "Theodorus, a mosaic artisan",
+      "role": "mosaic artisan",
+      "gender": "male",
+      "appearance": "A middle-aged man with a short beard and tired eyes, wearing a linen tunic dusted with plaster and gold leaf, holding a small wooden box of colored glass tesserae.",
+      "voice": "Orus",
+      "persona": "You are Theodorus, a mosaic artisan. You talk about the dizzying heights of the great dome you just helped decorate with millions of gold glass tiles, and complain about the strict overseers. You mention the recent riots that burned the old city, and you have never heard of a printing press or a tomato."
+    },
+    "source": {
+      "quote": "He founded a university, built the great church of Sta. Sophia in Constantinople and codified the Roman law.",
+      "chapter": "XLI. The Byzantine and Sassanid Empires"
+    }
+  },
+  {
+    "id": "cordoba-mezquita",
+    "title": "The Great Mosque of Cordoba",
+    "answer": {
+      "place": "Great Mosque of Cordoba, Spain",
+      "lat": 37.8792,
+      "lng": -4.7796,
+      "year": 950
+    },
+    "reveal": "Cordoba around 950 AD: The Great Mosque stands at the heart of the Umayyad Caliphate in Spain, a beacon of Islamic art, learning, and culture in medieval Europe.",
+    "imagePrompt": "Standing in a sunlit courtyard filled with orange trees and a central ablution fountain, looking toward a vast, sprawling mosque building with open arches revealing a forest of columns and distinctive red-and-white striped horseshoe arches. Scholars in flowing robes and turbans converse in the shade, while merchants and students carry scrolls and brass astrolabes. Bright blue sky and warm sunlight.",
+    "worldPrompt": {
+      "base": "A sunlit courtyard filled with orange trees and a central ablution fountain, looking toward a vast, sprawling mosque building with open arches revealing a forest of columns and distinctive red-and-white striped horseshoe arches. The world contains EXACTLY ONE sprawling mosque with red-and-white striped arches straight ahead at a fixed position. Scholars in flowing robes and turbans converse in the shade, while merchants and students carry scrolls, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The leaves of the orange trees rustle gently in the breeze as scholars debate quietly in the shaded arcades.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The courtyard stones pass underfoot as you approach the mesmerizing red-and-white arches of the prayer hall."
+    },
+    "local": {
+      "name": "Zahra, a manuscript copyist",
+      "role": "manuscript copyist",
+      "gender": "female",
+      "appearance": "A young woman with dark eyes, wearing a modest linen dress and a silk headscarf, holding a bundle of parchment and a reed pen with ink stains on her fingers.",
+      "voice": "Leda",
+      "persona": "You are Zahra, a manuscript copyist working in the thriving libraries of the capital. You speak proudly of the new translations of ancient philosophers arriving from the east and the beautiful calligraphy you practice daily. You complain about the price of good parchment and have never heard of the Americas or mechanical clocks."
+    },
+    "source": {
+      "quote": "In the ninth learned men in the schools of Cordoba in Spain were corresponding with learned men in Cairo, Bagdad, Bokhara and Samarkand.",
+      "chapter": "XLIV. The Great Days of the Arabs"
+    }
+  },
+  {
+    "id": "angkor-wat",
+    "title": "Building Angkor Wat",
+    "answer": {
+      "place": "Angkor Wat, Siem Reap, Cambodia",
+      "lat": 13.4125,
+      "lng": 103.867,
+      "year": 1150
+    },
+    "reveal": "Angkor Wat around 1150 AD: The massive temple complex, built by King Suryavarman II, is nearing completion, representing the pinnacle of Khmer architecture and Hindu cosmology.",
+    "imagePrompt": "Standing on a wide laterite causeway crossing a massive moat, looking toward a colossal stone temple complex with five lotus-bud towers rising against a humid, tropical sky. Hundreds of bare-chested workers in wrapped skirts are carving intricate bas-reliefs into the sandstone galleries, while elephants drag heavy blocks of stone along the muddy banks. Monks in saffron robes and royal guards with spears walk past.",
+    "worldPrompt": {
+      "base": "A wide laterite causeway crossing a massive moat, leading to a colossal stone temple complex with five lotus-bud towers rising against a humid, tropical sky. The world contains EXACTLY ONE colossal five-towered stone temple straight ahead at a fixed position. Hundreds of bare-chested workers carve intricate bas-reliefs into sandstone galleries, while elephants drag heavy blocks of stone and guards with spears walk past, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The rhythmic sound of chisels on stone echoes across the water, and elephants sway as they pull heavy loads.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The long stone causeway stretches ahead, with workers and guards passing by on either side."
+    },
+    "local": {
+      "name": "Kosal, a stone carver",
+      "role": "stone carver",
+      "gender": "male",
+      "appearance": "A lean, muscular man with a dark tan, wearing a simple wrapped cloth around his waist, holding an iron chisel and a wooden mallet, his face dusted with sandstone powder.",
+      "voice": "Puck",
+      "persona": "You are Kosal, a master stone carver working on the endless galleries of the new state temple dedicated to the preserver god. You complain about the blistering heat and the strict demands of the royal architects who want every celestial dancer perfectly proportioned. You have never heard of firearms, glass windows, or the printing press."
+    },
+    "source": {
+      "quote": "The old kind of religion turned upon temple, initiated priest and mystical sacrifice, and ruled the common man like a slave by fear.",
+      "chapter": "XLVI. The Crusades and the Age of Papal Dominion"
+    }
+  },
+  {
+    "id": "beijing-forbidden-city",
+    "title": "The New Forbidden City",
+    "answer": {
+      "place": "Forbidden City, Beijing, China",
+      "lat": 39.9163,
+      "lng": 116.3972,
+      "year": 1420
+    },
+    "reveal": "Beijing in 1420: The Forbidden City, commissioned by the Yongle Emperor of the Ming Dynasty, has just been completed, serving as the imperial palace and the political center of China.",
+    "imagePrompt": "Standing in a vast, expansive courtyard paved with grey bricks, looking toward a monumental wooden palace hall with sweeping, golden-yellow glazed tile roofs and deep red pillars. Officials in long silk robes with winged hats and embroidered rank badges hurry across the square. Guards in scale armor stand at attention near ornate bronze incense burners shaped like cranes and dragons. Clear, crisp morning light.",
+    "worldPrompt": {
+      "base": "A vast, expansive courtyard paved with grey bricks, looking toward a monumental wooden palace hall with sweeping, golden-yellow glazed tile roofs and deep red pillars. The world contains EXACTLY ONE monumental wooden palace hall straight ahead at a fixed position. Officials in long silk robes with winged hats hurry across the square, while guards in scale armor stand near ornate bronze incense burners, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The courtyard is vast and orderly, with silk-robed officials walking briskly and incense smoke drifting from bronze burners.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The grey brick paving passes underfoot as the grand red pillars and golden roofs draw closer."
+    },
+    "local": {
+      "name": "Mei, a palace silk weaver",
+      "role": "palace silk weaver",
+      "gender": "female",
+      "appearance": "A young woman with her hair pinned up in an elaborate knot, wearing a pale green silk tunic and a pleated skirt, carrying a woven bamboo basket filled with vibrant red and gold silk threads.",
+      "voice": "Aoede",
+      "persona": "You are Mei, a skilled weaver tasked with producing the dragon robes for the imperial court in this massive new northern capital. You marvel at the endless courtyards and the thousands of artisans brought here to build the emperor's private city. You have never heard of the steam engine, potatoes, or the telegraph."
+    },
+    "source": {
+      "quote": "The Chinese threw off the rule of the Yuan dynasty in 1368, and set up the native Ming dynasty which flourished from 1368 to 1644.",
+      "chapter": "XLVIII. The Mongol Conquests"
+    }
+  },
+  {
+    "id": "florence-duomo",
+    "title": "Crowning the Duomo",
+    "answer": {
+      "place": "Florence Cathedral, Florence, Italy",
+      "lat": 43.7731,
+      "lng": 11.2558,
+      "year": 1436
+    },
+    "reveal": "Florence in 1436: Filippo Brunelleschi's magnificent dome for the Florence Cathedral (Santa Maria del Fiore) is finally completed, a masterpiece of engineering that ignited the Italian Renaissance.",
+    "imagePrompt": "Standing in a bustling, narrow cobblestone street opening into a piazza, looking up at a colossal octagonal cathedral dome of red brick with white marble ribs, towering over the terracotta roofs of the city. Wooden cranes and scaffolding cling to the lantern at the very top. Merchants in velvet doublets, monks, and laborers pushing wooden carts of stone fill the square. Bright Mediterranean sunlight.",
+    "worldPrompt": {
+      "base": "A bustling cobblestone piazza looking up at a colossal octagonal cathedral dome of red brick with white marble ribs, towering over terracotta city roofs. The world contains EXACTLY ONE colossal red-brick cathedral dome straight ahead at a fixed position. Wooden cranes and scaffolding cling to the lantern at the top, while merchants in velvet doublets, monks, and laborers pushing wooden carts fill the square, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The piazza is alive with the chatter of merchants and the clatter of wooden cartwheels on cobblestones.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Navigating through the busy crowd in the piazza, keeping the massive red-brick dome in view."
+    },
+    "local": {
+      "name": "Giovanni, a hoist operator",
+      "role": "hoist operator",
+      "gender": "male",
+      "appearance": "A burly, bearded man in his thirties wearing a sweat-stained linen shirt, woolen hose, and a leather apron, carrying a thick coil of hemp rope and a heavy iron pulley.",
+      "voice": "Fenrir",
+      "persona": "You are Giovanni, a worker operating the ingenious ox-driven hoists designed by the mad genius architect to lift heavy stones to the top of the great dome. You boast about the sheer size of the structure and the cleverness of the herringbone brickwork that keeps it from collapsing. You have never heard of the Americas, tomatoes, or a steam locomotive."
+    },
+    "source": {
+      "quote": "The thirteenth and fourteenth centuries were a period of growing, independent or quasi-independent cities; Venice, Florence, Genoa, Lisbon, Paris, Bruges, London, Antwerp, Hamburg, Nuremberg, Novgorod, Wisby and Bergen for example.",
+      "chapter": "XLIX. The Intellectual Revival of the Europeans"
+    }
+  },
+  {
+    "id": "tenochtitlan-templo-mayor",
+    "title": "The Great Market of the Lake City",
+    "answer": {
+      "place": "Tenochtitlan (Mexico City), Mexico",
+      "lat": 19.4349,
+      "lng": -99.1314,
+      "year": 1519
+    },
+    "reveal": "Tenochtitlan, the island capital of the Aztec Empire, in 1519. The great Templo Mayor stands at the heart of the city, just before the arrival of the Spanish conquistadors.",
+    "imagePrompt": "Standing on a wide, smooth-paved plaza surrounded by canals and low whitewashed buildings. A colossal twin-templed step pyramid straight ahead, its steep staircases stained dark, with braziers smoking at the summit. People in brightly colored woven cotton cloaks and elaborate feather headdresses walk through the bustling market area, carrying baskets of maize and cacao beans, under a bright, clear blue sky.",
+    "worldPrompt": {
+      "base": "A vast paved plaza in a lake city, bustling with market activity. The world contains EXACTLY ONE colossal twin-templed step pyramid straight ahead at a fixed position. Canals with small canoes intersect the stone walkways. People wear brightly colored cotton cloaks and feather headdresses, carrying baskets of goods. Bright sunlight, clear sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. People in woven cloaks walk past, canoes glide silently along the nearby canal, and smoke drifts from the temple braziers above.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The smooth stone pavement passes underfoot as the crowd parts, moving toward the towering step pyramid."
+    },
+    "local": {
+      "name": "Cuauhtemoc, a feather-worker",
+      "role": "feather-worker",
+      "gender": "male",
+      "appearance": "A young man with straight black hair cut in a fringe, wearing a simple white cotton loincloth and a brightly embroidered cloak tied at the shoulder, carrying a bundle of iridescent green quetzal feathers.",
+      "voice": "Puck",
+      "persona": "You are Cuauhtemoc, an artisan who crafts elaborate shields and headdresses for the noble warriors. You speak of the high price of jade and cacao beans in the great market, and the constant demand for your work to please the gods of sun and rain. You have never heard of horses, iron swords, or men from across the eastern sea."
+    },
+    "source": {
+      "quote": "The Mexican civilization in particular ran blood; it offered thousands of human victims yearly. The cutting open of living victims, the tearing out of the still beating heart, was an act that dominated the minds and lives of these strange priesthoods.",
+      "chapter": "XIV. Primitive Neolithic Civilizations"
+    }
+  },
+  {
+    "id": "machu-picchu",
+    "title": "The Citadel in the Clouds",
+    "answer": {
+      "place": "Machu Picchu, Peru",
+      "lat": -13.1631,
+      "lng": -72.545,
+      "year": 1530
+    },
+    "reveal": "Machu Picchu, the royal estate and sacred citadel of the Inca Empire, around 1530. Nestled high in the Andes, it flourished just before the Spanish conquest of Peru.",
+    "imagePrompt": "Standing on a high, grassy mountain terrace surrounded by dramatic, mist-shrouded green peaks. A meticulously crafted citadel of dry-stone granite walls and thatched roofs straight ahead, blending seamlessly with the mountainous terrain. Men and women in brightly dyed alpaca-wool tunics carry woven sacks of potatoes and corn, tending to the agricultural terraces under a crisp, high-altitude sun.",
+    "worldPrompt": {
+      "base": "A high-altitude mountain settlement of perfectly fitted dry-stone granite buildings with thatched roofs, surrounded by steep agricultural terraces. The world contains EXACTLY ONE terraced mountain citadel straight ahead at a fixed position. People in colorful dyed wool tunics work the fields and walk the stone stairs. Mist clings to the dramatic green peaks in the background under a bright sun, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Workers tend the terraced crops, llamas graze on the steep grassy slopes, and clouds drift slowly past the towering peaks.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Climbing the steep, perfectly fitted stone steps, passing thatched stone houses and grazing llamas."
+    },
+    "local": {
+      "name": "Qori, a record-keeper",
+      "role": "record-keeper",
+      "gender": "female",
+      "appearance": "A middle-aged woman with long black braids, wearing a vibrant red and yellow geometric-patterned wool tunic fastened with a large copper pin, holding a bundle of knotted colored cords.",
+      "voice": "Kore",
+      "persona": "You are Qori, a keeper of the knotted cords that track the grain and potato harvests from the mountain terraces. You speak of the sacred sun festivals and the royal estate being prepared for the emperor's visit. You have never heard of writing on paper, wheeled carts, or the strange bearded men on the coast."
+    },
+    "source": {
+      "quote": "In Peru there were beginnings of a similar writing but they were superseded by a method of keeping records by knotting cords.",
+      "chapter": "XIV. Primitive Neolithic Civilizations"
+    }
+  },
+  {
+    "id": "moscow-st-basils",
+    "title": "The New Domes of the Tsar",
+    "answer": {
+      "place": "Moscow, Russia",
+      "lat": 55.7525,
+      "lng": 37.6231,
+      "year": 1561
+    },
+    "reveal": "Red Square in Moscow, around 1561. St. Basil's Cathedral has just been completed by order of Ivan the Terrible to commemorate the capture of Kazan.",
+    "imagePrompt": "Standing on a vast, muddy unpaved square in a northern city. A magnificent, newly built cathedral with multiple wildly colorful, onion-shaped domes straight ahead, its bright red brickwork gleaming. Bearded men in heavy fur-lined coats and tall boots, and women in embroidered woolen shawls, walk through the bustling square, with wooden market stalls to the sides and a dark fortress wall nearby under a pale, overcast sky.",
+    "worldPrompt": {
+      "base": "A wide, muddy city square bordered by a dark stone fortress wall and wooden market stalls. The world contains EXACTLY ONE multi-domed, brightly colored onion-dome cathedral straight ahead at a fixed position. People in heavy fur-lined coats, tall boots, and embroidered shawls navigate the busy market. Pale overcast northern sky, cold atmosphere, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Merchants shout from wooden stalls, breath pluming in the cold air, while the vibrant colors of the new cathedral stand out against the grey sky.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. The muddy ground squelches underfoot as you navigate past fur-clad pedestrians toward the colorful, towering domes."
+    },
+    "local": {
+      "name": "Mikhail, a fur trader",
+      "role": "fur trader",
+      "gender": "male",
+      "appearance": "A burly, heavily bearded man in his fifties, wearing a thick bearskin coat, a tall felt hat, and leather boots, holding a bundle of rich sable pelts.",
+      "voice": "Fenrir",
+      "persona": "You are Mikhail, a merchant who brings precious furs from the deep eastern forests to sell in the great square. You marvel at the magnificent new church built to celebrate the victory over the southern nomads, though you whisper that the ruler's temper grows more terrifying each day. You have never heard of a steam engine, a parliament, or potatoes."
+    },
+    "source": {
+      "quote": "His grandson, Ivan IV, Ivan the Terrible (1533-1584), assumed the imperial title of Cæsar (Tsar).",
+      "chapter": "LII. The Age of Political Experiments; of Grand Monarchy and Parliaments and Republicanism in Europe"
+    }
+  },
+  {
+    "id": "agra-taj-mahal",
+    "title": "The Marble Tomb on the River",
+    "answer": {
+      "place": "Agra, India",
+      "lat": 27.1751,
+      "lng": 78.0421,
+      "year": 1648
+    },
+    "reveal": "Agra, India, around 1648. The Taj Mahal is nearing completion, commissioned by the Mughal Emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal.",
+    "imagePrompt": "Standing in a dusty formal garden beside a wide river. A magnificent white marble mausoleum under construction straight ahead, its great central dome partially covered in wooden scaffolding. Hundreds of artisans and laborers in light cotton tunics and turbans carve intricate floral inlays into the marble, while elephants haul massive white stone blocks along the riverbank under a blazing, hazy sun.",
+    "worldPrompt": {
+      "base": "A dusty formal garden and construction site beside a wide river. The world contains EXACTLY ONE massive white marble mausoleum with a great dome straight ahead at a fixed position, partially obscured by wooden scaffolding. Workers in cotton tunics and turbans carve stone, and elephants haul heavy marble blocks. Blazing sun, hazy sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The rhythmic sound of chisels on marble fills the air, dust drifts from the scaffolding, and an elephant slowly drags a massive white block nearby.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Moving along the dusty garden paths, passing busy stone-carvers and scaffolding poles, approaching the gleaming white marble structure."
+    },
+    "local": {
+      "name": "Farid, a master stone-carver",
+      "role": "master stone-carver",
+      "gender": "male",
+      "appearance": "A lean man with a neat black beard, wearing a dusty white cotton tunic and a tightly wound turban, holding a fine iron chisel and a wooden mallet.",
+      "voice": "Zephyr",
+      "persona": "You are Farid, an artisan brought from afar to carve delicate flowers into the white stone using precious gems. You speak of the immense grief of the ruler for his beloved wife, which drives this endless, costly work. You have never heard of electricity, the telegraph, or factories."
+    },
+    "source": {
+      "quote": "His grandson Akbar (1556-1605) completed his conquests, and this Mongol (or “Mogul” as the Arabs called it) dynasty ruled in Delhi over the greater part of India until the eighteenth century.",
+      "chapter": "XLVIII. The Mongol Conquests"
+    }
+  },
+  {
+    "id": "edo-nihonbashi",
+    "title": "The Wooden Bridge of the Shogun's Capital",
+    "answer": {
+      "place": "Tokyo (Edo), Japan",
+      "lat": 35.6836,
+      "lng": 139.7745,
+      "year": 1700
+    },
+    "reveal": "Edo (modern Tokyo), Japan, around 1700. The Nihonbashi bridge was the bustling center of the city and the starting point of the five major routes across the country, with Mount Fuji visible in the distance.",
+    "imagePrompt": "Standing on a bustling, arched wooden bridge spanning a busy canal. A perfectly conical, snow-capped mountain straight ahead in the far distance. The bridge is crowded with people in cotton kimonos, merchants carrying wooden yokes, and samurai with two swords in their belts. Wooden merchant houses line the canal banks, and small boats navigate the water below under a clear, crisp morning sky.",
+    "worldPrompt": {
+      "base": "A bustling arched wooden bridge over a canal lined with traditional wooden merchant houses. The world contains EXACTLY ONE perfectly conical snow-capped mountain straight ahead at a fixed position in the distance. The bridge is packed with pedestrians in kimonos, merchants with yokes, and armed warriors. Small boats navigate the canal. Clear morning light, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The wooden bridge creaks under the weight of the crowd, merchants call out their wares, and boats glide smoothly along the canal below.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Pushing through the dense crowd on the arched wooden bridge, the distant snow-capped mountain remaining fixed on the horizon."
+    },
+    "local": {
+      "name": "O-Haru, a tea-house waitress",
+      "role": "tea-house waitress",
+      "gender": "female",
+      "appearance": "A young woman with her hair pinned up with wooden combs, wearing a simple but elegant blue-and-white patterned cotton kimono, carrying a wooden tray with small ceramic cups.",
+      "voice": "Leda",
+      "persona": "You are O-Haru, serving tea to the weary travelers and busy merchants crossing the great bridge. You gossip about the strict lords who pass by in their palanquins and the latest popular woodblock prints. You have never heard of steamships, telegraphs, or the lands beyond the ocean, as leaving the island is forbidden."
+    },
+    "source": {
+      "quote": "For two centuries Japan remained outside the main current of history. She lived on in a state of picturesque feudalism in which about five per cent of the population, the samurai, or fighting men, and the nobles and their families, tyrannized without restraint over the rest of the population.",
+      "chapter": "LXIII. European Aggression in Asia, and the Rise of Japan"
+    }
+  },
+  {
+    "id": "philadelphia-independence-hall",
+    "title": "The Declaration of Independence",
+    "answer": {
+      "place": "Independence Hall, Philadelphia, USA",
+      "lat": 39.9489,
+      "lng": -75.15,
+      "year": 1776
+    },
+    "reveal": "Philadelphia in the summer of 1776: outside Independence Hall, where the Continental Congress is debating and signing the Declaration of Independence.",
+    "imagePrompt": "Standing on a dirt and cobblestone street in a colonial town on a bright summer day. A stately red-brick building with a white wooden bell tower and a large clock face straight ahead. Men in tricorn hats, knee breeches, and long coats gather in small groups talking earnestly, while women in long linen dresses and mob caps carry market baskets. A horse-drawn wagon rumbles past under the leafy trees.",
+    "worldPrompt": {
+      "base": "A colonial street scene on a bright summer day, featuring a stately red-brick building with a white wooden bell tower and a clock face. The world contains EXACTLY ONE red-brick bell-tower building straight ahead at a fixed position. People in tricorn hats, knee breeches, and long dresses converse in small groups. Horse-drawn wagons pass by under leafy trees, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Townspeople chat animatedly in the street, leaves rustle in the breeze, and a horse stamps its hooves.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Passing by groups of debating townsfolk and wooden carts along the dusty street."
+    },
+    "local": {
+      "name": "Thomas, a printer's apprentice",
+      "role": "printer's apprentice",
+      "gender": "male",
+      "appearance": "A young man in his late teens wearing a coarse linen shirt with rolled-up sleeves, ink-stained hands, and a leather apron over brown breeches. He holds a stack of freshly pressed broadsides.",
+      "voice": "Puck",
+      "persona": "You are Thomas, a printer's apprentice. You are exhausted from setting type all night for a new broadside about the rights of free men, which everyone in the taverns is arguing over. You complain about the high price of tea and the arrogance of soldiers in red coats. You have never heard of a steamboat, a photograph, or a telegraph."
+    },
+    "source": {
+      "quote": "It was not until the middle of 1776 that the Congress of the insurgent states issued “The Declaration of Independence.”",
+      "chapter": "LIV. The American War of Independence"
+    }
+  },
+  {
+    "id": "paris-bastille-1789",
+    "title": "The Storming of the Bastille",
+    "answer": {
+      "place": "The Bastille, Paris, France",
+      "lat": 48.8533,
+      "lng": 2.3691,
+      "year": 1789
+    },
+    "reveal": "Paris, July 1789: the tense streets surrounding the Bastille fortress just as the French Revolution erupts.",
+    "imagePrompt": "Standing in a crowded, narrow cobblestone street on a hot summer day. A massive, grim medieval stone fortress with eight great round towers and narrow slit windows looms straight ahead. An angry, shouting crowd of commoners in rough wool trousers, loose shirts, and wooden sabots is gathering, some holding pikes, muskets, and pitchforks. Smoke drifts in the air, and the mood is tense and chaotic.",
+    "worldPrompt": {
+      "base": "A chaotic, narrow cobblestone street filled with an angry crowd armed with pikes and muskets. The world contains EXACTLY ONE massive medieval stone fortress with round towers straight ahead at a fixed position. Smoke drifts through the hot summer air as commoners in rough wool trousers and loose shirts shout and wave their weapons, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. The crowd surges and shouts, weapons are raised, and smoke billows slightly in the distance.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Pushing through the agitated crowd of armed commoners toward the towering stone fortress."
+    },
+    "local": {
+      "name": "Jacques, a wine-cask maker",
+      "role": "wine-cask maker",
+      "gender": "male",
+      "appearance": "A burly, sweat-drenched man in his thirties wearing striped trousers, a loose white shirt open at the neck, and a red Phrygian cap. He grips a heavy iron crowbar in his calloused hands.",
+      "voice": "Fenrir",
+      "persona": "You are Jacques, a cooper who makes wine casks. You are furious about the price of bread, which takes almost everything you earn just to feed your family. You are shouting about the gunpowder hoarded in the fortress ahead and the foreign troops gathering outside the city. You have never heard of a railway, a photograph, or an electric light."
+    },
+    "source": {
+      "quote": "The grim-looking prison of the Bastille was stormed by the people of Paris, and the insurrection spread rapidly throughout France.",
+      "chapter": "LV. The French Revolution and the Restoration of Monarchy in France"
+    }
+  },
+  {
+    "id": "port-said-suez",
+    "title": "Opening of the Suez Canal",
+    "answer": {
+      "place": "Port Said, Egypt",
+      "lat": 31.2653,
+      "lng": 32.3019,
+      "year": 1869
+    },
+    "reveal": "Port Said, Egypt, 1869: the grand opening of the Suez Canal, connecting the Mediterranean and Red Seas for steamship navigation.",
+    "imagePrompt": "Standing on a sandy, sun-drenched harbor embankment lined with festive bunting and wooden grandstands. A grand procession of steamships with tall funnels and paddle wheels sails into a vast, newly dug waterway straight ahead. European dignitaries in top hats and tailcoats mingle with locals in flowing robes and tarbooshes. The bright blue water reflects the clear sky and the dark smoke billowing from the ships' funnels.",
+    "worldPrompt": {
+      "base": "A festive, sun-drenched harbor embankment lined with bunting and crowds. The world contains EXACTLY ONE vast, newly dug waterway straight ahead at a fixed position, filled with a procession of steamships with tall funnels. Dignitaries in top hats and locals in robes and tarbooshes watch the ships, dark smoke billowing into the clear blue sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Flags flutter in the warm breeze, steam whistles blow in the distance, and the crowd murmurs excitedly.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Moving along the sandy embankment past cheering spectators and festive wooden grandstands."
+    },
+    "local": {
+      "name": "Tariq, a harbor porter",
+      "role": "harbor porter",
+      "gender": "male",
+      "appearance": "A lean, deeply tanned man wearing a simple white galabeya and a red tarboosh on his head. He carries a thick coil of mooring rope over his shoulder and a small brass token around his neck.",
+      "voice": "Charon",
+      "persona": "You are Tariq, a porter who loads baggage for the wealthy travelers arriving on the new steamships. You marvel at the massive iron vessels that move without sails, breathing fire and black smoke. You talk about the ten years of backbreaking digging in the desert that created this great ditch to the southern sea. You have never heard of an airplane, a motorcar, or a radio."
+    },
+    "source": {
+      "quote": "Not until the middle of the century did the tonnage of steamships upon the sea begin to overhaul that of sailing ships. After that the evolution in sea transport was rapid.",
+      "chapter": "LVII. The Development of Material Knowledge"
+    }
+  },
+  {
+    "id": "paris-eiffel-tower",
+    "title": "Building the Iron Tower",
+    "answer": {
+      "place": "Champ de Mars, Paris, France",
+      "lat": 48.8584,
+      "lng": 2.2945,
+      "year": 1888
+    },
+    "reveal": "Paris, 1888: the Eiffel Tower under construction, a marvel of the new metallurgical age, rising above the Champ de Mars for the 1889 Universal Exposition.",
+    "imagePrompt": "Standing on a wide, dusty park avenue on a crisp autumn afternoon. A colossal, half-finished iron lattice tower rises straight ahead, its massive curved legs meeting at a first platform, with cranes and scaffolding clinging to its upper reaches. Horse-drawn carriages and pedestrians in bowler hats, bustled dresses, and parasols stroll along the tree-lined paths. The sky is pale blue, and the intricate ironwork casts complex shadows on the ground.",
+    "worldPrompt": {
+      "base": "A wide park avenue on a crisp afternoon with horse-drawn carriages and pedestrians in late nineteenth-century attire. The world contains EXACTLY ONE colossal, half-finished iron lattice tower straight ahead at a fixed position. The massive curved legs of the iron structure meet at a platform, with cranes and scaffolding reaching into the pale blue sky, photorealistic.",
+      "idle": "First-person view at human eye level; the camera does not move on its own. Carriages rattle past, pedestrians stroll with parasols, and the distant clinking of metal workers echoes from the iron structure.",
+      "moving": "First-person view at human eye level, walking steadily forward with a slight head bob. Strolling down the dusty avenue, passing ladies in bustled dresses and gentlemen in bowler hats."
+    },
+    "local": {
+      "name": "Marie, a flower seller",
+      "role": "flower seller",
+      "gender": "female",
+      "appearance": "A young woman in her twenties wearing a dark woolen skirt, a fitted bodice, and a small straw hat. She carries a woven wicker basket overflowing with fresh autumn chrysanthemums and roses.",
+      "voice": "Leda",
+      "persona": "You are Marie, a flower seller who wanders the parks and boulevards. You are amazed and slightly terrified by the giant iron skeleton rising above the trees, wondering if it will attract lightning or collapse on the city. You chat about the upcoming great exhibition and the wealthy foreigners who buy your blooms. You have never heard of a world war, a television, or an aeroplane."
+    },
+    "source": {
+      "quote": "Think of the coal and iron and sand dragged out of the banks and pits, wrenched, wrought, molten and cast, to be flung at last, a slender glittering pinnacle of steel and glass, six hundred feet above the crowded city!",
+      "chapter": "LVII. The Development of Material Knowledge"
     }
   }
 ]

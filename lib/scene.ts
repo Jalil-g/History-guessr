@@ -6,7 +6,8 @@
  *  - `answer`       hidden until the guess; used for scoring (lib/scoring.ts) and the reveal
  *  - `imagePrompt`  painted offline into public/scenes/<id>.png (scripts/generate-images.ts)
  *  - `worldPrompt`  LingBot World 2 prompt layers for the Reactor live world
- *  - `local`        persona + voice for the Gemini Live voice chat
+ *  - `local`        an ordinary worker/vendor: name, role, gender, appearance (portrait for the
+ *                   Reactor talking avatar), persona + voice for the Gemini Live voice chat
  *  - `source`       chapter + verbatim quote from the book, shown on the reveal
  *
  * Rules: nothing a player sees before guessing (imagePrompt rendering, worldPrompt, persona speech)
@@ -41,7 +42,17 @@ export type Scene = {
   };
   /** The local the player talks to by voice. */
   local: {
+    /** "<first name>, a <role>", e.g. "Neferu, a work-gang foreman". */
     name: string;
+    /** Short everyday occupation fitting place/period, e.g. "stonemason", "spice merchant". */
+    role: string;
+    /** For voice selection. */
+    gender: "male" | "female";
+    /**
+     * 1–2 sentences for a half-body portrait (talking avatar): age, face, period clothing/headwear,
+     * tools of the trade. No text or insignia naming the place.
+     */
+    appearance: string;
     /** Gemini Live prebuilt voice name, e.g. "Charon", "Leda", "Puck", "Orus", "Kore". */
     voice: string;
     /** In-character system prompt: who they are, period details, what they know. */

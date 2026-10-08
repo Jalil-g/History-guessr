@@ -17,7 +17,9 @@
 
 export const MODELS = {
   /** Gemini text model used offline to extract scenes from the history book. */
-  sceneText: "gemini-3.1-pro",
+  sceneText: "gemini-3.1-pro-preview",
+  /** Tried in order if MODELS.sceneText errors (e.g. unknown model id). */
+  sceneTextFallbacks: ["gemini-2.5-pro"],
   /** Gemini image model (Nano Banana 2) used offline to paint each scene's first frame. */
   sceneImage: "gemini-3.1-flash-image",
   /** Gemini Live model for the voice conversation with a local. */
@@ -64,6 +66,17 @@ export const MAP = {
   guessColor: "#f59e0b",
   answerColor: "#22c55e",
   lineColor: "#fde68a",
+} as const;
+
+export const EXTRACT = {
+  /** Scenes requested per Gemini call (smaller batches = more reliable structured output). */
+  batchSize: 5,
+  /** Extra attempts to repair a scene whose quote is not verbatim in the book. */
+  quoteRepairAttempts: 2,
+  /** Max characters for worldPrompt.base (LingBot World 2 prompt budget). */
+  worldPromptMaxChars: 600,
+  /** Sampling temperature for scene extraction. */
+  temperature: 0.4,
 } as const;
 
 export const REACTOR = {
