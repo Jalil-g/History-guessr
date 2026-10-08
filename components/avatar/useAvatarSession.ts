@@ -8,10 +8,15 @@
  *
  * Flow:
  *   mount → fetchAvatarToken (JWT scoped to MODELS.reactorAvatar) → new ViduS2AvatarModel().connect()
- *   → wait for status "ready" → phase "preparing":
- *        cached avatar_id for this scene in localStorage → attachAvatar (AVATAR_NOT_FOUND → recreate)
- *        else fetch localPortraitUrl(id) → uploadFile → createAvatar({ image: FileRef, name })
- *   → session_state "avatar_ready" (avatar_id cached for 90 days) → phase "ready" (UI: "Talk to <name>")
+ *   → wait for status "ready" → phase "preparing", trying avatar sources in order of preference:
+ *        1. prebuilt avatar_id from data/avatars.json (lib/avatars.ts, skipped when older than
+ *           AVATAR.prebuiltMaxAgeDays) → attachAvatar — a few seconds instead of ~40 s;
+ *        2. cached avatar_id for this scene in localStorage → attachAvatar;
+ *        3. fetch localPortraitUrl(id) → uploadFile → createAvatar({ image: FileRef, name }) (~40 s).
+ *      AVATAR_NOT_FOUND or any attach failure falls through to the next source (a stale localStorage
+ *      id is cleared); a freshly created id is cached in localStorage. The source used and the time
+ *      from connect / prepare start to avatar_ready are logged ("avatar.ready").
+ *   → session_state "avatar_ready" → phase "ready" (UI: "Talk to <name>")
  *   → startTalk(): getUserMedia(mic) → publishMic → listVoices → pick a gender-matched voice →
  *     startCall({ persona: buildLocalInstruction(scene), greeting, voice, language, call_mode: "audio",
  *     transcripts: true, llm }) → server phases starting / warming_up → "live": the character arrives
@@ -37,6 +42,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ViduS2AvatarModel } from "@reactor-models/vidu-s2-avatar";
 import type { ViduS2AvatarStartCallParams } from "@reactor-models/vidu-s2-avatar";
+import { getPrebuiltAvatarId } from "@/lib/avatars";
 import { AVATAR, MODELS, REACTOR, localPortraitUrl } from "@/lib/config";
 import { log, logGenAI } from "@/lib/log";
 import { buildLocalInstruction } from "@/lib/persona";
@@ -195,6 +201,13 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
     modelRef.current = model;
     const offs: Array<() => void> = [];
     let prepTimer: ReturnType<typeof setTimeout> | undefined;
+    /** Avatar ids still to try with attachAvatar, in order of preference (prebuilt, then cached). */
+    const candidates: Array<{ source: "prebuilt" | "cache"; id: string }> = [];
+    /** The avatar source currently being prepared. */
+    let source: "prebuilt" | "cache" | "create" | null = null;
+    const connectStartedAt = Date.now();
+    let prepStartedAt = 0;
+    let readyLogged = false;
     setPhase("connecting");
     setError(null);
     setNotice(null);
@@ -210,6 +223,38 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
       disposed = true;
       modelRef.current = null;
       teardown(model, false);
+    };
+
+    /** (Re)starts the prepare timeout for the current avatar source. */
+    const armPrepTimer = () => {
+      log.info("avatar.armPrepTimer", { sceneId: scene.id, source, ms: AVATAR.prepareTimeoutMs });
+      clearTimeout(prepTimer);
+      prepTimer = setTimeout(() => {
+        if (phaseRef.current === "preparing") fallback("AVATAR_TIMEOUT");
+      }, AVATAR.prepareTimeoutMs);
+    };
+
+    /**
+     * Tries the next avatar source: attach the next candidate id, else create from the portrait.
+     * Attach errors (thrown here, or AVATAR_NOT_FOUND via command_error) call this again.
+     */
+    const prepareNext = async (): Promise<void> => {
+      if (disposed) return;
+      const next = candidates.shift();
+      source = next?.source ?? "create";
+      prepStartedAt = Date.now();
+      log.info("avatar.prepareNext", { sceneId: scene.id, source, avatarId: next?.id, remaining: candidates.length });
+      armPrepTimer();
+      if (!next) return createFromPortrait();
+      const req = { model: MODELS.reactorAvatar, command: "attach_avatar", avatar_id: next.id, source: next.source };
+      try {
+        const res = await model.attachAvatar({ avatar_id: next.id });
+        logGenAI("reactor.avatar.attachAvatar", req, res ?? { ok: true });
+      } catch (e) {
+        logGenAI("reactor.avatar.attachAvatar", req, { error: String(e) });
+        if (next.source === "cache") clearCachedAvatarId(scene.id);
+        return prepareNext();
+      }
     };
 
     /** Uploads the portrait and creates a new avatar from it. */
@@ -242,7 +287,14 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
             break;
           case "avatar_ready":
             clearTimeout(prepTimer);
-            if (s.avatar_id) writeCachedAvatarId(scene.id, s.avatar_id);
+            if (!readyLogged) {
+              readyLogged = true;
+              log.info("avatar.ready", {
+                sceneId: scene.id, source, avatar_id: s.avatar_id,
+                msFromConnect: Date.now() - connectStartedAt, msFromPrepare: prepStartedAt ? Date.now() - prepStartedAt : null,
+              });
+            }
+            if (s.avatar_id && source !== "prebuilt") writeCachedAvatarId(scene.id, s.avatar_id);
             if (phaseRef.current !== "ready") lastActivityRef.current = Date.now();
             setPhase("ready");
             break;
@@ -273,9 +325,10 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
       model.onCommandError((e) => {
         log.warn("avatar.command_error", e);
         if (disposed) return;
-        if (e.code === "AVATAR_NOT_FOUND") {
-          clearCachedAvatarId(scene.id);
-          void createFromPortrait().catch((err: unknown) => fallback("AVATAR_FAILED", String(err)));
+        // A stale / failing attach falls through to the next source (cache, then createAvatar).
+        if (e.code === "AVATAR_NOT_FOUND" || ((source === "prebuilt" || source === "cache") && phaseRef.current === "preparing")) {
+          if (source === "cache") clearCachedAvatarId(scene.id);
+          void prepareNext().catch((err: unknown) => fallback("AVATAR_FAILED", String(err)));
           return;
         }
         if (phaseRef.current === "preparing" || phaseRef.current === "connecting") return fallback(e.code, e.reason);
@@ -318,18 +371,12 @@ export function useAvatarSession(scene: Scene, enabled: boolean) {
       }
       if (disposed) return;
       setPhase("preparing");
-      prepTimer = setTimeout(() => {
-        if (phaseRef.current === "preparing") fallback("AVATAR_TIMEOUT");
-      }, AVATAR.prepareTimeoutMs);
+      const prebuiltId = getPrebuiltAvatarId(scene.id);
+      const cachedId = readCachedAvatarId(scene.id);
+      if (prebuiltId) candidates.push({ source: "prebuilt", id: prebuiltId });
+      if (cachedId && cachedId !== prebuiltId) candidates.push({ source: "cache", id: cachedId });
       try {
-        const cachedId = readCachedAvatarId(scene.id);
-        if (cachedId) {
-          const req = { model: MODELS.reactorAvatar, command: "attach_avatar", avatar_id: cachedId };
-          const res = await model.attachAvatar({ avatar_id: cachedId });
-          logGenAI("reactor.avatar.attachAvatar", req, res ?? { ok: true });
-        } else {
-          await createFromPortrait();
-        }
+        await prepareNext();
       } catch (e) {
         fallback("AVATAR_FAILED", String(e));
       }
