@@ -80,7 +80,8 @@ Mock mode shows the still image.
   | lingbot-world-2 1.0.1 | ✅ set_image | ✅ hot-swap | ✅ long + lat axes | ✅ yaw/pitch + speed | **In picker (default).** chunk_complete with action + frames |
   | lingbot 1.0.1 | ✅ set_image | ✅ hot-swap | ✅ single `set_movement` | ✅ yaw/pitch + speed | **In picker.** Smoke test OK (live video, W/←/D accepted). Emits 24 frames/chunk, so the look clamp hits ±100° after ~1 chunk of turning — tune `REACTOR.lookFramesPerChunk` if needed |
   | happy-oyster 1.0.1 (Adventure) | ✅ first frame ≤2 MB, 1.5–2.0 ratio | ✅ at createWorld only | ✅ held 8-way | ✅ held 8-way, no progress events | Adapter built (walk only, look off since the clamp can't track it; PNG >2 MB re-encoded to JPEG). **Hidden from picker**: smoke test got `429 no available servers` on every attempt. ~2 min travel cap |
-  | helios, visko-orbis-dynamic/-stable | ✅ | ✅ | ❌ | ❌ | image-to-video, no camera control |
+  | visko-orbis-stable 2.3.0 | ✅ set_image | ✅ hot-swap | ❌ | ❌ | **In picker as "Orbis Stable"** — watch-only cinematic mode with ambient audio: fixed camera, HUD hides key hints + heading indicator, idle disconnect skipped (hard cap still applies). Runs stop at the deployment's `max_chunks` |
+  | helios, visko-orbis-dynamic | ✅ | ✅ | ❌ | ❌ | image-to-video, no camera control |
   | longlive-v2, sana-streaming, ltx2 | ❌ | ✅ | ❌ | ❌ | text/webcam/avatar video |
   | x2 | ref image | ✅ | ❌ (pointer) | ❌ | pointer-steered |
   | fast-h3, h3-reference-to-video-turbo-realtime | clip queue | ✅ | ❌ | ❌ | clip generator ("move" = queue reorder) |
