@@ -135,12 +135,19 @@ export const IMAGES = {
   /** Base backoff in ms; doubles each retry (2s, 4s, 8s) plus jitter. */
   backoffMs: 2000,
   /**
-   * Appended to every scene.imagePrompt: shop signs and inscriptions leak the place/language, so the
-   * image model is told explicitly that nothing in the frame may carry writing.
+   * Any trailing style sentence a scene's imagePrompt still carries is cut from the first match of
+   * this pattern onward before IMAGE_STYLE is appended (keeps older prompts consistent).
    */
-  promptSuffix:
-    " Absolutely no readable text anywhere: no signs, shop signs, banners with writing, inscriptions, letters, numbers, labels, captions or watermarks; any signboards are blank or pictorial only.",
+  styleStripPattern: /\s*(Photorealistic|Photo-realistic|Cinematic film still)\b[\s\S]*$/i,
 } as const;
+
+/**
+ * ONE shared visual style for every scene's first frame. scripts/generate-images.ts always appends it
+ * to scene.imagePrompt (which is content-only), so all scenes share camera, light and colour grade.
+ * The no-text clause also blocks shop signs, which leaked the place/language in testing.
+ */
+export const IMAGE_STYLE =
+  "Photorealistic cinematic film still, first-person view from human eye level as if the viewer is standing in the scene, camera about 1.7 m above flat ground with the horizon at eye level, never an aerial, high or elevated vantage, 35mm lens, warm natural late-afternoon light, consistent subtle warm film color grade, high detail, wide 16:9 frame. No text, letters, signs with writing, captions, logos or watermarks anywhere; any signboards are blank.";
 
 export const PATHS = {
   /** Source book (plain text). */

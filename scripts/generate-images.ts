@@ -16,9 +16,12 @@
  *
  * Image requirements (enforced by the prompts the extractor writes, verified by eye afterwards):
  * first-person view at eye level, photorealistic, 16:9, and NO visible text, letters, captions or
- * watermarks — text in the frame could leak the answer and confuses the world model. IMAGES.promptSuffix
- * (lib/config.ts) is appended to every prompt to reinforce the no-text rule (shop signs were the
- * most common leak in testing).
+ * watermarks — text in the frame could leak the answer and confuses the world model.
+ *
+ * Style lock: scene.imagePrompt is content-only (what is in the scene). This script strips any trailing
+ * style sentence a prompt still carries (IMAGES.styleStripPattern) and ALWAYS appends the single shared
+ * IMAGE_STYLE from lib/config.ts (eye-level first person, 35mm, warm late-afternoon light, one film
+ * grade, no text or signs with writing), so every image in the set looks like the same film.
  *
  * Usage (Node 24 runs .ts directly; the key comes from .env.local and is never logged):
  *   node --env-file=.env.local scripts/generate-images.ts                 # all missing images
@@ -45,7 +48,7 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { GoogleGenAI } from "@google/genai";
-import { MODELS, IMAGES, PATHS } from "../lib/config.ts";
+import { MODELS, IMAGES, IMAGE_STYLE, PATHS } from "../lib/config.ts";
 import { log, logGenAI } from "../lib/log.ts";
 import type { Scene } from "../lib/scene.ts";
 
@@ -135,6 +138,18 @@ function isModelNotFound(err: unknown): boolean {
 }
 
 /**
+ * Builds the final image prompt: the scene's content-only description with any trailing style
+ * sentence stripped (IMAGES.styleStripPattern), followed by the shared IMAGE_STYLE.
+ * @param imagePrompt scene.imagePrompt from scenes.json
+ * @returns the prompt sent to the image model
+ */
+function buildPrompt(imagePrompt: string): string {
+  log.info("buildPrompt", { imagePrompt });
+  const content = imagePrompt.replace(IMAGES.styleStripPattern, "").trim();
+  return `${content}${/[.!?]$/.test(content) ? "" : "."} ${IMAGE_STYLE}`;
+}
+
+/**
  * Calls the Gemini image model once for one scene and returns the PNG bytes.
  * Logs the full request and (stripped) response via logGenAI.
  * @param ai GoogleGenAI client
@@ -145,7 +160,7 @@ async function callImageModel(ai: GoogleGenAI, scene: Scene): Promise<{ bytes: B
   log.info("callImageModel", { id: scene.id, model: activeModel });
   const request = {
     model: activeModel,
-    contents: scene.imagePrompt + IMAGES.promptSuffix,
+    contents: buildPrompt(scene.imagePrompt),
     config: { responseModalities: ["IMAGE"], imageConfig: { aspectRatio: IMAGES.aspectRatio } },
   };
   let response;

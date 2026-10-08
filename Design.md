@@ -47,8 +47,9 @@ Output: `data/scenes.json` (20 scenes; `giza-pyramids` is the hand-written seed 
 ## Scene images ✅
 `scripts/generate-images.ts` — Gemini image model (`MODELS.sceneImage`, auto-fallback to
 `MODELS.sceneImageFallback`) paints each scene's first frame (16:9, first-person, photorealistic, no
-text) to `public/scenes/<id>.png`. `IMAGES.promptSuffix` is appended to every prompt to forbid signs
-and lettering (shop signs leaked the language in testing). The API returns JPEG, so output is converted
+text) to `public/scenes/<id>.png`. Style lock: `imagePrompt` is content-only; the script strips any
+trailing style sentence and always appends the shared `IMAGE_STYLE` (eye-level first person, 35mm, warm
+late-afternoon light, one film grade, no text or signs with writing) so the whole set is consistent. The API returns JPEG, so output is converted
 to real PNG with macOS `sips`. Skips existing files unless `--force`; positional args pick scene ids;
 `--scenes <path>` reads another scenes file; `IMAGES.concurrency` in parallel; 429/5xx retried
 `IMAGES.retries` times with exponential backoff; exits non-zero if any scene fails. Images are reviewed
