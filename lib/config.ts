@@ -32,6 +32,8 @@ export const MODELS = {
   reactorWorld: "reactor/lingbot-world-2",
   /** Alternative world model: LingBot v1 (single movement axis, same look + chunk events). */
   reactorWorldLingbot: "reactor/lingbot",
+  /** Alternative world model: HappyOyster Adventure (first person, walk only — no chunk events for the look clamp). */
+  reactorWorldHappyOyster: "reactor/happy-oyster-adventure",
   /** Reactor talking-avatar model the local is rendered with (right side panel). */
   reactorAvatar: "reactor/vidu-s2-avatar",
 } as const;
@@ -40,7 +42,7 @@ export const MODELS = {
  * Reactor models a browser JWT minted by /api/reactor/token may be scoped to (`?model=` query param).
  * Anything else is rejected with 400, so a client cannot mint tokens for arbitrary paid models.
  */
-export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar, MODELS.reactorWorldLingbot];
+export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar, MODELS.reactorWorldLingbot, MODELS.reactorWorldHappyOyster];
 
 /** World-model picker (lib/world-models.ts registry, intro screen, WorldView adapters). */
 export const WORLD = {
@@ -48,6 +50,12 @@ export const WORLD = {
   defaultModelId: "lingbot-world-2",
   /** localStorage key under which the intro screen remembers the picked world model. */
   storageKey: "hg.worldModel",
+  /** HappyOyster first-frame byte limit (larger scene PNGs are re-encoded as JPEG in the browser). */
+  happyOysterMaxImageBytes: 2 * 1024 * 1024,
+  /** JPEG quality used for that re-encode. */
+  happyOysterJpegQuality: 0.9,
+  /** HappyOyster createWorld prompt limit, in characters. */
+  happyOysterMaxPromptChars: 2000,
 } as const;
 
 export const GAME = {
