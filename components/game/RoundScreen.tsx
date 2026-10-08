@@ -22,7 +22,8 @@
  * Cost safety: WorldView and the LocalPanel content hold paid sessions. They live only inside this
  * component, so when the player submits, Game switches phase, this screen unmounts and both sessions
  * close. Hiding the UI only fades the overlays — nothing is unmounted. If the world ends on its own
- * (time cap / idle / error) a "vision fades" line nudges the player to guess.
+ * (time cap / idle / error) a "vision fades" line nudges the player to guess; if the player reopens the
+ * portal (WorldView's capped reconnect) and it goes live again, `onResumed` hides that line.
  *
  * Never shows the scene title, place or year.
  */
@@ -69,6 +70,12 @@ export function RoundScreen({ scene, roundIndex, totalRounds, totalScore, onSubm
     setEndedReason(reason);
   }, []);
 
+  /** Hides the "vision fades" line when a reconnected world goes live again. */
+  const handleResumed = useCallback(() => {
+    log.info("RoundScreen.handleResumed", {});
+    setEndedReason(null);
+  }, []);
+
   /** Submits the guess if a pin has been placed. */
   function handleSubmit() {
     log.info("RoundScreen.handleSubmit", { pin, year });
@@ -105,7 +112,7 @@ export function RoundScreen({ scene, roundIndex, totalRounds, totalScore, onSubm
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-black">
       <div className="hg-world absolute inset-0">
-        <WorldView scene={scene} onEnded={handleEnded} />
+        <WorldView scene={scene} onEnded={handleEnded} onResumed={handleResumed} />
       </div>
       <div className={`hg-vignette pointer-events-none absolute inset-0 transition-opacity duration-500 ${uiHidden ? "opacity-0" : ""}`} />
 
