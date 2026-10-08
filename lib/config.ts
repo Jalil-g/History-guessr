@@ -34,6 +34,8 @@ export const MODELS = {
   reactorWorldLingbot: "reactor/lingbot",
   /** Alternative world model: HappyOyster Adventure (first person, walk only — no chunk events for the look clamp). */
   reactorWorldHappyOyster: "reactor/happy-oyster-adventure",
+  /** Visko Orbis Stable: image + prompt → living scene with ambient audio; fixed camera (no walk/look). */
+  reactorWorldOrbisStable: "reactor/visko-orbis-stable",
   /** Reactor talking-avatar model the local is rendered with (right side panel). */
   reactorAvatar: "reactor/vidu-s2-avatar",
 } as const;
@@ -42,7 +44,7 @@ export const MODELS = {
  * Reactor models a browser JWT minted by /api/reactor/token may be scoped to (`?model=` query param).
  * Anything else is rejected with 400, so a client cannot mint tokens for arbitrary paid models.
  */
-export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar, MODELS.reactorWorldLingbot, MODELS.reactorWorldHappyOyster];
+export const REACTOR_TOKEN_MODELS: readonly string[] = [MODELS.reactorWorld, MODELS.reactorAvatar, MODELS.reactorWorldLingbot, MODELS.reactorWorldHappyOyster, MODELS.reactorWorldOrbisStable];
 
 /** World-model picker (lib/world-models.ts registry, intro screen, WorldView adapters). */
 export const WORLD = {

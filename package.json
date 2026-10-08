@@ -15,6 +15,7 @@
     "@reactor-models/lingbot": "1.0.1",
     "@reactor-models/lingbot-world-2": "1.0.1",
     "@reactor-models/vidu-s2-avatar": "0.5.0",
+    "@reactor-models/visko-orbis-stable": "2.3.0",
     "@reactor-team/js-sdk": "3.1.0",
     "leaflet": "1.9.4",
     "next": "15.5.9",
