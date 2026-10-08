@@ -79,7 +79,7 @@ Rules:
 ## Git workflow (two humans + a merge agent)
 
 - **`main` must always build.** Nobody commits or pushes to `main` directly — only the merge agent
-  merges into it, via squash-merged PRs.
+  merges into it, via rebase-merged PRs (every commit is kept on `main`).
 - **Branch per task**: `<initials>/<short-topic>` from fresh `main`, e.g. `jj/extract-scenes`.
   Keep branches small and short-lived (≤ 30–40 min of work).
 - **Several Claude sessions on one machine → git worktrees**, one per branch:
