@@ -5,7 +5,7 @@ dropped into a **walkable, AI-generated historical scene**, talks to a local by 
 **where** (map pin) and **when** (year). Scenes are extracted from a real history book so they are
 historically grounded and citable. ~20 scenes.
 
-`Design.md` is the feature list — keep it current. Fresh start: the app is not scaffolded yet.
+`Design.md` is the feature list — keep it current.
 
 ## Stack (planned)
 
@@ -47,7 +47,7 @@ Game  intro → round (world + voice + guess) → reveal (score + book citation)
 ```
 
 Scene shape (`lib/scene.ts`): `id`, `answer { place, lat, lng, year }`, `reveal`, `imagePrompt`,
-`worldPrompt`, `local { name, voice, persona }`, `source { chapter, quote }`.
+`worldPrompt { base, idle, moving }`, `title`, `local { name, voice, persona }`, `source { chapter, quote }`.
 
 Rules:
 - **Everything slow or paid is generated offline** (scene text, images) and committed. At runtime the

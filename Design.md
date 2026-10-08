@@ -11,8 +11,11 @@ model calls; strips inline base64 data and redacts secret-looking keys.
 `data/short-history-of-the-world.txt` — H.G. Wells, *A Short History of the World* (1922), Project
 Gutenberg #35461, public domain. 67 chapters from prehistory to 1920.
 
-## App scaffold 📋
-Next.js + React 19 + TypeScript + Tailwind, `lib/config.ts` for every model name and knob.
+## App scaffold ✅
+Next.js 15 + React 19 + TypeScript + Tailwind 4. `lib/config.ts` holds every model name and knob;
+`lib/scene.ts` is the scene contract; `lib/scenes.ts` loads `data/scenes.json` (2 sample scenes until
+extraction runs). `components/world/WorldView.tsx`, `components/voice/VoiceChat.tsx` and
+`components/game/Game.tsx` are placeholders with fixed props that the feature PRs replace.
 
 ## Book-grounded scene extraction 📋
 `scripts/extract-scenes.ts` — Gemini reads the book and returns ~20 vivid, guessable scenes spread
