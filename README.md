@@ -2,7 +2,7 @@
 
 ## 🏆 Winner of the Reactor x Google World Models Hackathon
 
-History Guesser won the **Reactor x Google: World Models Hackathon** at Google's NYC office (October 8, 2026), a one-day build sprint for engineers, researchers and creators exploring world models. Built in a single day by Jalil and Cristian.
+History Guesser won the **Reactor x Google: World Models Hackathon** at Google's NYC office (October 8, 2026).
 
 ![Jalil and Cristian on stage at Google NYC with the winning prize](docs/win/winners.jpg)
 
