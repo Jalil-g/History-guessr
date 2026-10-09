@@ -1,8 +1,18 @@
 # History Guesser
 
-**Step into a live, AI-generated moment in history, video call a local for clues, and guess where and when you are.**
+## 🏆 Winner of the Reactor x Google World Models Hackathon
 
-Built in one day at the **World Models Hackathon** (Reactor × Google, Google NYC) by Jalil and Cristian.
+History Guesser won the **Reactor x Google: World Models Hackathon** at Google's NYC office (October 8, 2026), a one-day build sprint for engineers, researchers and creators exploring world models. Built in a single day by Jalil and Cristian.
+
+![Jalil and Cristian on stage at Google NYC with the winning prize](docs/win/winners.jpg)
+
+| | |
+|---|---|
+| ![On stage at Google with the prize](docs/win/stage.jpg) | ![Celebrating the win](docs/win/celebrate.jpg) |
+
+---
+
+**Step into a live, AI-generated moment in history, video call a local for clues, and guess where and when you are.**
 
 ![A live round: Edo (Tokyo), with O-Haru the tea-house waitress on a video call](docs/screenshots/round-live.jpg)
 
